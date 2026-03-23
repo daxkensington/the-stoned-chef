@@ -7,10 +7,16 @@ import { useCart } from "@/contexts/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MapPin, Clock, Phone, Star, ChevronRight, Flame } from "lucide-react";
+import { Plus, MapPin, Clock, Phone, Star, ChevronRight, Flame, Ban } from "lucide-react";
 import { toast } from "sonner";
 import { DailySpecials } from "@/components/DailySpecials";
 import Gallery from "@/components/Gallery";
+import { OpenStatus } from "@/components/OpenStatus";
+import { EmailCapture } from "@/components/EmailCapture";
+import { OrderHistory } from "@/components/OrderHistory";
+import { PunchCard } from "@/components/PunchCard";
+import { trpc } from "@/lib/trpc";
+import { motion } from "framer-motion";
 
 const TRUCK_HERO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png";
@@ -34,6 +40,7 @@ export default function Home() {
   const { addItem, totalItems, totalCents } = useCart();
   const router = useRouter();
 
+  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery();
   const activeMenu = MENU_CATEGORIES.find((c) => c.id === activeCategory);
 
   const handleAddItem = (item: {
@@ -78,16 +85,8 @@ export default function Home() {
           style={{ minHeight: "85vh", paddingTop: "2rem", paddingBottom: "4rem" }}
         >
           <div className="max-w-xl">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6"
-              style={{
-                background: "oklch(0.62 0.22 38 / 0.20)",
-                color: "oklch(0.90 0.16 50)",
-                border: "1px solid oklch(0.62 0.22 38 / 0.45)",
-              }}
-            >
-              <Flame className="w-3 h-3" />
-              Open Thu – Sun · 11am – 7pm
+            <div className="mb-6">
+              <OpenStatus />
             </div>
 
             <h1
@@ -352,10 +351,15 @@ export default function Home() {
 
           {activeMenu && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {activeMenu.items.map((item) => (
-                <div
+              {activeMenu.items.map((item, idx) => {
+                const isSoldOut = soldOutIds.includes(item.id);
+                return (
+                <motion.div
                   key={item.id}
-                  className="rounded-2xl overflow-hidden flex flex-col transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  className={`rounded-2xl overflow-hidden flex flex-col transition-all hover:-translate-y-0.5 hover:shadow-lg ${isSoldOut ? "opacity-60" : ""}`}
                   style={{
                     background: "var(--color-card)",
                     border: "1px solid var(--color-border)",
@@ -371,7 +375,15 @@ export default function Home() {
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                         loading="lazy"
                       />
-                      {item.popular && (
+                      {isSoldOut && (
+                        <div
+                          className="absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1"
+                          style={{ background: "oklch(0.25 0.02 30 / 0.90)", color: "oklch(0.75 0.04 60)", backdropFilter: "blur(4px)" }}
+                        >
+                          <Ban className="w-3 h-3" /> Sold Out
+                        </div>
+                      )}
+                      {item.popular && !isSoldOut && (
                         <div
                           className="absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full font-bold"
                           style={{
@@ -422,27 +434,45 @@ export default function Home() {
                         ${(item.priceCents / 100).toFixed(2)}
                       </span>
                       <button
-                        onClick={() => handleAddItem(item)}
-                        aria-label={`Add ${item.name} to cart — $${(item.priceCents / 100).toFixed(2)}`}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95"
+                        onClick={() => !isSoldOut && handleAddItem(item)}
+                        disabled={isSoldOut}
+                        aria-label={isSoldOut ? `${item.name} is sold out` : `Add ${item.name} to cart — $${(item.priceCents / 100).toFixed(2)}`}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         style={{
-                          background:
-                            "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.68 0.22 45) 100%)",
+                          background: isSoldOut
+                            ? "oklch(0.30 0.02 30)"
+                            : "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.68 0.22 45) 100%)",
                           color: "white",
-                          boxShadow: "0 2px 8px oklch(0.58 0.24 30 / 0.35)",
+                          boxShadow: isSoldOut ? "none" : "0 2px 8px oklch(0.58 0.24 30 / 0.35)",
                         }}
                       >
-                        <Plus className="w-4 h-4" />
-                        Add
+                        {isSoldOut ? (
+                          <>
+                            <Ban className="w-4 h-4" />
+                            Sold Out
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4" />
+                            Add
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                </motion.div>
+                );
+              })}
             </div>
           )}
         </div>
       </section>
+
+      {/* ORDER AGAIN */}
+      <OrderHistory />
+
+      {/* PUNCH CARD */}
+      <PunchCard />
 
       <DailySpecials />
       <Gallery />
@@ -570,6 +600,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* EMAIL CAPTURE */}
+      <EmailCapture />
 
       {/* FOOTER */}
       <footer

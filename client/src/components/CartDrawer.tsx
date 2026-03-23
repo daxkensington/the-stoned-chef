@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ComboSuggestion } from "@/components/ComboSuggestion";
 
 interface CartDrawerProps {
   open: boolean;
@@ -96,6 +97,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="px-6 py-2">
+              <ComboSuggestion />
             </div>
 
             <div className="px-6 py-5 border-t border-border space-y-4">

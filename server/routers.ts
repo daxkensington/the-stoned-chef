@@ -9,8 +9,22 @@ import {
   updateSpecial,
   deleteSpecial,
   getAdminByUsername,
+  updateOrderStatus,
+  listRecentOrders,
+  getPendingOrderCount,
+  getDailySalesStats,
+  getSoldOutItems,
+  setSoldOut,
+  removeSoldOut,
+  addEmailSubscriber,
+  getSubscriberCount,
 } from "./db";
 import { createSquareOrder } from "./square";
+import {
+  sendOrderNotificationToOwner,
+  sendOrderConfirmationToCustomer,
+  sendOrderReadyNotification,
+} from "./email";
 import { nanoid } from "nanoid";
 import { verifyPassword, signJWT, getSessionCookie } from "./_core/auth";
 import { COOKIE_NAME } from "@shared/const";
@@ -21,6 +35,7 @@ const cartItemSchema = z.object({
   category: z.string(),
   priceCents: z.number().int().positive(),
   quantity: z.number().int().positive(),
+  customizations: z.string().optional(),
 });
 
 export const appRouter = router({
@@ -61,7 +76,6 @@ export const appRouter = router({
 
   specials: router({
     list: publicProcedure.query(() => listActiveSpecials()),
-
     listAll: adminProcedure.query(() => listAllSpecials()),
 
     create: adminProcedure
@@ -126,6 +140,7 @@ export const appRouter = router({
         z.object({
           customerName: z.string().min(1).max(128),
           customerPhone: z.string().min(7).max(32),
+          customerEmail: z.string().email().max(320).optional(),
           pickupTime: z.string().min(1).max(64),
           notes: z.string().max(500).optional(),
           items: z.array(cartItemSchema).min(1),
@@ -139,7 +154,7 @@ export const appRouter = router({
         );
 
         const squareLineItems = input.items.map((item) => ({
-          name: item.name,
+          name: item.customizations ? `${item.name} (${item.customizations})` : item.name,
           quantity: String(item.quantity),
           base_price_money: { amount: item.priceCents, currency: "CAD" },
         }));
@@ -164,6 +179,7 @@ export const appRouter = router({
             orderNumber,
             customerName: input.customerName,
             customerPhone: input.customerPhone,
+            customerEmail: input.customerEmail ?? null,
             pickupTime: input.pickupTime,
             totalCents,
             status: "pending",
@@ -171,13 +187,40 @@ export const appRouter = router({
             notes: input.notes ?? null,
           },
           input.items.map((item) => ({
-            orderId: 0, // set by createOrder
-            itemName: item.name,
+            orderId: 0,
+            itemName: item.customizations ? `${item.name} (${item.customizations})` : item.name,
             itemCategory: item.category,
             priceCents: item.priceCents,
             quantity: item.quantity,
           }))
         );
+
+        // Send emails (fire and forget)
+        const emailItems = input.items.map((i) => ({
+          name: i.customizations ? `${i.name} (${i.customizations})` : i.name,
+          quantity: i.quantity,
+          priceCents: i.priceCents,
+        }));
+
+        sendOrderNotificationToOwner({
+          orderNumber,
+          customerName: input.customerName,
+          customerPhone: input.customerPhone,
+          pickupTime: input.pickupTime,
+          totalCents,
+          items: emailItems,
+          notes: input.notes,
+        }).catch(() => {});
+
+        if (input.customerEmail) {
+          sendOrderConfirmationToCustomer(input.customerEmail, {
+            orderNumber,
+            customerName: input.customerName,
+            pickupTime: input.pickupTime,
+            totalCents,
+            items: emailItems,
+          }).catch(() => {});
+        }
 
         return {
           orderNumber: order.orderNumber,
@@ -194,6 +237,77 @@ export const appRouter = router({
         const result = await getOrderByNumber(input.orderNumber);
         if (!result) return null;
         return { order: result.order, items: result.items };
+      }),
+
+    updateStatus: adminProcedure
+      .input(
+        z.object({
+          orderNumber: z.string(),
+          status: z.enum(["pending", "preparing", "ready", "completed", "cancelled"]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const updated = await updateOrderStatus(input.orderNumber, input.status);
+        if (!updated) return { success: false };
+
+        // If marked ready and customer has email, notify them
+        if (input.status === "ready" && updated.customerEmail) {
+          sendOrderReadyNotification(updated.customerEmail, {
+            orderNumber: updated.orderNumber,
+            customerName: updated.customerName,
+          }).catch(() => {});
+        }
+
+        return { success: true, order: updated };
+      }),
+
+    recent: adminProcedure.query(() => listRecentOrders(50)),
+
+    pendingCount: publicProcedure.query(() => getPendingOrderCount()),
+  }),
+
+  soldOut: router({
+    list: publicProcedure.query(() => getSoldOutItems()),
+
+    set: adminProcedure
+      .input(z.object({ menuItemId: z.string() }))
+      .mutation(async ({ input }) => {
+        await setSoldOut(input.menuItemId);
+        return { success: true };
+      }),
+
+    remove: adminProcedure
+      .input(z.object({ menuItemId: z.string() }))
+      .mutation(async ({ input }) => {
+        await removeSoldOut(input.menuItemId);
+        return { success: true };
+      }),
+  }),
+
+  dashboard: router({
+    stats: adminProcedure
+      .input(z.object({ daysBack: z.number().int().min(1).max(90).default(7) }).optional())
+      .query(async ({ input }) => {
+        return getDailySalesStats(input?.daysBack ?? 7);
+      }),
+
+    subscriberCount: adminProcedure.query(() => getSubscriberCount()),
+  }),
+
+  subscribers: router({
+    subscribe: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email().max(320),
+          name: z.string().max(128).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await addEmailSubscriber({
+          email: input.email,
+          name: input.name ?? null,
+        });
+        return { success: true };
       }),
   }),
 });

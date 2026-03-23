@@ -74,7 +74,7 @@ export function Navbar() {
             {isAdmin && (
               <div className="hidden sm:flex items-center gap-2">
                 <button
-                  onClick={() => router.push("/admin/specials")}
+                  onClick={() => router.push("/admin/dashboard")}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
                   style={{
                     background: "oklch(0.62 0.22 38 / 0.15)",
@@ -83,7 +83,7 @@ export function Navbar() {
                   }}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  Manage Specials
+                  Admin
                 </button>
                 <button
                   onClick={() => logoutMutation.mutate()}

@@ -9,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ShoppingBag, Clock, User, Phone, ChevronRight } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Clock, User, Phone, ChevronRight, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { ComboSuggestion } from "@/components/ComboSuggestion";
+import { saveOrderToHistory } from "@/components/OrderHistory";
+import { addPunch } from "@/components/PunchCard";
 
 function generateTimeSlots() {
   const slots: string[] = [];
@@ -35,6 +38,7 @@ export default function OrderPage() {
   const [form, setForm] = useState({
     customerName: "",
     customerPhone: "",
+    customerEmail: "",
     pickupTime: "",
     notes: "",
   });
@@ -42,6 +46,15 @@ export default function OrderPage() {
 
   const placeOrder = trpc.orders.place.useMutation({
     onSuccess: (data) => {
+      // Save to order history for reorder
+      saveOrderToHistory({
+        orderNumber: data.orderNumber,
+        items: items.map((i) => ({ id: i.id, name: i.name, category: i.category, priceCents: i.priceCents, quantity: i.quantity })),
+        totalCents: data.totalCents,
+        date: new Date().toLocaleDateString("en-CA", { month: "short", day: "numeric" }),
+      });
+      // Add loyalty punch
+      addPunch();
       clearCart();
       router.push(`/confirmation/${data.orderNumber}`);
     },
@@ -78,6 +91,7 @@ export default function OrderPage() {
     placeOrder.mutate({
       customerName: form.customerName.trim(),
       customerPhone: form.customerPhone.trim(),
+      customerEmail: form.customerEmail.trim() || undefined,
       pickupTime: form.pickupTime,
       notes: form.notes.trim() || undefined,
       items: items.map((i) => ({
@@ -168,6 +182,9 @@ export default function OrderPage() {
             </div>
           </div>
 
+          {/* Combo Suggestion */}
+          <ComboSuggestion />
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div
               className="rounded-2xl overflow-hidden"
@@ -234,6 +251,30 @@ export default function OrderPage() {
                       {errors.customerPhone}
                     </p>
                   )}
+                </div>
+
+                {/* Email (optional) */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-foreground font-semibold text-sm">
+                    Email <span className="text-muted-foreground font-normal">(for order updates)</span>
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@email.com"
+                      value={form.customerEmail}
+                      onChange={(e) => setForm((f) => ({ ...f, customerEmail: e.target.value }))}
+                      className="h-11 rounded-xl pl-9"
+                      style={{
+                        background: "var(--color-input)",
+                        border: "1px solid var(--color-border)",
+                        color: "var(--color-foreground)",
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">We&apos;ll notify you when your order is ready</p>
                 </div>
               </div>
             </div>

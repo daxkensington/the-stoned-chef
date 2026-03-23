@@ -4,7 +4,7 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2 } from "lucide-react";
+import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2, ChefHat, Package } from "lucide-react";
 
 export default function ConfirmationPage({
   params,
@@ -16,8 +16,19 @@ export default function ConfirmationPage({
 
   const { data, isLoading, error } = trpc.orders.get.useQuery(
     { orderNumber: orderNumber ?? "" },
-    { enabled: !!orderNumber }
+    {
+      enabled: !!orderNumber,
+      refetchInterval: (query) => {
+        const status = query.state.data?.order?.status;
+        if (status === "completed" || status === "cancelled") return false;
+        return 10_000; // Poll every 10s while active
+      },
+    }
   );
+
+  const { data: pendingCount } = trpc.orders.pendingCount.useQuery(undefined, {
+    refetchInterval: 30_000,
+  });
 
   if (isLoading) {
     return (
@@ -90,6 +101,51 @@ export default function ConfirmationPage({
         >
           Order #{order.orderNumber}
         </div>
+
+        {/* Live Status Tracker */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {(["pending", "preparing", "ready"] as const).map((step, i) => {
+            const steps = ["pending", "preparing", "ready"];
+            const currentIdx = steps.indexOf(order.status);
+            const stepIdx = i;
+            const isActive = stepIdx <= currentIdx;
+            const isCurrent = step === order.status;
+            const icons = { pending: Clock, preparing: ChefHat, ready: CheckCircle2 };
+            const labels = { pending: "Received", preparing: "Preparing", ready: "Ready!" };
+            const Icon = icons[step];
+
+            return (
+              <div key={step} className="flex items-center gap-2">
+                {i > 0 && (
+                  <div className="w-8 h-0.5 rounded-full" style={{ background: isActive ? "oklch(0.62 0.22 38)" : "oklch(0.28 0.02 30)" }} />
+                )}
+                <div className="flex flex-col items-center gap-1">
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${isCurrent ? "animate-pulse" : ""}`}
+                    style={{
+                      background: isActive
+                        ? step === "ready" ? "oklch(0.45 0.15 145)" : "oklch(0.62 0.22 38)"
+                        : "oklch(0.22 0.02 30)",
+                      color: isActive ? "white" : "oklch(0.50 0.04 60)",
+                    }}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-bold" style={{ color: isActive ? "oklch(0.85 0.04 60)" : "oklch(0.50 0.04 60)" }}>
+                    {labels[step]}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Estimated wait */}
+        {order.status !== "ready" && order.status !== "completed" && pendingCount != null && pendingCount > 0 && (
+          <p className="text-sm mt-4" style={{ color: "oklch(0.75 0.04 60)" }}>
+            Estimated wait: ~{Math.max(5, pendingCount * 8)} min ({pendingCount} order{pendingCount > 1 ? "s" : ""} ahead)
+          </p>
+        )}
       </div>
 
       <div className="container py-6">

@@ -1,4 +1,4 @@
-import { and, eq, or, gt, isNull } from "drizzle-orm";
+import { and, eq, or, gt, gte, lte, isNull, desc, sql, count } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import {
@@ -6,6 +6,8 @@ import {
   orders,
   orderItems,
   specials,
+  soldOutItems,
+  emailSubscribers,
   type Admin,
   type InsertOrder,
   type InsertOrderItem,
@@ -13,6 +15,7 @@ import {
   type OrderItem,
   type Special,
   type InsertSpecial,
+  type InsertEmailSubscriber,
 } from "../drizzle/schema";
 
 function getDb() {
@@ -102,4 +105,131 @@ export async function updateSpecial(id: number, data: Partial<InsertSpecial>): P
 export async function deleteSpecial(id: number): Promise<void> {
   const db = getDb();
   await db.delete(specials).where(eq(specials.id, id));
+}
+
+// ── Order Status & Management ────────────────────────────────────────────────
+
+export async function updateOrderStatus(
+  orderNumber: string,
+  status: "pending" | "preparing" | "ready" | "completed" | "cancelled"
+): Promise<Order | null> {
+  const db = getDb();
+  const [updated] = await db
+    .update(orders)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(orders.orderNumber, orderNumber))
+    .returning();
+  return updated ?? null;
+}
+
+export async function listRecentOrders(limit = 50): Promise<(Order & { items: OrderItem[] })[]> {
+  const db = getDb();
+  const recentOrders = await db
+    .select()
+    .from(orders)
+    .orderBy(desc(orders.createdAt))
+    .limit(limit);
+
+  const result: (Order & { items: OrderItem[] })[] = [];
+  for (const order of recentOrders) {
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+    result.push({ ...order, items });
+  }
+  return result;
+}
+
+export async function getPendingOrderCount(): Promise<number> {
+  const db = getDb();
+  const [result] = await db
+    .select({ value: count() })
+    .from(orders)
+    .where(
+      or(eq(orders.status, "pending"), eq(orders.status, "preparing"))
+    );
+  return result?.value ?? 0;
+}
+
+export async function getDailySalesStats(daysBack = 7) {
+  const db = getDb();
+  const since = new Date();
+  since.setDate(since.getDate() - daysBack);
+
+  const dailyOrders = await db
+    .select()
+    .from(orders)
+    .where(gte(orders.createdAt, since))
+    .orderBy(desc(orders.createdAt));
+
+  const byDay: Record<string, { orders: number; revenue: number }> = {};
+  for (const order of dailyOrders) {
+    const day = order.createdAt.toISOString().slice(0, 10);
+    if (!byDay[day]) byDay[day] = { orders: 0, revenue: 0 };
+    byDay[day].orders++;
+    byDay[day].revenue += order.totalCents;
+  }
+
+  // Popular items
+  const allItems = await db
+    .select()
+    .from(orderItems)
+    .innerJoin(orders, eq(orderItems.orderId, orders.id))
+    .where(gte(orders.createdAt, since));
+
+  const itemCounts: Record<string, number> = {};
+  for (const row of allItems) {
+    const name = row.order_items.itemName;
+    itemCounts[name] = (itemCounts[name] || 0) + row.order_items.quantity;
+  }
+
+  const popularItems = Object.entries(itemCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 10)
+    .map(([name, count]) => ({ name, count }));
+
+  return {
+    dailyStats: Object.entries(byDay).map(([date, stats]) => ({ date, ...stats })),
+    popularItems,
+    totalOrders: dailyOrders.length,
+    totalRevenue: dailyOrders.reduce((sum, o) => sum + o.totalCents, 0),
+  };
+}
+
+// ── Sold Out ─────────────────────────────────────────────────────────────────
+
+export async function getSoldOutItems(): Promise<string[]> {
+  const db = getDb();
+  const items = await db.select().from(soldOutItems);
+  return items.map((i) => i.menuItemId);
+}
+
+export async function setSoldOut(menuItemId: string): Promise<void> {
+  const db = getDb();
+  await db
+    .insert(soldOutItems)
+    .values({ menuItemId })
+    .onConflictDoNothing();
+}
+
+export async function removeSoldOut(menuItemId: string): Promise<void> {
+  const db = getDb();
+  await db.delete(soldOutItems).where(eq(soldOutItems.menuItemId, menuItemId));
+}
+
+// ── Email Subscribers ────────────────────────────────────────────────────────
+
+export async function addEmailSubscriber(data: InsertEmailSubscriber): Promise<void> {
+  const db = getDb();
+  await db
+    .insert(emailSubscribers)
+    .values(data)
+    .onConflictDoNothing();
+}
+
+export async function getSubscriberCount(): Promise<number> {
+  const db = getDb();
+  const [result] = await db
+    .select({ value: count() })
+    .from(emailSubscribers)
+    .where(eq(emailSubscribers.unsubscribed, false));
+  return result?.value ?? 0;
 }

@@ -14,7 +14,7 @@ import {
 
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
-  "confirmed",
+  "preparing",
   "ready",
   "completed",
   "cancelled",
@@ -40,6 +40,7 @@ export const orders = pgTable("orders", {
   orderNumber: varchar("order_number", { length: 32 }).notNull().unique(),
   customerName: varchar("customer_name", { length: 128 }).notNull(),
   customerPhone: varchar("customer_phone", { length: 32 }).notNull(),
+  customerEmail: varchar("customer_email", { length: 320 }),
   pickupTime: varchar("pickup_time", { length: 64 }).notNull(),
   totalCents: integer("total_cents").notNull(),
   status: orderStatusEnum("status").default("pending").notNull(),
@@ -91,3 +92,26 @@ export const specials = pgTable("specials", {
 
 export type Special = typeof specials.$inferSelect;
 export type InsertSpecial = typeof specials.$inferInsert;
+
+// ── Sold Out Items ───────────────────────────────────────────────────────────
+
+export const soldOutItems = pgTable("sold_out_items", {
+  id: serial("id").primaryKey(),
+  menuItemId: varchar("menu_item_id", { length: 64 }).notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type SoldOutItem = typeof soldOutItems.$inferSelect;
+
+// ── Email Subscribers ────────────────────────────────────────────────────────
+
+export const emailSubscribers = pgTable("email_subscribers", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: varchar("name", { length: 128 }),
+  subscribedAt: timestamp("subscribed_at", { withTimezone: true }).defaultNow().notNull(),
+  unsubscribed: boolean("unsubscribed").default(false).notNull(),
+});
+
+export type EmailSubscriber = typeof emailSubscribers.$inferSelect;
+export type InsertEmailSubscriber = typeof emailSubscribers.$inferInsert;
