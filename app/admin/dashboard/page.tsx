@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, TrendingUp, ShoppingBag, DollarSign, Users, Star, Sparkles, ClipboardList } from "lucide-react";
+import { ArrowLeft, TrendingUp, ShoppingBag, DollarSign, Users, Star, Sparkles, ClipboardList, Ban } from "lucide-react";
 
 export default function DashboardPage() {
   const { isAdmin, loading } = useAuth();
@@ -75,6 +75,10 @@ export default function DashboardPage() {
             <Button size="sm" variant="outline" onClick={() => router.push("/admin/orders")}
               style={{ background: "oklch(0.20 0.02 30)", color: "oklch(0.75 0.04 60)", border: "1px solid oklch(0.30 0.02 30)" }}>
               <ClipboardList className="w-4 h-4 mr-1" /> Orders
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => router.push("/admin/sold-out")}
+              style={{ background: "oklch(0.20 0.02 30)", color: "oklch(0.75 0.04 60)", border: "1px solid oklch(0.30 0.02 30)" }}>
+              <Ban className="w-4 h-4 mr-1" /> Stock
             </Button>
             <Button size="sm" variant="outline" onClick={() => router.push("/admin/specials")}
               style={{ background: "oklch(0.20 0.02 30)", color: "oklch(0.75 0.04 60)", border: "1px solid oklch(0.30 0.02 30)" }}>

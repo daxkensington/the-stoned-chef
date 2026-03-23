@@ -63,6 +63,9 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     <p className="font-semibold text-foreground text-sm leading-tight truncate">
                       {item.name}
                     </p>
+                    {item.customizations && (
+                      <p className="text-xs text-muted-foreground truncate">{item.customizations}</p>
+                    )}
                     <p className="text-primary font-bold text-sm mt-0.5">
                       ${((item.priceCents * item.quantity) / 100).toFixed(2)}
                     </p>

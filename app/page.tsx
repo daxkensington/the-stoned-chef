@@ -17,6 +17,10 @@ import { OrderHistory } from "@/components/OrderHistory";
 import { PunchCard } from "@/components/PunchCard";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
+import { CustomizeModal } from "@/components/CustomizeModal";
+import { hasCustomizations } from "@shared/customizations";
+import type { MenuItem } from "@shared/menu";
+import { Reviews } from "@/components/Reviews";
 
 const TRUCK_HERO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png";
@@ -39,25 +43,25 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const { addItem, totalItems, totalCents } = useCart();
   const router = useRouter();
+  const [customizeItem, setCustomizeItem] = useState<MenuItem | null>(null);
 
   const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery();
   const activeMenu = MENU_CATEGORIES.find((c) => c.id === activeCategory);
 
-  const handleAddItem = (item: {
-    id: string;
-    name: string;
-    category: string;
-    priceCents: number;
-  }) => {
-    addItem(item);
-    toast.success(`${item.name} added!`, {
-      duration: 1500,
-      style: {
-        background: "oklch(0.18 0.015 30)",
-        border: "1px solid oklch(0.62 0.22 38 / 0.5)",
-        color: "oklch(0.97 0.01 60)",
-      },
-    });
+  const handleAddItem = (item: MenuItem) => {
+    if (hasCustomizations(item.category)) {
+      setCustomizeItem(item);
+    } else {
+      addItem(item);
+      toast.success(`${item.name} added!`, {
+        duration: 1500,
+        style: {
+          background: "oklch(0.18 0.015 30)",
+          border: "1px solid oklch(0.62 0.22 38 / 0.5)",
+          color: "oklch(0.97 0.01 60)",
+        },
+      });
+    }
   };
 
   return (
@@ -477,6 +481,9 @@ export default function Home() {
       <DailySpecials />
       <Gallery />
 
+      {/* REVIEWS */}
+      <Reviews />
+
       {/* ABOUT */}
       <section
         className="py-10 border-t border-border"
@@ -598,6 +605,20 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* Google Maps */}
+          <div className="mt-6 rounded-2xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2842.5!2d-77.0474!3d44.1983!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cd41f0c7b0b0b0b%3A0x0!2s45+Dundas+St%2C+Deseronto%2C+ON!5e0!3m2!1sen!2sca!4v1"
+              width="100%"
+              height="250"
+              style={{ border: 0, filter: "invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.9)" }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="The Stoned Chef location - 45 Dundas St, Deseronto, ON"
+            />
+          </div>
         </div>
       </section>
 
@@ -663,6 +684,11 @@ export default function Home() {
       )}
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      <CustomizeModal
+        item={customizeItem}
+        open={!!customizeItem}
+        onClose={() => setCustomizeItem(null)}
+      />
     </div>
   );
 }

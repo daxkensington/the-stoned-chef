@@ -4,7 +4,8 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2, ChefHat, Package } from "lucide-react";
+import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2, ChefHat, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ConfirmationPage({
   params,
@@ -269,6 +270,30 @@ export default function ConfirmationPage({
               Call
             </a>
           </div>
+
+          {/* Share */}
+          <button
+            onClick={async () => {
+              const text = `Just ordered from The Stoned Chef! 🍔🔥 Best chip truck in Deseronto. Order #${order.orderNumber}`;
+              if (navigator.share) {
+                try {
+                  await navigator.share({ title: "The Stoned Chef", text });
+                } catch {}
+              } else {
+                await navigator.clipboard.writeText(text);
+                toast.success("Copied to clipboard!");
+              }
+            }}
+            className="w-full h-12 rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:opacity-80"
+            style={{
+              background: "oklch(0.62 0.22 38 / 0.12)",
+              color: "oklch(0.80 0.15 45)",
+              border: "1px solid oklch(0.62 0.22 38 / 0.3)",
+            }}
+          >
+            <Share2 className="w-4 h-4" />
+            Share Your Order
+          </button>
 
           <Button
             onClick={() => router.push("/")}
