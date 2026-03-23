@@ -1,11 +1,12 @@
 "use client";
 
-import { use } from "react";
+import { use, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2, ChefHat, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { OrderQR } from "@/components/OrderQR";
 
 export default function ConfirmationPage({
   params,
@@ -30,6 +31,31 @@ export default function ConfirmationPage({
   const { data: pendingCount } = trpc.orders.pendingCount.useQuery(undefined, {
     refetchInterval: 30_000,
   });
+
+  // Sound + vibration on status change
+  const prevStatus = useRef<string | null>(null);
+  useEffect(() => {
+    if (!data?.order) return;
+    const status = data.order.status;
+    if (prevStatus.current && prevStatus.current !== status) {
+      // Vibrate on status change
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      // Show toast
+      if (status === "preparing") {
+        toast("Your order is being prepared!", {
+          icon: "👨‍🍳",
+          style: { background: "oklch(0.18 0.015 30)", border: "1px solid oklch(0.62 0.22 38 / 0.5)", color: "oklch(0.97 0.01 60)" },
+        });
+      } else if (status === "ready") {
+        toast.success("Your order is ready for pickup!", {
+          icon: "✅",
+          duration: 10000,
+          style: { background: "oklch(0.18 0.015 30)", border: "1px solid oklch(0.45 0.15 145 / 0.5)", color: "oklch(0.97 0.01 60)" },
+        });
+      }
+    }
+    prevStatus.current = status;
+  }, [data?.order?.status]);
 
   if (isLoading) {
     return (
@@ -177,6 +203,9 @@ export default function ConfirmationPage({
               </div>
             </div>
           </div>
+
+          {/* QR Code */}
+          <OrderQR orderNumber={order.orderNumber} />
 
           <div
             className="rounded-2xl overflow-hidden"

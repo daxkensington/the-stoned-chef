@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { ComboSuggestion } from "@/components/ComboSuggestion";
 import { saveOrderToHistory } from "@/components/OrderHistory";
 import { addPunch } from "@/components/PunchCard";
+import { TipSelector } from "@/components/TipSelector";
 
 function generateTimeSlots() {
   const slots: string[] = [];
@@ -43,6 +44,8 @@ export default function OrderPage() {
     notes: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [tipCents, setTipCents] = useState(0);
+  const grandTotal = totalCents + tipCents;
 
   const placeOrder = trpc.orders.place.useMutation({
     onSuccess: (data) => {
@@ -363,6 +366,29 @@ export default function OrderPage() {
               </div>
             </div>
 
+            {/* Tip */}
+            <TipSelector
+              subtotalCents={totalCents}
+              tipCents={tipCents}
+              onTipChange={setTipCents}
+            />
+
+            {/* Total with tip */}
+            {tipCents > 0 && (
+              <div
+                className="rounded-xl p-4 flex justify-between items-center"
+                style={{ background: "var(--color-card)", border: "1px solid var(--color-border)" }}
+              >
+                <div className="text-sm">
+                  <p className="text-muted-foreground">Subtotal: ${(totalCents / 100).toFixed(2)}</p>
+                  <p className="text-muted-foreground">Tip: ${(tipCents / 100).toFixed(2)}</p>
+                </div>
+                <span className="font-black text-xl" style={{ color: "oklch(0.62 0.22 38)" }}>
+                  ${(grandTotal / 100).toFixed(2)}
+                </span>
+              </div>
+            )}
+
             <Button
               type="submit"
               disabled={placeOrder.isPending}
@@ -379,7 +405,7 @@ export default function OrderPage() {
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Place Order — ${(totalCents / 100).toFixed(2)}
+                  Place Order — ${(grandTotal / 100).toFixed(2)}
                   <ChevronRight className="w-4 h-4" />
                 </span>
               )}

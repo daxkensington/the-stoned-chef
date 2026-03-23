@@ -1,3 +1,5 @@
+export type DietaryTag = "vegetarian" | "gluten-free" | "spicy" | "kid-friendly";
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -6,6 +8,7 @@ export interface MenuItem {
   category: string;
   popular?: boolean;
   image?: string;
+  tags?: DietaryTag[];
 }
 
 export interface MenuCategory {
@@ -95,6 +98,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Golden hand-cut fries, lightly salted and perfectly crispy",
         priceCents: 600,
         category: "fries-poutine",
+        tags: ["vegetarian", "gluten-free"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/yMooSulJIcVHFqzy.jpg",
       },
       {
@@ -104,6 +108,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "fries-poutine",
         popular: true,
+        tags: ["vegetarian", "gluten-free"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/DlGwsaSmVilZSVNI.png",
       },
       {
@@ -146,6 +151,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Classic poutine kicked up with fresh jalapeños for a spicy twist",
         priceCents: 1800,
         category: "fries-poutine",
+        tags: ["spicy", "vegetarian"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PaojQJsskkGWxWel.jpg",
       },
       {
@@ -204,6 +210,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Crispy veggies tossed in buffalo sauce with lettuce, tomato, and ranch",
         priceCents: 1200,
         category: "chicken",
+        tags: ["vegetarian", "spicy"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/tZYZKCMnAVjnDcHw.jpg",
       },
       {
@@ -236,6 +243,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Grilled hot sausage on a toasted bun — for those who like the heat",
         priceCents: 1000,
         category: "sausages",
+        tags: ["spicy"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/rwfmTuOZKGJGswkf.jpg",
       },
     ],
@@ -300,6 +308,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Kid-sized chicken fingers with golden fries and dipping sauce",
         priceCents: 800,
         category: "kids",
+        tags: ["kid-friendly"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/wUcyFQDmSGWyLUFp.jpg",
       },
       {
@@ -308,6 +317,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Classic corn dog on a stick with golden fries",
         priceCents: 700,
         category: "kids",
+        tags: ["kid-friendly"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PxXHSmzKnZRnLhsi.jpg",
       },
       {
@@ -316,6 +326,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Classic grilled hot dog on a bun",
         priceCents: 700,
         category: "kids",
+        tags: ["kid-friendly"],
         image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OBKLKyttPPwiMqSr.jpg",
       },
       {
