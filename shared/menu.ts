@@ -32,7 +32,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Fresh beef patty with lettuce, tomato, onion, pickle & ketchup on a toasted bun",
         priceCents: 800,
         category: "burgers",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/vyFDSLdSfiOXMqWU.jpg",
+        image: "/food/burger-hero.jpg",
       },
       {
         id: "burger-cheese",
@@ -41,7 +41,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 900,
         category: "burgers",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/dSdqSmtyWQaHnZra.jpg",
+        image: "/food/burger-hero.jpg",
       },
       {
         id: "burger-bacon-cheese",
@@ -50,7 +50,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1100,
         category: "burgers",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ocPqBRcBmlGohzYQ.jpg",
+        image: "/food/bacon-cheese.jpg",
       },
       {
         id: "burger-double-bacon-cheese",
@@ -58,7 +58,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Two fresh beef patties, double bacon, double cheddar — the real deal",
         priceCents: 1500,
         category: "burgers",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ZJEwdlVsygEiTIqr.jpg",
+        image: "/food/bacon-cheese.jpg",
       },
       {
         id: "burger-coma-mac",
@@ -67,7 +67,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1800,
         category: "burgers",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ykGJTQmnmVzUwgtk.jpg",
+        image: "/food/burger-hero.jpg",
       },
       {
         id: "burger-peameal",
@@ -75,7 +75,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Classic Canadian peameal bacon on a fresh bun — a true Ontario staple",
         priceCents: 1000,
         category: "burgers",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/kzgmxrpKJyLbVWtu.jpg",
+        image: "/food/peameal.jpg",
       },
       {
         id: "burger-side-fries",
@@ -83,7 +83,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "A small side of our golden hand-cut fries",
         priceCents: 400,
         category: "burgers",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OvCOBorADxqZLoTs.jpg",
+        image: "/food/fries-hero.jpg",
       },
     ],
   },
@@ -99,7 +99,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 600,
         category: "fries-poutine",
         tags: ["vegetarian", "gluten-free"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/yMooSulJIcVHFqzy.jpg",
+        image: "/food/fries-hero.jpg",
       },
       {
         id: "fries-large",
@@ -109,7 +109,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         category: "fries-poutine",
         popular: true,
         tags: ["vegetarian", "gluten-free"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/DlGwsaSmVilZSVNI.png",
+        image: "/food/fries-hero.jpg",
       },
       {
         id: "fries-family",
@@ -117,7 +117,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Feed the crew — a huge family-size portion of golden fries",
         priceCents: 1500,
         category: "fries-poutine",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/cZYybxzNzIBXCiRf.jpg",
+        image: "/food/fries-hero.jpg",
       },
       {
         id: "poutine-small",
@@ -126,7 +126,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "fries-poutine",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/AjCaAkqIXYPuyYId.jpg",
+        image: "/food/poutine-hero.jpg",
       },
       {
         id: "poutine-large",
@@ -135,7 +135,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1500,
         category: "fries-poutine",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/jrleWrTCKydYKaov.jpg",
+        image: "/food/poutine-hero.jpg",
       },
       {
         id: "poutine-special",
@@ -143,7 +143,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Our loaded poutine with extra toppings — ask about today's special",
         priceCents: 1600,
         category: "fries-poutine",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/jCVNEDIVfmRyXFAz.jpg",
+        image: "/food/poutine-hero.jpg",
       },
       {
         id: "poutine-jalapeno",
@@ -152,7 +152,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1800,
         category: "fries-poutine",
         tags: ["spicy", "vegetarian"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PaojQJsskkGWxWel.jpg",
+        image: "/food/poutine-hero.jpg",
       },
       {
         id: "poutine-pulled-pork",
@@ -161,7 +161,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1600,
         category: "fries-poutine",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/SzezeJqbaVaEUHAj.jpg",
+        image: "/food/pulled-pork-poutine.jpg",
       },
       {
         id: "poutine-shepherds-pie",
@@ -169,7 +169,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Poutine loaded with hearty shepherd's pie filling — comfort food at its finest",
         priceCents: 1800,
         category: "fries-poutine",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/aBIlFoqGakasQdpq.jpg",
+        image: "/food/poutine-hero.jpg",
       },
     ],
   },
@@ -185,7 +185,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1400,
         category: "chicken",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PKRxmxRxTuVJztvs.jpg",
+        image: "/food/chicken-hero.jpg",
       },
       {
         id: "chicken-caesar-wrap",
@@ -194,7 +194,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1200,
         category: "chicken",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/XlizTPWPdzQEolRd.jpg",
+        image: "/food/wrap-hero.jpg",
       },
       {
         id: "chicken-buffalo-wrap",
@@ -202,7 +202,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Crispy chicken tossed in buffalo sauce, lettuce, tomato, and ranch in a wrap",
         priceCents: 1200,
         category: "chicken",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OvTBoudYnPbxmMDy.jpg",
+        image: "/food/wrap-hero.jpg",
       },
       {
         id: "chicken-buffalo-veggie-wrap",
@@ -211,7 +211,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1200,
         category: "chicken",
         tags: ["vegetarian", "spicy"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/tZYZKCMnAVjnDcHw.jpg",
+        image: "/food/wrap-hero.jpg",
       },
       {
         id: "chicken-club-bun",
@@ -219,7 +219,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Grilled chicken breast with bacon, lettuce, tomato, and mayo on a toasted bun",
         priceCents: 1500,
         category: "chicken",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/fCSsfjStDWRLpSFm.jpg",
+        image: "/food/chicken-hero.jpg",
       },
     ],
   },
@@ -235,7 +235,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "sausages",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/EjCePxzurQOdUXZE.jpg",
+        image: "/food/sausage-hero.jpg",
       },
       {
         id: "sausage-hot",
@@ -244,7 +244,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "sausages",
         tags: ["spicy"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/rwfmTuOZKGJGswkf.jpg",
+        image: "/food/sausage-hero.jpg",
       },
     ],
   },
@@ -260,7 +260,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 2000,
         category: "fish-chips",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/nUtWjeeEYMecjOFE.jpg",
+        image: "/food/shrimp-fries.jpg",
       },
       {
         id: "fish-chips-1pc",
@@ -268,7 +268,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "One beer-battered fish fillet with golden fries and tartar sauce",
         priceCents: 1200,
         category: "fish-chips",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/EQTUBCDPKeEDlEvj.jpg",
+        image: "/food/fish-hero.jpg",
       },
       {
         id: "fish-chips-2pc",
@@ -277,7 +277,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1700,
         category: "fish-chips",
         popular: true,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/memKlLJndeENZuKa.jpg",
+        image: "/food/fish-hero.jpg",
       },
       {
         id: "fish-on-bun",
@@ -285,7 +285,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Beer-battered fish fillet on a toasted bun with tartar sauce and slaw",
         priceCents: 1200,
         category: "fish-chips",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/RhhptkKiGUKjpLIe.jpg",
+        image: "/food/fish-hero.jpg",
       },
       {
         id: "onion-rings",
@@ -293,7 +293,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Crispy golden battered onion rings — a classic side",
         priceCents: 800,
         category: "fish-chips",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/okqjMCmHCcacEYjJ.jpg",
+        image: "/food/onion-rings.jpg",
       },
     ],
   },
@@ -309,7 +309,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 800,
         category: "kids",
         tags: ["kid-friendly"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/wUcyFQDmSGWyLUFp.jpg",
+        image: "/food/kids-meal.jpg",
       },
       {
         id: "kids-pogo-fries",
@@ -318,7 +318,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 700,
         category: "kids",
         tags: ["kid-friendly"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PxXHSmzKnZRnLhsi.jpg",
+        image: "/food/kids-meal.jpg",
       },
       {
         id: "kids-hot-dog",
@@ -327,7 +327,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 700,
         category: "kids",
         tags: ["kid-friendly"],
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OBKLKyttPPwiMqSr.jpg",
+        image: "/food/hot-dog.jpg",
       },
       {
         id: "kids-whistle-dog",
@@ -335,7 +335,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Grilled hot dog with bacon and cheese — a kid favourite",
         priceCents: 800,
         category: "kids",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PhhMZqVsibuxaFPi.jpg",
+        image: "/food/hot-dog.jpg",
       },
       {
         id: "kids-side-fries",
@@ -343,7 +343,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Kid-sized portion of golden fries",
         priceCents: 200,
         category: "kids",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/HOQFYIGGZDBVAqbT.jpg",
+        image: "/food/kids-meal.jpg",
       },
       {
         id: "kids-pop",
@@ -351,7 +351,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Can of pop — Pepsi, Diet Pepsi, 7UP, or Orange Crush",
         priceCents: 200,
         category: "kids",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/qEnUkCYFSxEKfVfM.jpg",
+        image: "/food/water-pop.jpg",
       },
     ],
   },
@@ -366,7 +366,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Pepsi, Diet Pepsi, 7UP, Orange Crush — ask about today's selection",
         priceCents: 250,
         category: "drinks",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/qEnUkCYFSxEKfVfM.jpg",
+        image: "/food/water-pop.jpg",
       },
       {
         id: "drink-water",
@@ -374,7 +374,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Ice-cold bottled water",
         priceCents: 200,
         category: "drinks",
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ZVJyadYGdnbOJHhu.jpg",
+        image: "/food/water-pop.jpg",
       },
     ],
   },

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { MENU_CATEGORIES } from "@shared/menu";
 import { useCart } from "@/contexts/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -28,14 +29,10 @@ import { SectionReveal } from "@/components/SectionReveal";
 
 const TRUCK_HERO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png";
-const POUTINE_HIGHRES =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/poutine-highres_129aa80e.jpeg";
-const BURGER_JALAPENO =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/burger-jalapeno_34d85813.jpg";
-const BURGER_COMPOSITE =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/burger-composite_fd6271e2.jpg";
-const POUTINE_CLOSE =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/poutine-close_d11b2d79.jpeg";
+const POUTINE_HIGHRES = "/food/poutine-hero.jpg";
+const BURGER_JALAPENO = "/food/burger-hero.jpg";
+const BURGER_COMPOSITE = "/food/bacon-cheese.jpg";
+const POUTINE_CLOSE = "/food/pulled-pork-poutine.jpg";
 
 const CATEGORY_IMAGES: Record<string, string> = {
   burgers: BURGER_JALAPENO,
@@ -273,12 +270,14 @@ export default function Home() {
                   document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })
                 }
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={img}
                   alt={label}
+                  width={600}
+                  height={450}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   style={{ objectPosition: pos }}
+                  sizes="(max-width: 640px) 50vw, 33vw"
                 />
                 <div
                   className="absolute inset-0"
@@ -352,14 +351,17 @@ export default function Home() {
 
           {CATEGORY_IMAGES[activeCategory] && (
             <div className="relative rounded-2xl overflow-hidden mb-6" style={{ height: "180px" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={CATEGORY_IMAGES[activeCategory]}
-                alt={activeMenu?.name}
+                alt={activeMenu?.name || "Category"}
+                width={1200}
+                height={400}
                 className="w-full h-full object-cover"
                 style={{
                   objectPosition: activeCategory === "burgers" ? "center 40%" : "center center",
                 }}
+                sizes="100vw"
+                priority
               />
               <div
                 className="absolute inset-0 flex items-end p-5"
@@ -408,11 +410,13 @@ export default function Home() {
                 >
                   {item.image && (
                     <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
+                        width={400}
+                        height={300}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         loading="lazy"
                       />
                       {isSoldOut && (
@@ -530,12 +534,14 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "16/10" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={BURGER_JALAPENO}
                 alt="The Stoned Chef food truck at 45 Dundas St, Deseronto"
+                width={800}
+                height={500}
                 className="w-full h-full object-cover"
                 style={{ objectPosition: "center 40%" }}
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
             <div>

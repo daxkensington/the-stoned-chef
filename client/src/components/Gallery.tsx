@@ -2,58 +2,59 @@
 
 import { useState } from "react";
 import { X, ZoomIn } from "lucide-react";
+import Image from "next/image";
 
 const galleryItems = [
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-poutine-classic-6mXxKqNpnvArDNVc9HCWyM.webp",
+    src: "/food/gallery-1.jpg",
     alt: "Classic Poutine",
     label: "Classic Poutine",
     category: "Fries & Poutine",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-burger-classic-nWS76feKWVuf5nSAG67LZL.webp",
+    src: "/food/gallery-2.jpg",
     alt: "Smash Burger",
     label: "Smash Burger",
     category: "Burgers",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-chicken-strips-JahRfiDtzYqaGRsKqUKwLY.webp",
+    src: "/food/gallery-3.jpg",
     alt: "Crispy Chicken Strips",
     label: "Crispy Chicken Strips",
     category: "Chicken",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-loaded-fries-EZLe7pVd3sHC3fiPX5YpSq.webp",
+    src: "/food/fries-hero.jpg",
     alt: "Loaded Cheese Fries",
     label: "Loaded Cheese Fries",
     category: "Fries & Poutine",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-mozza-sticks-v2-LP8oi72qtfzCitrQJD2qb9.webp",
-    alt: "Mozzarella Sticks",
-    label: "Mozzarella Sticks",
+    src: "/food/onion-rings.jpg",
+    alt: "Onion Rings",
+    label: "Onion Rings",
     category: "Appetizers",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-fish-chips-DbWrzri8SZpfLoRrd8ghHF.webp",
+    src: "/food/fish-hero.jpg",
     alt: "Fish & Chips",
     label: "Fish & Chips",
     category: "Fish & Chips",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-sausage-i74y3axG5UWHDeYFHDoycu.webp",
+    src: "/food/sausage-hero.jpg",
     alt: "Grilled Sausage",
     label: "Grilled Sausage",
     category: "Sausages",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-jalapeno-poppers-BKmaBne5CbdFjnrU3PaYfR.webp",
-    alt: "Jalapeño Poppers",
-    label: "Jalapeño Poppers",
-    category: "Appetizers",
+    src: "/food/hot-dog.jpg",
+    alt: "Classic Hot Dog",
+    label: "Classic Hot Dog",
+    category: "Kids Menu",
   },
   {
-    src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/gallery-poutine-loaded-Kji8Lav67jqXytj5RBqoao.webp",
+    src: "/food/pulled-pork-poutine.jpg",
     alt: "Pulled Pork Poutine",
     label: "Pulled Pork Poutine",
     category: "Fries & Poutine",
@@ -99,12 +100,13 @@ export default function Gallery() {
               className="break-inside-avoid group relative overflow-hidden rounded-xl cursor-pointer"
               onClick={() => openLightbox(item.src, item.label)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={item.src}
                 alt={item.alt}
+                width={800}
+                height={600}
                 className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                 <div className="flex items-center justify-between">
@@ -147,6 +149,7 @@ export default function Gallery() {
               alt={lightboxLabel}
               className="w-full rounded-xl shadow-2xl object-contain max-h-[80vh]"
             />
+            {/* Lightbox uses raw img for full-res viewing */}
             <p
               className="text-center text-white text-2xl font-black uppercase mt-4"
               style={{ fontFamily: "'Bangers', cursive", letterSpacing: "0.05em" }}
