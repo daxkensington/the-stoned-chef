@@ -32,7 +32,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Fresh beef patty with lettuce, tomato, onion, pickle & ketchup on a toasted bun",
         priceCents: 800,
         category: "burgers",
-        image: "/food/burger-hero.jpg",
+        image: "/food/hamburger.jpg",
       },
       {
         id: "burger-cheese",
@@ -41,7 +41,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 900,
         category: "burgers",
         popular: true,
-        image: "/food/burger-hero.jpg",
+        image: "/food/cheeseburger.jpg",
       },
       {
         id: "burger-bacon-cheese",
@@ -50,7 +50,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1100,
         category: "burgers",
         popular: true,
-        image: "/food/bacon-cheese.jpg",
+        image: "/food/bacon-burger.jpg",
       },
       {
         id: "burger-double-bacon-cheese",
@@ -58,7 +58,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Two fresh beef patties, double bacon, double cheddar — the real deal",
         priceCents: 1500,
         category: "burgers",
-        image: "/food/bacon-cheese.jpg",
+        image: "/food/double-bacon.jpg",
       },
       {
         id: "burger-coma-mac",
@@ -67,7 +67,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1800,
         category: "burgers",
         popular: true,
-        image: "/food/burger-hero.jpg",
+        image: "/food/coma-mac.jpg",
       },
       {
         id: "burger-peameal",
@@ -83,7 +83,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "A small side of our golden hand-cut fries",
         priceCents: 400,
         category: "burgers",
-        image: "/food/fries-hero.jpg",
+        image: "/food/side-fries.jpg",
       },
     ],
   },
@@ -99,7 +99,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 600,
         category: "fries-poutine",
         tags: ["vegetarian", "gluten-free"],
-        image: "/food/fries-hero.jpg",
+        image: "/food/small-fries.jpg",
       },
       {
         id: "fries-large",
@@ -117,7 +117,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Feed the crew — a huge family-size portion of golden fries",
         priceCents: 1500,
         category: "fries-poutine",
-        image: "/food/fries-hero.jpg",
+        image: "/food/family-fries.jpg",
       },
       {
         id: "poutine-small",
@@ -126,7 +126,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "fries-poutine",
         popular: true,
-        image: "/food/poutine-hero.jpg",
+        image: "/food/poutine-small.jpg",
       },
       {
         id: "poutine-large",
@@ -135,7 +135,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1500,
         category: "fries-poutine",
         popular: true,
-        image: "/food/poutine-hero.jpg",
+        image: "/food/poutine-large.jpg",
       },
       {
         id: "poutine-special",
@@ -143,7 +143,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Our loaded poutine with extra toppings — ask about today's special",
         priceCents: 1600,
         category: "fries-poutine",
-        image: "/food/poutine-hero.jpg",
+        image: "/food/poutine-special.jpg",
       },
       {
         id: "poutine-jalapeno",
@@ -152,7 +152,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1800,
         category: "fries-poutine",
         tags: ["spicy", "vegetarian"],
-        image: "/food/poutine-hero.jpg",
+        image: "/food/jalapeno-poutine.jpg",
       },
       {
         id: "poutine-pulled-pork",
@@ -169,7 +169,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Poutine loaded with hearty shepherd's pie filling — comfort food at its finest",
         priceCents: 1800,
         category: "fries-poutine",
-        image: "/food/poutine-hero.jpg",
+        image: "/food/shepherds-poutine.jpg",
       },
     ],
   },
@@ -194,7 +194,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1200,
         category: "chicken",
         popular: true,
-        image: "/food/wrap-hero.jpg",
+        image: "/food/caesar-wrap.jpg",
       },
       {
         id: "chicken-buffalo-wrap",
@@ -202,7 +202,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Crispy chicken tossed in buffalo sauce, lettuce, tomato, and ranch in a wrap",
         priceCents: 1200,
         category: "chicken",
-        image: "/food/wrap-hero.jpg",
+        image: "/food/buffalo-wrap.jpg",
       },
       {
         id: "chicken-buffalo-veggie-wrap",
@@ -211,7 +211,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1200,
         category: "chicken",
         tags: ["vegetarian", "spicy"],
-        image: "/food/wrap-hero.jpg",
+        image: "/food/veggie-wrap.jpg",
       },
       {
         id: "chicken-club-bun",
@@ -219,7 +219,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Grilled chicken breast with bacon, lettuce, tomato, and mayo on a toasted bun",
         priceCents: 1500,
         category: "chicken",
-        image: "/food/chicken-hero.jpg",
+        image: "/food/chicken-club.jpg",
       },
     ],
   },
@@ -235,7 +235,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "sausages",
         popular: true,
-        image: "/food/sausage-hero.jpg",
+        image: "/food/mild-sausage.jpg",
       },
       {
         id: "sausage-hot",
@@ -244,7 +244,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "sausages",
         tags: ["spicy"],
-        image: "/food/sausage-hero.jpg",
+        image: "/food/hot-sausage.jpg",
       },
     ],
   },
@@ -268,7 +268,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "One beer-battered fish fillet with golden fries and tartar sauce",
         priceCents: 1200,
         category: "fish-chips",
-        image: "/food/fish-hero.jpg",
+        image: "/food/fish-1pc.jpg",
       },
       {
         id: "fish-chips-2pc",
@@ -277,7 +277,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1700,
         category: "fish-chips",
         popular: true,
-        image: "/food/fish-hero.jpg",
+        image: "/food/fish-2pc.jpg",
       },
       {
         id: "fish-on-bun",
@@ -285,7 +285,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Beer-battered fish fillet on a toasted bun with tartar sauce and slaw",
         priceCents: 1200,
         category: "fish-chips",
-        image: "/food/fish-hero.jpg",
+        image: "/food/fish-on-bun.jpg",
       },
       {
         id: "onion-rings",
@@ -318,7 +318,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 700,
         category: "kids",
         tags: ["kid-friendly"],
-        image: "/food/kids-meal.jpg",
+        image: "/food/pogo-fries.jpg",
       },
       {
         id: "kids-hot-dog",
@@ -335,7 +335,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Grilled hot dog with bacon and cheese — a kid favourite",
         priceCents: 800,
         category: "kids",
-        image: "/food/hot-dog.jpg",
+        image: "/food/whistle-dog.jpg",
       },
       {
         id: "kids-side-fries",
@@ -343,7 +343,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Kid-sized portion of golden fries",
         priceCents: 200,
         category: "kids",
-        image: "/food/kids-meal.jpg",
+        image: "/food/kids-fries.jpg",
       },
       {
         id: "kids-pop",
@@ -351,7 +351,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Can of pop — Pepsi, Diet Pepsi, 7UP, or Orange Crush",
         priceCents: 200,
         category: "kids",
-        image: "/food/water-pop.jpg",
+        image: "/food/pop-can.jpg",
       },
     ],
   },
@@ -366,7 +366,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Pepsi, Diet Pepsi, 7UP, Orange Crush — ask about today's selection",
         priceCents: 250,
         category: "drinks",
-        image: "/food/water-pop.jpg",
+        image: "/food/pop-can.jpg",
       },
       {
         id: "drink-water",
@@ -374,7 +374,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         description: "Ice-cold bottled water",
         priceCents: 200,
         category: "drinks",
-        image: "/food/water-pop.jpg",
+        image: "/food/bottled-water.jpg",
       },
     ],
   },
