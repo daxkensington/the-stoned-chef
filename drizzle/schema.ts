@@ -7,6 +7,7 @@ import {
   boolean,
   timestamp,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 
 // ── Enums ────────────────────────────────────────────────────────────────────
@@ -46,7 +47,10 @@ export const orders = pgTable("orders", {
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("orders_created_at_idx").on(t.createdAt),
+  index("orders_status_idx").on(t.status),
+]);
 
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
@@ -61,7 +65,9 @@ export const orderItems = pgTable("order_items", {
   priceCents: integer("price_cents").notNull(),
   quantity: integer("quantity").notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("order_items_order_id_idx").on(t.orderId),
+]);
 
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = typeof orderItems.$inferInsert;
@@ -79,7 +85,9 @@ export const specials = pgTable("specials", {
   sortOrder: integer("sort_order").default(0).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("specials_active_expires_idx").on(t.active, t.expiresAt),
+]);
 
 export type Special = typeof specials.$inferSelect;
 export type InsertSpecial = typeof specials.$inferInsert;

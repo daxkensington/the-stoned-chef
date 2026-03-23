@@ -423,6 +423,7 @@ export default function Home() {
                       </span>
                       <button
                         onClick={() => handleAddItem(item)}
+                        aria-label={`Add ${item.name} to cart — $${(item.priceCents / 100).toFixed(2)}`}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95"
                         style={{
                           background:
@@ -605,6 +606,7 @@ export default function Home() {
         <div className="fixed bottom-4 left-4 right-4 z-40 sm:hidden">
           <button
             onClick={() => setCartOpen(true)}
+            aria-label={`View order — ${totalItems} items, $${(totalCents / 100).toFixed(2)}`}
             className="w-full h-14 rounded-2xl flex items-center justify-between px-5 font-bold text-base shadow-2xl"
             style={{
               background:

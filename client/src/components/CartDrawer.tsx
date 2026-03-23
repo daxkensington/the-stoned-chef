@@ -69,6 +69,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      aria-label={`Decrease ${item.name} quantity`}
                       className="w-7 h-7 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
                       style={{ background: "var(--color-muted)" }}
                     >
@@ -79,6 +80,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      aria-label={`Increase ${item.name} quantity`}
                       className="w-7 h-7 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
                       style={{ background: "var(--color-muted)" }}
                     >
@@ -86,6 +88,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </button>
                     <button
                       onClick={() => removeItem(item.id)}
+                      aria-label={`Remove ${item.name} from cart`}
                       className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors ml-1"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

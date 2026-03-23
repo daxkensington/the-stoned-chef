@@ -185,6 +185,8 @@ export default function OrderPage() {
                   <Input
                     id="name"
                     placeholder="e.g. Jane Smith"
+                    aria-required="true"
+                    aria-invalid={!!errors.customerName}
                     value={form.customerName}
                     onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
                     className="h-11 rounded-xl"
@@ -213,6 +215,8 @@ export default function OrderPage() {
                       id="phone"
                       type="tel"
                       placeholder="(613) 555-0100"
+                      aria-required="true"
+                      aria-invalid={!!errors.customerPhone}
                       value={form.customerPhone}
                       onChange={(e) => setForm((f) => ({ ...f, customerPhone: e.target.value }))}
                       className="h-11 rounded-xl pl-9"

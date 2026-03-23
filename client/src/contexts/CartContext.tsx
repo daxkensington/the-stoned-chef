@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useCallback } from "react";
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from "react";
 
 export interface CartItem {
   id: string;
@@ -64,10 +64,34 @@ interface CartContextValue {
   clearCart: () => void;
 }
 
+const CART_STORAGE_KEY = "sc_cart";
+
+function loadCart(): CartState {
+  if (typeof window === "undefined") return { items: [] };
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed.items)) return parsed;
+    }
+  } catch {}
+  return { items: [] };
+}
+
+function saveCart(state: CartState) {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [state, dispatch] = useReducer(cartReducer, { items: [] }, loadCart);
+
+  useEffect(() => {
+    saveCart(state);
+  }, [state]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", item });

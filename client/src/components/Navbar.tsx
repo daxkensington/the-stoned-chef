@@ -4,14 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { CartDrawer } from "./CartDrawer";
-import { ShoppingBag, MapPin, Clock, Sparkles } from "lucide-react";
+import { ShoppingBag, MapPin, Clock, Sparkles, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 
 export function Navbar() {
   const [cartOpen, setCartOpen] = useState(false);
   const { totalItems, totalCents } = useCart();
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const utils = trpc.useUtils();
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      utils.auth.me.invalidate();
+      router.push("/");
+    },
+  });
 
   return (
     <>
@@ -21,7 +29,7 @@ export function Navbar() {
       >
         <div className="container">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => router.push("/")} className="flex items-center gap-2 group">
+            <button onClick={() => router.push("/")} className="flex items-center gap-2 group" aria-label="Go to homepage">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-black flex-shrink-0"
                 style={{
@@ -64,22 +72,37 @@ export function Navbar() {
             </div>
 
             {isAdmin && (
-              <button
-                onClick={() => router.push("/admin/specials")}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
-                style={{
-                  background: "oklch(0.62 0.22 38 / 0.15)",
-                  color: "oklch(0.82 0.16 48)",
-                  border: "1px solid oklch(0.62 0.22 38 / 0.30)",
-                }}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Manage Specials
-              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={() => router.push("/admin/specials")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
+                  style={{
+                    background: "oklch(0.62 0.22 38 / 0.15)",
+                    color: "oklch(0.82 0.16 48)",
+                    border: "1px solid oklch(0.62 0.22 38 / 0.30)",
+                  }}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Manage Specials
+                </button>
+                <button
+                  onClick={() => logoutMutation.mutate()}
+                  aria-label="Sign out"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
+                  style={{
+                    background: "oklch(0.22 0.02 30)",
+                    color: "oklch(0.65 0.04 60)",
+                    border: "1px solid oklch(0.30 0.02 30)",
+                  }}
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
             )}
 
             <button
               onClick={() => setCartOpen(true)}
+              aria-label={totalItems > 0 ? `Open cart with ${totalItems} items` : "Open cart"}
               className="relative flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
               style={{
                 background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
