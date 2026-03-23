@@ -95,46 +95,72 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
       {/* HERO */}
-      <section className="relative overflow-hidden" style={{ minHeight: "85vh" }}>
-        <FloatingEmojis />
+      <section className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
+        {/* Background truck photo */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${TRUCK_HERO})`, backgroundPosition: "center 35%" }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
+          style={{
+            backgroundImage: `url(${TRUCK_HERO})`,
+            backgroundPosition: "center 35%",
+            animation: "hero-zoom 20s ease-in-out infinite alternate",
+          }}
         />
+        {/* Heavy cinematic overlay — ensures text pops */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to right, oklch(0.10 0.02 25 / 0.92) 0%, oklch(0.10 0.02 25 / 0.75) 40%, oklch(0.10 0.02 25 / 0.40) 65%, oklch(0.10 0.02 25 / 0.15) 100%)",
+              "linear-gradient(160deg, oklch(0.06 0.02 25 / 0.95) 0%, oklch(0.08 0.02 25 / 0.85) 35%, oklch(0.08 0.02 25 / 0.6) 60%, oklch(0.06 0.02 25 / 0.4) 100%)",
           }}
         />
+        {/* Fire glow from bottom */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-32"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 40% at 30% 90%, oklch(0.58 0.24 30 / 0.15) 0%, transparent 70%)",
+          }}
+        />
+        {/* Bottom fade */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-48"
           style={{ background: "linear-gradient(to bottom, transparent, var(--color-background))" }}
         />
+        {/* Floating emojis */}
+        <FloatingEmojis />
 
         <div
           className="container relative flex flex-col justify-center"
-          style={{ minHeight: "85vh", paddingTop: "2rem", paddingBottom: "4rem" }}
+          style={{ minHeight: "100vh", paddingTop: "5rem", paddingBottom: "6rem" }}
         >
-          <div className="max-w-xl">
-            <div className="mb-6">
+          <div className="max-w-2xl">
+            {/* Open status badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8"
+            >
               <OpenStatus />
-            </div>
+            </motion.div>
 
-            <h1
-              className="leading-none mb-4"
+            {/* Title — cinematic entrance */}
+            <motion.h1
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="leading-[0.85] mb-6"
               style={{
                 fontFamily: "var(--font-bangers), 'Bangers', cursive",
-                letterSpacing: "0.04em",
-                fontSize: "clamp(3.5rem, 10vw, 6.5rem)",
+                letterSpacing: "0.05em",
+                fontSize: "clamp(4.5rem, 12vw, 9rem)",
               }}
             >
               <span
                 className="block"
                 style={{
                   color: "oklch(0.97 0.01 60)",
-                  textShadow: "0 2px 20px oklch(0 0 0 / 0.8)",
+                  textShadow: "0 4px 30px oklch(0 0 0 / 0.9), 0 0 80px oklch(0.58 0.24 30 / 0.3)",
                 }}
               >
                 THE
@@ -142,106 +168,129 @@ export default function Home() {
               <span
                 className="block fire-text"
                 style={{
-                  filter: "drop-shadow(0 2px 8px oklch(0 0 0 / 0.6))",
+                  filter: "drop-shadow(0 4px 20px oklch(0.58 0.24 30 / 0.5))",
                 }}
               >
                 STONED CHEF
               </span>
-            </h1>
+            </motion.h1>
 
-            <p
-              className="text-xl font-bold mb-2"
-              style={{ color: "oklch(0.90 0.12 55)", textShadow: "0 1px 8px oklch(0 0 0 / 0.8)" }}
+            {/* Tagline with animated underline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
             >
-              Where we cure the munchies
-            </p>
-            <p
-              className="flex items-center gap-1.5 text-sm mb-6"
-              style={{ color: "oklch(0.80 0.04 60)", textShadow: "0 1px 4px oklch(0 0 0 / 0.8)" }}
-            >
-              <MapPin
-                className="w-4 h-4 flex-shrink-0"
-                style={{ color: "oklch(0.62 0.22 38)" }}
+              <p
+                className="text-2xl sm:text-3xl font-bold mb-1"
+                style={{
+                  color: "oklch(0.92 0.10 55)",
+                  textShadow: "0 2px 12px oklch(0 0 0 / 0.8)",
+                }}
+              >
+                Where we cure the munchies
+              </p>
+              <div
+                className="h-1 w-24 rounded-full mb-6"
+                style={{
+                  background: "linear-gradient(90deg, oklch(0.58 0.24 30), oklch(0.72 0.20 55))",
+                }}
               />
-              45 Dundas St, Deseronto, ON
-            </p>
+            </motion.div>
 
-            <div className="flex items-center gap-2 mb-8">
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-current"
-                    style={{ color: "oklch(0.82 0.18 75)" }}
-                  />
-                ))}
-              </div>
+            {/* Info row */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+              className="flex flex-wrap items-center gap-4 mb-8"
+            >
               <span
-                className="text-sm font-bold"
-                style={{
-                  color: "oklch(0.97 0.01 60)",
-                  textShadow: "0 1px 4px oklch(0 0 0 / 0.8)",
-                }}
+                className="flex items-center gap-1.5 text-sm font-medium"
+                style={{ color: "oklch(0.80 0.04 60)", textShadow: "0 1px 6px oklch(0 0 0 / 0.8)" }}
               >
-                4.8
+                <MapPin className="w-4 h-4" style={{ color: "oklch(0.62 0.22 38)" }} />
+                45 Dundas St, Deseronto, ON
               </span>
-              <span
-                className="text-sm"
-                style={{
-                  color: "oklch(0.75 0.04 60)",
-                  textShadow: "0 1px 4px oklch(0 0 0 / 0.8)",
-                }}
-              >
-                · Deseronto&apos;s favourite chip truck
+              <span style={{ color: "oklch(0.35 0.02 30)" }}>|</span>
+              <span className="flex items-center gap-1.5">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-current" style={{ color: "oklch(0.82 0.18 75)" }} />
+                  ))}
+                </div>
+                <span className="text-sm font-bold" style={{ color: "oklch(0.97 0.01 60)" }}>4.8</span>
+                <span className="text-sm" style={{ color: "oklch(0.65 0.04 60)" }}>on Google</span>
               </span>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-wrap gap-3">
+            {/* CTA buttons — dramatic */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
+              className="flex flex-wrap gap-4"
+            >
               <Button
                 size="lg"
-                className="h-13 px-7 text-base font-bold rounded-xl shadow-2xl"
+                className="h-14 px-8 text-lg font-bold rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95"
                 style={{
-                  background:
-                    "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.68 0.22 45) 100%)",
+                  background: "linear-gradient(135deg, oklch(0.55 0.26 28) 0%, oklch(0.65 0.22 42) 50%, oklch(0.72 0.18 55) 100%)",
                   color: "white",
-                  boxShadow: "0 4px 24px oklch(0.58 0.24 30 / 0.5)",
+                  boxShadow: "0 6px 30px oklch(0.58 0.24 30 / 0.5), 0 0 60px oklch(0.58 0.24 30 / 0.15)",
                 }}
-                onClick={() =>
-                  document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })
-                }
+                onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
                 Order Now
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-5 h-5 ml-1" />
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="h-13 px-7 text-base font-bold rounded-xl"
-                style={{
-                  background: "oklch(0.10 0.02 25 / 0.60)",
-                  border: "1px solid oklch(0.97 0.01 60 / 0.35)",
-                  color: "oklch(0.97 0.01 60)",
-                  backdropFilter: "blur(8px)",
-                }}
-                onClick={() =>
-                  document.getElementById("info")?.scrollIntoView({ behavior: "smooth" })
-                }
+                className="h-14 px-8 text-lg font-bold rounded-2xl glass transition-all hover:scale-105 active:scale-95"
+                style={{ color: "oklch(0.97 0.01 60)" }}
+                onClick={() => document.getElementById("info")?.scrollIntoView({ behavior: "smooth" })}
               >
                 Find Us
               </Button>
-            </div>
+            </motion.div>
           </div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xs font-medium" style={{ color: "oklch(0.50 0.04 60)" }}>Scroll to explore</span>
+              <div
+                className="w-6 h-10 rounded-full flex items-start justify-center p-1.5"
+                style={{ border: "2px solid oklch(0.35 0.04 60)" }}
+              >
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: "oklch(0.62 0.22 38)" }}
+                  animate={{ y: [0, 16, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* FOOD PHOTO STRIP */}
       <SectionReveal>
       <section
-        className="py-8 border-y border-border overflow-hidden"
-        style={{ background: "oklch(0.15 0.02 30)" }}
+        className="py-12 overflow-hidden relative"
+        style={{ background: "oklch(0.11 0.015 28)" }}
       >
+        {/* Subtle top glow */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, oklch(0.62 0.22 38 / 0.4), transparent)" }} />
         <div className="container">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {[
               {
                 img: BURGER_COMPOSITE,
@@ -257,14 +306,18 @@ export default function Home() {
               },
               {
                 img: POUTINE_CLOSE,
-                label: "Poutine & Fries",
-                sub: "Crispy hand-cut fries",
+                label: "Pulled Pork Poutine",
+                sub: "Fan favourite",
                 pos: "center center",
               },
-            ].map(({ img, label, sub, pos }) => (
-              <div
+            ].map(({ img, label, sub, pos }, i) => (
+              <motion.div
                 key={label}
-                className="relative rounded-2xl overflow-hidden group cursor-pointer"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+                className="relative rounded-2xl overflow-hidden group cursor-pointer card-glow"
                 style={{ aspectRatio: "4/3" }}
                 onClick={() =>
                   document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })
@@ -275,26 +328,34 @@ export default function Home() {
                   alt={label}
                   width={600}
                   height={450}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   style={{ objectPosition: pos }}
                   sizes="(max-width: 640px) 50vw, 33vw"
                 />
                 <div
-                  className="absolute inset-0"
+                  className="absolute inset-0 transition-all duration-500"
                   style={{
                     background:
-                      "linear-gradient(to top, oklch(0.10 0.02 25 / 0.80) 0%, transparent 60%)",
+                      "linear-gradient(to top, oklch(0.05 0.02 25 / 0.90) 0%, oklch(0.05 0.02 25 / 0.2) 40%, transparent 70%)",
                   }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <p className="font-bold text-sm" style={{ color: "oklch(0.97 0.01 60)" }}>
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <p
+                    className="font-black text-lg"
+                    style={{
+                      fontFamily: "var(--font-bangers), 'Bangers', cursive",
+                      letterSpacing: "0.04em",
+                      color: "oklch(0.97 0.01 60)",
+                      textShadow: "0 2px 8px oklch(0 0 0 / 0.8)",
+                    }}
+                  >
                     {label}
                   </p>
-                  <p className="text-xs" style={{ color: "oklch(0.75 0.04 60)" }}>
+                  <p className="text-xs font-medium" style={{ color: "oklch(0.75 0.08 55)" }}>
                     {sub}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

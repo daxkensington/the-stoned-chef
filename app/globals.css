@@ -128,6 +128,12 @@
   }
 }
 
+/* ── Hero slow zoom ─────────────────────────────────────────── */
+@keyframes hero-zoom {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1.15); }
+}
+
 /* ── Animated gradient text ─────────────────────────────────── */
 @keyframes fire-gradient {
   0% { background-position: 0% 50%; }
