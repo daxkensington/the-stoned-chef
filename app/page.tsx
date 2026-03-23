@@ -110,7 +110,7 @@ export default function Home() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(160deg, oklch(0.06 0.02 25 / 0.95) 0%, oklch(0.08 0.02 25 / 0.85) 35%, oklch(0.08 0.02 25 / 0.6) 60%, oklch(0.06 0.02 25 / 0.4) 100%)",
+              "linear-gradient(160deg, oklch(0.04 0.02 25 / 0.97) 0%, oklch(0.06 0.02 25 / 0.92) 30%, oklch(0.06 0.02 25 / 0.78) 55%, oklch(0.06 0.02 25 / 0.65) 100%)",
           }}
         />
         {/* Fire glow from bottom */}
