@@ -1,0 +1,376 @@
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  category: string;
+  popular?: boolean;
+  image?: string;
+}
+
+export interface MenuCategory {
+  id: string;
+  name: string;
+  emoji: string;
+  items: MenuItem[];
+}
+
+// Prices sourced from the actual Stoned Chef menu board (Deseronto, ON)
+// Images: AI-generated food photos — no third-party branding
+export const MENU_CATEGORIES: MenuCategory[] = [
+  {
+    id: "burgers",
+    name: "Burgers",
+    emoji: "🍔",
+    items: [
+      {
+        id: "burger-hamburger",
+        name: "Hamburger",
+        description: "Fresh beef patty with lettuce, tomato, onion, pickle & ketchup on a toasted bun",
+        priceCents: 800,
+        category: "burgers",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/vyFDSLdSfiOXMqWU.jpg",
+      },
+      {
+        id: "burger-cheese",
+        name: "Cheeseburger",
+        description: "Fresh beef patty, cheddar cheese, lettuce, tomato, onion, pickle & ketchup",
+        priceCents: 900,
+        category: "burgers",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/dSdqSmtyWQaHnZra.jpg",
+      },
+      {
+        id: "burger-bacon-cheese",
+        name: "Bacon Cheeseburger",
+        description: "Fresh beef patty, crispy bacon, cheddar cheese, lettuce, tomato, onion & pickle",
+        priceCents: 1100,
+        category: "burgers",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ocPqBRcBmlGohzYQ.jpg",
+      },
+      {
+        id: "burger-double-bacon-cheese",
+        name: "Double Bacon Cheese",
+        description: "Two fresh beef patties, double bacon, double cheddar — the real deal",
+        priceCents: 1500,
+        category: "burgers",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ZJEwdlVsygEiTIqr.jpg",
+      },
+      {
+        id: "burger-coma-mac",
+        name: "Coma Mac",
+        description: "Our signature loaded burger — the one that puts you in a happy coma",
+        priceCents: 1800,
+        category: "burgers",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ykGJTQmnmVzUwgtk.jpg",
+      },
+      {
+        id: "burger-peameal",
+        name: "Peameal on a Bun",
+        description: "Classic Canadian peameal bacon on a fresh bun — a true Ontario staple",
+        priceCents: 1000,
+        category: "burgers",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/kzgmxrpKJyLbVWtu.jpg",
+      },
+      {
+        id: "burger-side-fries",
+        name: "Side of Fries",
+        description: "A small side of our golden hand-cut fries",
+        priceCents: 400,
+        category: "burgers",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OvCOBorADxqZLoTs.jpg",
+      },
+    ],
+  },
+  {
+    id: "fries-poutine",
+    name: "Fries & Poutine",
+    emoji: "🍟",
+    items: [
+      {
+        id: "fries-small",
+        name: "Small Fries",
+        description: "Golden hand-cut fries, lightly salted and perfectly crispy",
+        priceCents: 600,
+        category: "fries-poutine",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/yMooSulJIcVHFqzy.jpg",
+      },
+      {
+        id: "fries-large",
+        name: "Large Fries",
+        description: "A generous portion of our golden hand-cut fries",
+        priceCents: 1000,
+        category: "fries-poutine",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/DlGwsaSmVilZSVNI.png",
+      },
+      {
+        id: "fries-family",
+        name: "Family Fries",
+        description: "Feed the crew — a huge family-size portion of golden fries",
+        priceCents: 1500,
+        category: "fries-poutine",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/cZYybxzNzIBXCiRf.jpg",
+      },
+      {
+        id: "poutine-small",
+        name: "Small Poutine",
+        description: "Hand-cut fries loaded with fresh cheese curds and rich brown gravy",
+        priceCents: 1000,
+        category: "fries-poutine",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/AjCaAkqIXYPuyYId.jpg",
+      },
+      {
+        id: "poutine-large",
+        name: "Large Poutine",
+        description: "Extra-large poutine — fries, cheese curds, and gravy piled high",
+        priceCents: 1500,
+        category: "fries-poutine",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/jrleWrTCKydYKaov.jpg",
+      },
+      {
+        id: "poutine-special",
+        name: "Special Poutine",
+        description: "Our loaded poutine with extra toppings — ask about today's special",
+        priceCents: 1600,
+        category: "fries-poutine",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/jCVNEDIVfmRyXFAz.jpg",
+      },
+      {
+        id: "poutine-jalapeno",
+        name: "Jalapeño Poutine",
+        description: "Classic poutine kicked up with fresh jalapeños for a spicy twist",
+        priceCents: 1800,
+        category: "fries-poutine",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PaojQJsskkGWxWel.jpg",
+      },
+      {
+        id: "poutine-pulled-pork",
+        name: "Pulled Pork Poutine",
+        description: "Poutine topped with slow-cooked pulled pork — a fan favourite",
+        priceCents: 1600,
+        category: "fries-poutine",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/SzezeJqbaVaEUHAj.jpg",
+      },
+      {
+        id: "poutine-shepherds-pie",
+        name: "Shepherd's Pie Poutine",
+        description: "Poutine loaded with hearty shepherd's pie filling — comfort food at its finest",
+        priceCents: 1800,
+        category: "fries-poutine",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/aBIlFoqGakasQdpq.jpg",
+      },
+    ],
+  },
+  {
+    id: "chicken",
+    name: "Chicken",
+    emoji: "🌯",
+    items: [
+      {
+        id: "chicken-fingers-fries",
+        name: "Chicken Fingers & Fries",
+        description: "Crispy breaded chicken fingers served with golden fries and dipping sauce",
+        priceCents: 1400,
+        category: "chicken",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PKRxmxRxTuVJztvs.jpg",
+      },
+      {
+        id: "chicken-caesar-wrap",
+        name: "Chicken Caesar Wrap",
+        description: "Grilled chicken, romaine, parmesan, and caesar dressing in a flour tortilla",
+        priceCents: 1200,
+        category: "chicken",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/XlizTPWPdzQEolRd.jpg",
+      },
+      {
+        id: "chicken-buffalo-wrap",
+        name: "Buffalo Chicken Wrap",
+        description: "Crispy chicken tossed in buffalo sauce, lettuce, tomato, and ranch in a wrap",
+        priceCents: 1200,
+        category: "chicken",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OvTBoudYnPbxmMDy.jpg",
+      },
+      {
+        id: "chicken-buffalo-veggie-wrap",
+        name: "Buffalo Veggie Wrap",
+        description: "Crispy veggies tossed in buffalo sauce with lettuce, tomato, and ranch",
+        priceCents: 1200,
+        category: "chicken",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/tZYZKCMnAVjnDcHw.jpg",
+      },
+      {
+        id: "chicken-club-bun",
+        name: "Chicken Club on a Bun",
+        description: "Grilled chicken breast with bacon, lettuce, tomato, and mayo on a toasted bun",
+        priceCents: 1500,
+        category: "chicken",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/fCSsfjStDWRLpSFm.jpg",
+      },
+    ],
+  },
+  {
+    id: "sausages",
+    name: "Sausages",
+    emoji: "🌭",
+    items: [
+      {
+        id: "sausage-mild",
+        name: "Mild Sausage",
+        description: "Grilled mild sausage on a toasted bun with your choice of toppings",
+        priceCents: 1000,
+        category: "sausages",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/EjCePxzurQOdUXZE.jpg",
+      },
+      {
+        id: "sausage-hot",
+        name: "Hot Sausage",
+        description: "Grilled hot sausage on a toasted bun — for those who like the heat",
+        priceCents: 1000,
+        category: "sausages",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/rwfmTuOZKGJGswkf.jpg",
+      },
+    ],
+  },
+  {
+    id: "fish-chips",
+    name: "Fish & Chips",
+    emoji: "🐟",
+    items: [
+      {
+        id: "shrimp-fries",
+        name: "Shrimp & Fries",
+        description: "Golden fried shrimp served with a generous portion of hand-cut fries",
+        priceCents: 2000,
+        category: "fish-chips",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/nUtWjeeEYMecjOFE.jpg",
+      },
+      {
+        id: "fish-chips-1pc",
+        name: "1 pc Fish & Chips",
+        description: "One beer-battered fish fillet with golden fries and tartar sauce",
+        priceCents: 1200,
+        category: "fish-chips",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/EQTUBCDPKeEDlEvj.jpg",
+      },
+      {
+        id: "fish-chips-2pc",
+        name: "2 pc Fish & Chips",
+        description: "Two beer-battered fish fillets with golden fries and tartar sauce",
+        priceCents: 1700,
+        category: "fish-chips",
+        popular: true,
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/memKlLJndeENZuKa.jpg",
+      },
+      {
+        id: "fish-on-bun",
+        name: "Fish on a Bun",
+        description: "Beer-battered fish fillet on a toasted bun with tartar sauce and slaw",
+        priceCents: 1200,
+        category: "fish-chips",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/RhhptkKiGUKjpLIe.jpg",
+      },
+      {
+        id: "onion-rings",
+        name: "Onion Rings",
+        description: "Crispy golden battered onion rings — a classic side",
+        priceCents: 800,
+        category: "fish-chips",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/okqjMCmHCcacEYjJ.jpg",
+      },
+    ],
+  },
+  {
+    id: "kids",
+    name: "Kids Menu",
+    emoji: "⭐",
+    items: [
+      {
+        id: "kids-chicken-fries",
+        name: "Chicken Fingers & Fries",
+        description: "Kid-sized chicken fingers with golden fries and dipping sauce",
+        priceCents: 800,
+        category: "kids",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/wUcyFQDmSGWyLUFp.jpg",
+      },
+      {
+        id: "kids-pogo-fries",
+        name: "Pogo & Fries",
+        description: "Classic corn dog on a stick with golden fries",
+        priceCents: 700,
+        category: "kids",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PxXHSmzKnZRnLhsi.jpg",
+      },
+      {
+        id: "kids-hot-dog",
+        name: "Hot Dog",
+        description: "Classic grilled hot dog on a bun",
+        priceCents: 700,
+        category: "kids",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/OBKLKyttPPwiMqSr.jpg",
+      },
+      {
+        id: "kids-whistle-dog",
+        name: "Whistle Dog",
+        description: "Grilled hot dog with bacon and cheese — a kid favourite",
+        priceCents: 800,
+        category: "kids",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/PhhMZqVsibuxaFPi.jpg",
+      },
+      {
+        id: "kids-side-fries",
+        name: "Side of Fries",
+        description: "Kid-sized portion of golden fries",
+        priceCents: 200,
+        category: "kids",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/HOQFYIGGZDBVAqbT.jpg",
+      },
+      {
+        id: "kids-pop",
+        name: "Pop",
+        description: "Can of pop — Pepsi, Diet Pepsi, 7UP, or Orange Crush",
+        priceCents: 200,
+        category: "kids",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/qEnUkCYFSxEKfVfM.jpg",
+      },
+    ],
+  },
+  {
+    id: "drinks",
+    name: "Drinks",
+    emoji: "🥤",
+    items: [
+      {
+        id: "drink-pop",
+        name: "Pop / Soda",
+        description: "Pepsi, Diet Pepsi, 7UP, Orange Crush — ask about today's selection",
+        priceCents: 250,
+        category: "drinks",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/qEnUkCYFSxEKfVfM.jpg",
+      },
+      {
+        id: "drink-water",
+        name: "Bottled Water",
+        description: "Ice-cold bottled water",
+        priceCents: 200,
+        category: "drinks",
+        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663152852200/ZVJyadYGdnbOJHhu.jpg",
+      },
+    ],
+  },
+];
+
+export const DAILY_SPECIAL = {
+  title: "Daily Special",
+  description: "Watch for daily specials — ask us what's on today!",
+  priceCents: 0,
+};
