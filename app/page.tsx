@@ -26,6 +26,8 @@ import { MenuSearch, DietaryBadges } from "@/components/MenuSearch";
 import type { DietaryTag } from "@shared/menu";
 import { FloatingEmojis } from "@/components/FloatingEmojis";
 import { SectionReveal } from "@/components/SectionReveal";
+import { HowItWorks } from "@/components/HowItWorks";
+import { StatsCounter } from "@/components/StatsCounter";
 
 const TRUCK_HERO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png";
@@ -362,16 +364,19 @@ export default function Home() {
       </section>
       </SectionReveal>
 
+      {/* HOW IT WORKS */}
+      <HowItWorks />
+
       {/* MENU */}
       <section id="menu" className="py-10 sm:py-14">
         <div className="container">
           <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
             <h2
-              className="text-4xl sm:text-5xl font-black leading-none"
+              className="text-4xl sm:text-5xl font-black leading-none fire-text"
               style={{
                 fontFamily: "var(--font-bangers), 'Bangers', cursive",
                 letterSpacing: "0.04em",
-                color: "oklch(0.97 0.01 60)",
+                filter: "drop-shadow(0 2px 8px oklch(0.58 0.24 30 / 0.3))",
               }}
             >
               Our Menu
@@ -583,6 +588,9 @@ export default function Home() {
       <DailySpecials />
       <Gallery />
 
+      {/* STATS */}
+      <StatsCounter />
+
       {/* REVIEWS */}
       <Reviews />
 
@@ -596,12 +604,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "16/10" }}>
               <Image
-                src={BURGER_JALAPENO}
-                alt="The Stoned Chef food truck at 45 Dundas St, Deseronto"
+                src="/food/spread.jpg"
+                alt="The Stoned Chef food spread — burgers, poutine, fries, fish & chips"
                 width={800}
                 height={500}
                 className="w-full h-full object-cover"
-                style={{ objectPosition: "center 40%" }}
+                style={{ objectPosition: "center center" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
@@ -690,7 +698,7 @@ export default function Home() {
               <div
                 key={info.title}
                 className="rounded-2xl p-5 flex items-start gap-4"
-                style={{ background: "var(--color-card)", border: "1px solid var(--color-border)" }}
+                style={{ background: "var(--color-card)", boxShadow: "0 4px 20px oklch(0 0 0 / 0.3)" }}
               >
                 <div
                   className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -714,12 +722,12 @@ export default function Home() {
           </div>
 
           {/* Google Maps */}
-          <div className="mt-6 rounded-2xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+          <div className="mt-6 rounded-2xl overflow-hidden" style={{ boxShadow: "0 4px 20px oklch(0 0 0 / 0.4)" }}>
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2842.5!2d-77.0474!3d44.1983!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cd41f0c7b0b0b0b%3A0x0!2s45+Dundas+St%2C+Deseronto%2C+ON!5e0!3m2!1sen!2sca!4v1"
               width="100%"
-              height="250"
-              style={{ border: 0, filter: "invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.9)" }}
+              height="280"
+              style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

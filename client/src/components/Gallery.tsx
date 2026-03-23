@@ -75,14 +75,18 @@ export default function Gallery() {
   };
 
   return (
-    <section className="py-16 bg-zinc-950" id="gallery">
+    <section className="py-16" id="gallery" style={{ background: "oklch(0.10 0.015 28)" }}>
       <div className="container mb-10 text-center">
         <p className="text-orange-500 font-semibold uppercase tracking-widest text-sm mb-2">
           Fresh From The Truck
         </p>
         <h2
-          className="text-4xl md:text-5xl font-black uppercase text-white"
-          style={{ fontFamily: "'Bangers', cursive", letterSpacing: "0.05em" }}
+          className="text-4xl md:text-5xl font-black uppercase fire-text"
+          style={{
+            fontFamily: "var(--font-bangers), 'Bangers', cursive",
+            letterSpacing: "0.05em",
+            filter: "drop-shadow(0 2px 8px oklch(0.58 0.24 30 / 0.3))",
+          }}
         >
           Food Gallery
         </h2>
