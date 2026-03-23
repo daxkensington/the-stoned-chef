@@ -23,6 +23,8 @@ import type { MenuItem } from "@shared/menu";
 import { Reviews } from "@/components/Reviews";
 import { MenuSearch, DietaryBadges } from "@/components/MenuSearch";
 import type { DietaryTag } from "@shared/menu";
+import { FloatingEmojis } from "@/components/FloatingEmojis";
+import { SectionReveal } from "@/components/SectionReveal";
 
 const TRUCK_HERO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png";
@@ -97,6 +99,7 @@ export default function Home() {
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
       {/* HERO */}
       <section className="relative overflow-hidden" style={{ minHeight: "85vh" }}>
+        <FloatingEmojis />
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${TRUCK_HERO})`, backgroundPosition: "center 35%" }}
@@ -140,13 +143,8 @@ export default function Home() {
                 THE
               </span>
               <span
-                className="block"
+                className="block fire-text"
                 style={{
-                  background:
-                    "linear-gradient(135deg, oklch(0.80 0.20 50) 0%, oklch(0.62 0.24 32) 60%, oklch(0.50 0.22 25) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
                   filter: "drop-shadow(0 2px 8px oklch(0 0 0 / 0.6))",
                 }}
               >
@@ -240,6 +238,7 @@ export default function Home() {
       </section>
 
       {/* FOOD PHOTO STRIP */}
+      <SectionReveal>
       <section
         className="py-8 border-y border-border overflow-hidden"
         style={{ background: "oklch(0.15 0.02 30)" }}
@@ -301,6 +300,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* MENU */}
       <section id="menu" className="py-10 sm:py-14">
@@ -399,7 +399,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: idx * 0.05 }}
-                  className={`rounded-2xl overflow-hidden flex flex-col transition-all hover:-translate-y-0.5 hover:shadow-lg ${isSoldOut ? "opacity-60" : ""}`}
+                  className={`rounded-2xl overflow-hidden flex flex-col card-glow ${isSoldOut ? "opacity-60" : ""}`}
                   style={{
                     background: "var(--color-card)",
                     border: "1px solid var(--color-border)",
@@ -522,8 +522,9 @@ export default function Home() {
       <Reviews />
 
       {/* ABOUT */}
+      <SectionReveal>
       <section
-        className="py-10 border-t border-border"
+        className="py-10 border-t border-border wave-divider"
         style={{ background: "oklch(0.15 0.02 30)" }}
       >
         <div className="container">
@@ -585,8 +586,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* FIND US */}
+      <SectionReveal>
       <section id="info" className="py-10 border-t border-border">
         <div className="container">
           <h2
@@ -658,6 +661,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      </SectionReveal>
 
       {/* EMAIL CAPTURE */}
       <EmailCapture />

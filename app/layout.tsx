@@ -3,6 +3,7 @@ import { Bangers } from "next/font/google";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Navbar";
 import { HappyHourBanner } from "@/components/HappyHour";
+import { ScrollProgress } from "@/components/ScrollProgress";
 import "./globals.css";
 
 const bangers = Bangers({
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={bangers.variable}>
       <body>
         <Providers>
+          <ScrollProgress />
           <HappyHourBanner />
           <Navbar />
           {children}

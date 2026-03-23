@@ -127,3 +127,130 @@
     }
   }
 }
+
+/* ── Animated gradient text ─────────────────────────────────── */
+@keyframes fire-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.fire-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.85 0.20 55) 0%,
+    oklch(0.70 0.24 38) 25%,
+    oklch(0.55 0.26 25) 50%,
+    oklch(0.70 0.24 38) 75%,
+    oklch(0.85 0.20 55) 100%
+  );
+  background-size: 200% 200%;
+  animation: fire-gradient 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Card fire glow on hover ────────────────────────────────── */
+.card-glow {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card-glow:hover {
+  box-shadow:
+    0 4px 20px oklch(0.58 0.24 30 / 0.25),
+    0 0 40px oklch(0.58 0.24 30 / 0.08),
+    inset 0 1px 0 oklch(0.62 0.22 38 / 0.15);
+  transform: translateY(-3px);
+}
+
+/* ── Scroll progress bar ────────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, oklch(0.58 0.24 30), oklch(0.72 0.20 55), oklch(0.58 0.24 30));
+  background-size: 200% 100%;
+  animation: fire-gradient 3s ease-in-out infinite;
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
+
+/* ── Wavy section divider ───────────────────────────────────── */
+.wave-divider {
+  position: relative;
+  overflow: hidden;
+}
+.wave-divider::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: var(--color-background);
+  clip-path: ellipse(55% 100% at 50% 0%);
+  z-index: 1;
+}
+
+/* ── Floating emoji ─────────────────────────────────────────── */
+@keyframes float-up {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+}
+
+.floating-emoji {
+  position: absolute;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: float-up var(--duration, 12s) var(--delay, 0s) linear infinite;
+  opacity: 0;
+}
+
+/* ── Shimmer skeleton ───────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.20 0.02 30) 25%,
+    oklch(0.26 0.02 30) 50%,
+    oklch(0.20 0.02 30) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* ── Glassmorphism utility ──────────────────────────────────── */
+.glass {
+  background: oklch(0.15 0.015 30 / 0.7);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid oklch(0.97 0.01 60 / 0.08);
+}
+
+/* ── Smooth selection color ─────────────────────────────────── */
+::selection {
+  background: oklch(0.62 0.22 38 / 0.3);
+  color: oklch(0.97 0.01 60);
+}
+
+/* ── Better scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(0.15 0.01 30);
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.30 0.02 30);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.40 0.02 30);
+}

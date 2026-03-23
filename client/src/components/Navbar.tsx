@@ -24,8 +24,7 @@ export function Navbar() {
   return (
     <>
       <nav
-        className="sticky top-0 z-50 border-b border-border"
-        style={{ background: "oklch(0.15 0.015 30 / 0.95)", backdropFilter: "blur(12px)" }}
+        className="sticky top-0 z-50 border-b glass"
       >
         <div className="container">
           <div className="flex items-center justify-between h-16">
