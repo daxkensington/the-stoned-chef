@@ -201,17 +201,19 @@
 
 /* ── Floating emoji ─────────────────────────────────────────── */
 @keyframes float-up {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
-  50% { opacity: 0.3; }
-  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+  10% { opacity: 0.7; }
+  50% { opacity: 0.45; transform: translateY(-50vh) rotate(180deg) scale(1); }
+  100% { transform: translateY(-110vh) rotate(360deg) scale(0.9); opacity: 0; }
 }
 
 .floating-emoji {
   position: absolute;
-  font-size: 1.5rem;
+  font-size: 2rem;
   pointer-events: none;
   animation: float-up var(--duration, 12s) var(--delay, 0s) linear infinite;
   opacity: 0;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
 }
 
 /* ── Shimmer skeleton ───────────────────────────────────────── */
