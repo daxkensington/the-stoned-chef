@@ -15,6 +15,13 @@
       "when": 1775237165717,
       "tag": "0001_brave_sharon_ventura",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775242447868,
+      "tag": "0002_freezing_king_cobra",
+      "breakpoints": true
     }
   ]
 }

@@ -43,6 +43,7 @@ export default function OrderPage() {
     customerEmail: "",
     pickupTime: "",
     notes: "",
+    smsOptIn: true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [tipCents, setTipCents] = useState(0);
@@ -96,6 +97,7 @@ export default function OrderPage() {
       pickupTime: form.pickupTime,
       notes: form.notes.trim() || undefined,
       tipCents: tipCents,
+      smsOptIn: form.smsOptIn,
       paymentToken,
       items: items.map((i) => ({
         id: i.id,
@@ -283,6 +285,19 @@ export default function OrderPage() {
                   </div>
                   <p className="text-xs text-muted-foreground">We&apos;ll notify you when your order is ready</p>
                 </div>
+
+                {/* SMS Opt-in */}
+                <label className="flex items-center gap-3 cursor-pointer py-1">
+                  <input
+                    type="checkbox"
+                    checked={form.smsOptIn}
+                    onChange={(e) => setForm((f) => ({ ...f, smsOptIn: e.target.checked }))}
+                    className="w-5 h-5 rounded accent-[oklch(0.58_0.24_30)]"
+                  />
+                  <span className="text-sm text-foreground">
+                    Text me when my order is ready
+                  </span>
+                </label>
               </div>
             </div>
 

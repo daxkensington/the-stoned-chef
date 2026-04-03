@@ -20,6 +20,7 @@ import {
   getSubscriberCount,
 } from "./db";
 import { createSquareOrder, createSquarePayment } from "./square";
+import { sendOrderConfirmationSMS, sendOrderReadySMS, sendNewOrderSMSToOwner } from "./sms";
 import {
   sendOrderNotificationToOwner,
   sendOrderConfirmationToCustomer,
@@ -145,6 +146,7 @@ export const appRouter = router({
           notes: z.string().max(500).optional(),
           items: z.array(cartItemSchema).min(1),
           tipCents: z.number().int().nonnegative().default(0),
+          smsOptIn: z.boolean().default(false),
           paymentToken: z.string().optional(),
         })
       )
@@ -215,6 +217,7 @@ export const appRouter = router({
             paymentMethod,
             squareOrderId,
             squarePaymentId,
+            smsOptIn: input.smsOptIn,
             notes: input.notes ?? null,
           },
           input.items.map((item) => ({
@@ -253,6 +256,22 @@ export const appRouter = router({
           }).catch(() => {});
         }
 
+        // SMS notifications (fire and forget)
+        if (input.smsOptIn) {
+          sendOrderConfirmationSMS(input.customerPhone, {
+            orderNumber,
+            pickupTime: input.pickupTime,
+            totalCents,
+          }).catch(() => {});
+        }
+
+        sendNewOrderSMSToOwner({
+          orderNumber,
+          customerName: input.customerName,
+          totalCents,
+          itemCount: input.items.reduce((sum, i) => sum + i.quantity, 0),
+        }).catch(() => {});
+
         return {
           orderNumber: order.orderNumber,
           totalCents: order.totalCents,
@@ -282,12 +301,20 @@ export const appRouter = router({
         const updated = await updateOrderStatus(input.orderNumber, input.status);
         if (!updated) return { success: false };
 
-        // If marked ready and customer has email, notify them
-        if (input.status === "ready" && updated.customerEmail) {
-          sendOrderReadyNotification(updated.customerEmail, {
-            orderNumber: updated.orderNumber,
-            customerName: updated.customerName,
-          }).catch(() => {});
+        // If marked ready, notify customer
+        if (input.status === "ready") {
+          if (updated.customerEmail) {
+            sendOrderReadyNotification(updated.customerEmail, {
+              orderNumber: updated.orderNumber,
+              customerName: updated.customerName,
+            }).catch(() => {});
+          }
+          if (updated.smsOptIn && updated.customerPhone) {
+            sendOrderReadySMS(updated.customerPhone, {
+              orderNumber: updated.orderNumber,
+              customerName: updated.customerName,
+            }).catch(() => {});
+          }
         }
 
         return { success: true, order: updated };
