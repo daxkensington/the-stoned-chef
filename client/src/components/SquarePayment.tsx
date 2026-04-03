@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { CreditCard, Lock, AlertCircle } from "lucide-react";
+import { CreditCard, Lock, AlertCircle, ShieldCheck, Smartphone, Truck } from "lucide-react";
 
 declare global {
   interface Window {
@@ -62,21 +62,25 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
     containerRef.current = node;
     if (!node || cardRef.current || !hasCredentials) return;
 
-    // Container just mounted — init the card form
-    loadSquareScript().then(async () => {
-      if (!mountedRef.current || cardRef.current) return;
-      try {
-        const payments = await window.Square!.payments(appId!, locationId!);
-        const card = await payments.card();
-        await card.attach("#sq-card");
-        if (!mountedRef.current) { card.destroy(); return; }
-        cardRef.current = card;
-        setReady(true);
-        setError(null);
-      } catch (err) {
-        console.error("[Square] Card form init error:", err);
-        if (mountedRef.current) setError("Could not load payment form");
-      }
+    // Wait for browser paint, then load Square and attach card form
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        loadSquareScript().then(async () => {
+          if (!mountedRef.current || cardRef.current) return;
+          try {
+            const payments = await window.Square!.payments(appId!, locationId!);
+            const card = await payments.card();
+            await card.attach("#sq-card");
+            if (!mountedRef.current) { card.destroy(); return; }
+            cardRef.current = card;
+            setReady(true);
+            setError(null);
+          } catch (err) {
+            console.error("[Square] Card form init error:", err);
+            if (mountedRef.current) setError("Could not load payment form");
+          }
+        });
+      }, 50);
     });
   }, [appId, locationId, hasCredentials]);
 
@@ -221,6 +225,24 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
             </button>
           </>
         )}
+
+        {/* Trust Badges */}
+        <div className="pt-4 border-t border-border">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <ShieldCheck className="w-5 h-5" style={{ color: "oklch(0.65 0.18 145)" }} />
+              <span className="text-[11px] text-muted-foreground leading-tight">Secure<br />Checkout</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <Smartphone className="w-5 h-5" style={{ color: "oklch(0.65 0.18 250)" }} />
+              <span className="text-[11px] text-muted-foreground leading-tight">Order<br />Tracking</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <Truck className="w-5 h-5" style={{ color: "oklch(0.62 0.22 38)" }} />
+              <span className="text-[11px] text-muted-foreground leading-tight">Fresh &<br />Fast Pickup</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
