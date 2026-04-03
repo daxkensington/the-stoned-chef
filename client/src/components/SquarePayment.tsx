@@ -28,8 +28,8 @@ interface SquarePaymentProps {
   amountCents: number;
 }
 
-const SQUARE_APP_ID = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID ?? "";
-const SQUARE_LOC_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? "";
+const SQUARE_APP_ID = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID || "sq0idp-4ELLADDTQZXI-xMg0zXDkw";
+const SQUARE_LOC_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || "LZ1QQMBD410Q8";
 
 export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }: SquarePaymentProps) {
   const cardRef = useRef<SquareCard | null>(null);
