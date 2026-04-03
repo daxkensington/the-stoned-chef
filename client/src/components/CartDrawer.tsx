@@ -113,7 +113,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   ${(totalCents / 100).toFixed(2)}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Tax included · Payment at pickup</p>
+              <p className="text-xs text-muted-foreground">Tax included · Pay online or at pickup</p>
               <Button
                 onClick={handleCheckout}
                 className="w-full h-12 text-base font-bold rounded-xl"

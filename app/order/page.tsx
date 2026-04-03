@@ -9,12 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ShoppingBag, Clock, User, Phone, ChevronRight, Mail } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Clock, User, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ComboSuggestion } from "@/components/ComboSuggestion";
 import { saveOrderToHistory } from "@/components/OrderHistory";
 import { addPunch } from "@/components/PunchCard";
 import { TipSelector } from "@/components/TipSelector";
+import { SquarePayment } from "@/components/SquarePayment";
 
 function generateTimeSlots() {
   const slots: string[] = [];
@@ -49,14 +50,12 @@ export default function OrderPage() {
 
   const placeOrder = trpc.orders.place.useMutation({
     onSuccess: (data) => {
-      // Save to order history for reorder
       saveOrderToHistory({
         orderNumber: data.orderNumber,
         items: items.map((i) => ({ id: i.id, name: i.name, category: i.category, priceCents: i.priceCents, quantity: i.quantity })),
         totalCents: data.totalCents,
         date: new Date().toLocaleDateString("en-CA", { month: "short", day: "numeric" }),
       });
-      // Add loyalty punch
       addPunch();
       clearCart();
       router.push(`/confirmation/${data.orderNumber}`);
@@ -83,8 +82,7 @@ export default function OrderPage() {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitOrder = (paymentToken?: string) => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -97,6 +95,8 @@ export default function OrderPage() {
       customerEmail: form.customerEmail.trim() || undefined,
       pickupTime: form.pickupTime,
       notes: form.notes.trim() || undefined,
+      tipCents: tipCents,
+      paymentToken,
       items: items.map((i) => ({
         id: i.id,
         name: i.name,
@@ -105,6 +105,10 @@ export default function OrderPage() {
         quantity: i.quantity,
       })),
     });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
   };
 
   if (items.length === 0) {
@@ -181,7 +185,7 @@ export default function OrderPage() {
                   ${(totalCents / 100).toFixed(2)} CAD
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Tax included · Payment at pickup</p>
+              <p className="text-xs text-muted-foreground">Tax included</p>
             </div>
           </div>
 
@@ -389,27 +393,13 @@ export default function OrderPage() {
               </div>
             )}
 
-            <Button
-              type="submit"
+            {/* Payment */}
+            <SquarePayment
+              amountCents={grandTotal}
               disabled={placeOrder.isPending}
-              className="w-full h-14 text-base font-bold rounded-2xl shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
-                color: "white",
-              }}
-            >
-              {placeOrder.isPending ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Placing Order...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  Place Order — ${(grandTotal / 100).toFixed(2)}
-                  <ChevronRight className="w-4 h-4" />
-                </span>
-              )}
-            </Button>
+              onToken={(token) => submitOrder(token)}
+              onPayAtPickup={() => submitOrder()}
+            />
           </form>
         </div>
       </div>

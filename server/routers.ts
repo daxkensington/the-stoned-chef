@@ -19,7 +19,7 @@ import {
   addEmailSubscriber,
   getSubscriberCount,
 } from "./db";
-import { createSquareOrder } from "./square";
+import { createSquareOrder, createSquarePayment } from "./square";
 import {
   sendOrderNotificationToOwner,
   sendOrderConfirmationToCustomer,
@@ -144,6 +144,8 @@ export const appRouter = router({
           pickupTime: z.string().min(1).max(64),
           notes: z.string().max(500).optional(),
           items: z.array(cartItemSchema).min(1),
+          tipCents: z.number().int().nonnegative().default(0),
+          paymentToken: z.string().optional(),
         })
       )
       .mutation(async ({ input }) => {
@@ -160,6 +162,9 @@ export const appRouter = router({
         }));
 
         let squareOrderId: string | null = null;
+        let squarePaymentId: string | null = null;
+        let paymentStatus: "unpaid" | "paid" | "failed" = "unpaid";
+        let paymentMethod: string | null = null;
         const squareToken = process.env.SQUARE_ACCESS_TOKEN;
         const squareLocation = process.env.SQUARE_LOCATION_ID;
 
@@ -172,6 +177,28 @@ export const appRouter = router({
             lineItems: squareLineItems,
             totalCents,
           });
+
+          // Process card payment if token provided
+          if (input.paymentToken) {
+            const chargeAmount = totalCents + input.tipCents;
+            const result = await createSquarePayment(squareToken, squareLocation, {
+              sourceId: input.paymentToken,
+              amountCents: chargeAmount,
+              orderId: squareOrderId,
+              orderNumber,
+              customerName: input.customerName,
+              customerEmail: input.customerEmail,
+              tipCents: input.tipCents,
+            });
+
+            if ("paymentId" in result) {
+              squarePaymentId = result.paymentId;
+              paymentStatus = "paid";
+              paymentMethod = "card";
+            } else {
+              throw new Error(result.error);
+            }
+          }
         }
 
         const order = await createOrder(
@@ -182,8 +209,12 @@ export const appRouter = router({
             customerEmail: input.customerEmail ?? null,
             pickupTime: input.pickupTime,
             totalCents,
+            tipCents: input.tipCents,
             status: "pending",
+            paymentStatus,
+            paymentMethod,
             squareOrderId,
+            squarePaymentId,
             notes: input.notes ?? null,
           },
           input.items.map((item) => ({
@@ -227,6 +258,7 @@ export const appRouter = router({
           totalCents: order.totalCents,
           status: order.status,
           squareSynced: !!squareOrderId,
+          paid: paymentStatus === "paid",
           createdAt: order.createdAt,
         };
       }),

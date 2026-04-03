@@ -1,5 +1,16 @@
 import { randomUUID } from "crypto";
 
+const SQUARE_API = "https://connect.squareup.com/v2";
+const SQUARE_VERSION = "2026-01-22";
+
+function squareHeaders(accessToken: string) {
+  return {
+    "Square-Version": SQUARE_VERSION,
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  };
+}
+
 interface SquareLineItem {
   name: string;
   quantity: string;
@@ -16,6 +27,70 @@ interface SquareOrderPayload {
   orderNumber: string;
   lineItems: SquareLineItem[];
   totalCents: number;
+}
+
+interface SquarePaymentPayload {
+  sourceId: string;
+  amountCents: number;
+  orderId?: string | null;
+  orderNumber: string;
+  customerName: string;
+  customerEmail?: string;
+  tipCents?: number;
+}
+
+export async function createSquarePayment(
+  accessToken: string,
+  locationId: string,
+  payload: SquarePaymentPayload
+): Promise<{ paymentId: string } | { error: string }> {
+  const body: Record<string, unknown> = {
+    idempotency_key: randomUUID(),
+    source_id: payload.sourceId,
+    amount_money: {
+      amount: payload.amountCents,
+      currency: "CAD",
+    },
+    location_id: locationId,
+    reference_id: payload.orderNumber,
+    note: `Online order #${payload.orderNumber} — ${payload.customerName}`,
+  };
+
+  if (payload.orderId) {
+    body.order_id = payload.orderId;
+  }
+
+  if (payload.tipCents && payload.tipCents > 0) {
+    body.tip_money = { amount: payload.tipCents, currency: "CAD" };
+  }
+
+  if (payload.customerEmail) {
+    body.buyer_email_address = payload.customerEmail;
+  }
+
+  try {
+    const response = await fetch(`${SQUARE_API}/payments`, {
+      method: "POST",
+      headers: squareHeaders(accessToken),
+      body: JSON.stringify(body),
+    });
+
+    const data = (await response.json()) as {
+      payment?: { id?: string; status?: string };
+      errors?: Array<{ detail?: string }>;
+    };
+
+    if (!response.ok || !data.payment?.id) {
+      const detail = data.errors?.[0]?.detail ?? "Payment failed";
+      console.error("[Square] Payment error:", data.errors);
+      return { error: detail };
+    }
+
+    return { paymentId: data.payment.id };
+  } catch (err) {
+    console.error("[Square] Payment network error:", err);
+    return { error: "Network error processing payment" };
+  }
 }
 
 export async function createSquareOrder(
@@ -56,11 +131,7 @@ export async function createSquareOrder(
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Square-Version": "2026-01-22",
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
+      headers: squareHeaders(accessToken),
       body: JSON.stringify(body),
     });
 

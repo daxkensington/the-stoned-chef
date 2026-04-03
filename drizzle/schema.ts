@@ -35,6 +35,13 @@ export type InsertAdmin = typeof admins.$inferInsert;
 
 // ── Orders ───────────────────────────────────────────────────────────────────
 
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "unpaid",
+  "paid",
+  "failed",
+  "refunded",
+]);
+
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderNumber: varchar("order_number", { length: 32 }).notNull().unique(),
@@ -43,8 +50,12 @@ export const orders = pgTable("orders", {
   customerEmail: varchar("customer_email", { length: 320 }),
   pickupTime: varchar("pickup_time", { length: 64 }).notNull(),
   totalCents: integer("total_cents").notNull(),
+  tipCents: integer("tip_cents").default(0).notNull(),
   status: orderStatusEnum("status").default("pending").notNull(),
+  paymentStatus: paymentStatusEnum("payment_status").default("unpaid").notNull(),
+  paymentMethod: varchar("payment_method", { length: 32 }),
   squareOrderId: varchar("square_order_id", { length: 128 }),
+  squarePaymentId: varchar("square_payment_id", { length: 128 }),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
