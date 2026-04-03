@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Bangers } from "next/font/google";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Navbar";
@@ -42,6 +43,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={bangers.variable}>
+      <head>
+        <Script src="https://web.squarecdn.com/v1/square.js" strategy="beforeInteractive" />
+      </head>
       <body>
         <Providers>
           <ScrollProgress />

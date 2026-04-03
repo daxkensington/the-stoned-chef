@@ -6,19 +6,15 @@ import { CreditCard, Lock, AlertCircle, ShieldCheck, Smartphone, Truck } from "l
 declare global {
   interface Window {
     Square?: {
-      payments: (appId: string, locationId: string) => Promise<SquarePayments>;
+      payments: (appId: string, locationId: string) => Promise<{
+        card: () => Promise<{
+          attach: (selector: string) => Promise<void>;
+          tokenize: () => Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>;
+          destroy: () => void;
+        }>;
+      }>;
     };
   }
-}
-
-interface SquarePayments {
-  card: () => Promise<SquareCard>;
-}
-
-interface SquareCard {
-  attach: (selector: string) => Promise<void>;
-  tokenize: () => Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>;
-  destroy: () => void;
 }
 
 interface SquarePaymentProps {
@@ -28,63 +24,51 @@ interface SquarePaymentProps {
   amountCents: number;
 }
 
-const SQUARE_APP_ID = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID || "sq0idp-4ELLADDTQZXI-xMg0zXDkw";
-const SQUARE_LOC_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || "LZ1QQMBD410Q8";
-
 export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }: SquarePaymentProps) {
-  const cardRef = useRef<SquareCard | null>(null);
+  const cardRef = useRef<{ tokenize: () => Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>; destroy: () => void } | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [payMethod, setPayMethod] = useState<"card" | "pickup">(
-    SQUARE_APP_ID ? "card" : "pickup"
-  );
+  const [payMethod, setPayMethod] = useState<"card" | "pickup">("card");
 
   useEffect(() => {
-    if (!SQUARE_APP_ID || !SQUARE_LOC_ID || payMethod !== "card") return;
+    if (payMethod !== "card") return;
 
     let cancelled = false;
-    let card: SquareCard | null = null;
+    let cardInstance: typeof cardRef.current = null;
 
     async function init() {
-      // 1. Ensure the script is loaded
-      if (!window.Square) {
-        const existing = document.querySelector(
-          'script[src*="square.js"]'
-        ) as HTMLScriptElement | null;
-        if (!existing) {
-          const s = document.createElement("script");
-          s.src = "https://web.squarecdn.com/v1/square.js";
-          document.head.appendChild(s);
-        }
-        // Poll until Square is available (max 10s)
-        for (let i = 0; i < 100 && !window.Square; i++) {
-          await new Promise((r) => setTimeout(r, 100));
-        }
-        if (!window.Square) {
-          if (!cancelled) setError("Could not load Square SDK");
-          return;
-        }
+      // Poll for Square SDK (loaded via Script in layout.tsx)
+      for (let i = 0; i < 50 && !window.Square; i++) {
+        await new Promise((r) => setTimeout(r, 200));
+      }
+      if (!window.Square || cancelled) {
+        if (!cancelled) setError("Square SDK failed to load. Try refreshing.");
+        return;
       }
 
-      // 2. Wait for the DOM container (max 2s)
-      for (let i = 0; i < 20 && !document.getElementById("sq-card"); i++) {
+      // Poll for the container div
+      for (let i = 0; i < 30 && !document.getElementById("sq-card"); i++) {
         await new Promise((r) => setTimeout(r, 100));
       }
       if (!document.getElementById("sq-card") || cancelled) return;
 
-      // 3. Init and attach
       try {
-        const payments = await window.Square!.payments(SQUARE_APP_ID, SQUARE_LOC_ID);
-        card = await payments.card();
+        const payments = await window.Square.payments(
+          "sq0idp-4ELLADDTQZXI-xMg0zXDkw",
+          "LZ1QQMBD410Q8"
+        );
+        const card = await payments.card();
         await card.attach("#sq-card");
         if (cancelled) { card.destroy(); return; }
+        cardInstance = card;
         cardRef.current = card;
         setReady(true);
         setError(null);
-      } catch (err) {
-        console.error("[Square] Init error:", err);
-        if (!cancelled) setError("Could not load payment form");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        console.error("[Square] Init error:", msg);
+        if (!cancelled) setError("Payment form error: " + msg);
       }
     }
 
@@ -92,7 +76,7 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
 
     return () => {
       cancelled = true;
-      card?.destroy();
+      cardInstance?.destroy();
       cardRef.current = null;
       setReady(false);
     };

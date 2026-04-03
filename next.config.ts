@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["@neondatabase/serverless"],
+  serverExternalPackages: ["@neondatabase/serverless", "twilio"],
 };
 
 export default nextConfig;
