@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://the-stoned-chef.vercel.app/sitemap.xml
+Sitemap: https://thestonedchef.ca/sitemap.xml
