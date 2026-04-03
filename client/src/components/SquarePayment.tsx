@@ -47,11 +47,9 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
       return;
     }
 
-    const script = document.createElement("script");
-    script.src = "https://web.squarecdn.com/v1/square.js";
-    script.onload = async () => {
+    async function initCard() {
       try {
-        const payments = await window.Square!.payments(appId, locationId);
+        const payments = await window.Square!.payments(appId!, locationId!);
         const card = await payments.card();
         await card.attach("#square-card-container");
         cardRef.current = card;
@@ -60,7 +58,24 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
         console.error("[Square] Card form init error:", err);
         setError("Could not load payment form");
       }
-    };
+    }
+
+    // If Square SDK already loaded (e.g. strict mode remount)
+    if (window.Square) {
+      initCard();
+      return () => { cardRef.current?.destroy(); };
+    }
+
+    // Check if script tag already exists
+    const existing = document.querySelector('script[src="https://web.squarecdn.com/v1/square.js"]');
+    if (existing) {
+      existing.addEventListener("load", initCard);
+      return () => { cardRef.current?.destroy(); };
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://web.squarecdn.com/v1/square.js";
+    script.onload = initCard;
     document.head.appendChild(script);
 
     return () => {
