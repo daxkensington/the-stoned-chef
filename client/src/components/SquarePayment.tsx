@@ -28,66 +28,67 @@ interface SquarePaymentProps {
   amountCents: number;
 }
 
+function loadSquareScript(): Promise<void> {
+  return new Promise((resolve) => {
+    if (window.Square) { resolve(); return; }
+    const existing = document.querySelector('script[src="https://web.squarecdn.com/v1/square.js"]') as HTMLScriptElement | null;
+    if (existing) {
+      if (window.Square) { resolve(); return; }
+      existing.addEventListener("load", () => resolve());
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://web.squarecdn.com/v1/square.js";
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+}
+
 export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }: SquarePaymentProps) {
   const cardRef = useRef<SquareCard | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payMethod, setPayMethod] = useState<"card" | "pickup">("card");
-  const initRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
+  const appId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
+  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
+  const hasCredentials = !!(appId && locationId);
 
-    const appId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
-    const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
-    if (!appId || !locationId) {
-      setPayMethod("pickup");
-      return;
-    }
+  // Callback ref: fires when the container div mounts into the DOM
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    if (!node || cardRef.current || !hasCredentials) return;
 
-    async function initCard() {
-      // Wait for the container element to exist in the DOM
-      let attempts = 0;
-      while (!document.querySelector("#square-card-container") && attempts < 20) {
-        await new Promise((r) => setTimeout(r, 100));
-        attempts++;
-      }
+    // Container just mounted — init the card form
+    loadSquareScript().then(async () => {
+      if (!mountedRef.current || cardRef.current) return;
       try {
         const payments = await window.Square!.payments(appId!, locationId!);
         const card = await payments.card();
-        await card.attach("#square-card-container");
+        await card.attach("#sq-card");
+        if (!mountedRef.current) { card.destroy(); return; }
         cardRef.current = card;
         setReady(true);
+        setError(null);
       } catch (err) {
         console.error("[Square] Card form init error:", err);
-        setError("Could not load payment form");
+        if (mountedRef.current) setError("Could not load payment form");
       }
-    }
+    });
+  }, [appId, locationId, hasCredentials]);
 
-    // If Square SDK already loaded (e.g. strict mode remount)
-    if (window.Square) {
-      initCard();
-      return () => { cardRef.current?.destroy(); };
-    }
-
-    // Check if script tag already exists
-    const existing = document.querySelector('script[src="https://web.squarecdn.com/v1/square.js"]');
-    if (existing) {
-      existing.addEventListener("load", initCard);
-      return () => { cardRef.current?.destroy(); };
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://web.squarecdn.com/v1/square.js";
-    script.onload = initCard;
-    document.head.appendChild(script);
-
+  useEffect(() => {
+    mountedRef.current = true;
+    if (!hasCredentials) setPayMethod("pickup");
     return () => {
+      mountedRef.current = false;
       cardRef.current?.destroy();
+      cardRef.current = null;
     };
-  }, []);
+  }, [hasCredentials]);
 
   const handleCardPay = useCallback(async () => {
     if (!cardRef.current || loading) return;
@@ -154,7 +155,8 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
         {payMethod === "card" && (
           <>
             <div
-              id="square-card-container"
+              id="sq-card"
+              ref={setContainerRef}
               className="rounded-xl overflow-hidden min-h-[44px]"
               style={{ background: "var(--color-input)" }}
             />
