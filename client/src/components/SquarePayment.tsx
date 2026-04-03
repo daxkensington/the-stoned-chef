@@ -28,71 +28,75 @@ interface SquarePaymentProps {
   amountCents: number;
 }
 
-function loadSquareScript(): Promise<void> {
-  return new Promise((resolve) => {
-    if (window.Square) { resolve(); return; }
-    const existing = document.querySelector('script[src="https://web.squarecdn.com/v1/square.js"]') as HTMLScriptElement | null;
-    if (existing) {
-      if (window.Square) { resolve(); return; }
-      existing.addEventListener("load", () => resolve());
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://web.squarecdn.com/v1/square.js";
-    script.onload = () => resolve();
-    document.head.appendChild(script);
-  });
-}
+const SQUARE_APP_ID = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID ?? "";
+const SQUARE_LOC_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? "";
 
 export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }: SquarePaymentProps) {
   const cardRef = useRef<SquareCard | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [payMethod, setPayMethod] = useState<"card" | "pickup">("card");
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const mountedRef = useRef(true);
-
-  const appId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
-  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
-  const hasCredentials = !!(appId && locationId);
-
-  // Callback ref: fires when the container div mounts into the DOM
-  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
-    containerRef.current = node;
-    if (!node || cardRef.current || !hasCredentials) return;
-
-    // Wait for browser paint, then load Square and attach card form
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        loadSquareScript().then(async () => {
-          if (!mountedRef.current || cardRef.current) return;
-          try {
-            const payments = await window.Square!.payments(appId!, locationId!);
-            const card = await payments.card();
-            await card.attach("#sq-card");
-            if (!mountedRef.current) { card.destroy(); return; }
-            cardRef.current = card;
-            setReady(true);
-            setError(null);
-          } catch (err) {
-            console.error("[Square] Card form init error:", err);
-            if (mountedRef.current) setError("Could not load payment form");
-          }
-        });
-      }, 50);
-    });
-  }, [appId, locationId, hasCredentials]);
+  const [payMethod, setPayMethod] = useState<"card" | "pickup">(
+    SQUARE_APP_ID ? "card" : "pickup"
+  );
 
   useEffect(() => {
-    mountedRef.current = true;
-    if (!hasCredentials) setPayMethod("pickup");
+    if (!SQUARE_APP_ID || !SQUARE_LOC_ID || payMethod !== "card") return;
+
+    let cancelled = false;
+    let card: SquareCard | null = null;
+
+    async function init() {
+      // 1. Ensure the script is loaded
+      if (!window.Square) {
+        const existing = document.querySelector(
+          'script[src*="square.js"]'
+        ) as HTMLScriptElement | null;
+        if (!existing) {
+          const s = document.createElement("script");
+          s.src = "https://web.squarecdn.com/v1/square.js";
+          document.head.appendChild(s);
+        }
+        // Poll until Square is available (max 10s)
+        for (let i = 0; i < 100 && !window.Square; i++) {
+          await new Promise((r) => setTimeout(r, 100));
+        }
+        if (!window.Square) {
+          if (!cancelled) setError("Could not load Square SDK");
+          return;
+        }
+      }
+
+      // 2. Wait for the DOM container (max 2s)
+      for (let i = 0; i < 20 && !document.getElementById("sq-card"); i++) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      if (!document.getElementById("sq-card") || cancelled) return;
+
+      // 3. Init and attach
+      try {
+        const payments = await window.Square!.payments(SQUARE_APP_ID, SQUARE_LOC_ID);
+        card = await payments.card();
+        await card.attach("#sq-card");
+        if (cancelled) { card.destroy(); return; }
+        cardRef.current = card;
+        setReady(true);
+        setError(null);
+      } catch (err) {
+        console.error("[Square] Init error:", err);
+        if (!cancelled) setError("Could not load payment form");
+      }
+    }
+
+    init();
+
     return () => {
-      mountedRef.current = false;
-      cardRef.current?.destroy();
+      cancelled = true;
+      card?.destroy();
       cardRef.current = null;
+      setReady(false);
     };
-  }, [hasCredentials]);
+  }, [payMethod]);
 
   const handleCardPay = useCallback(async () => {
     if (!cardRef.current || loading) return;
@@ -124,7 +128,6 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
       </div>
 
       <div className="px-5 py-5 space-y-4">
-        {/* Payment method toggle */}
         <div className="flex gap-2">
           <button
             type="button"
@@ -160,7 +163,6 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
           <>
             <div
               id="sq-card"
-              ref={setContainerRef}
               className="rounded-xl overflow-hidden min-h-[44px]"
               style={{ background: "var(--color-input)" }}
             />
