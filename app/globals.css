@@ -53,28 +53,28 @@
   --chart-4: oklch(0.78 0.14 70);
   --chart-5: oklch(0.45 0.20 25);
   --radius: 0.75rem;
-  --background: oklch(0.13 0.01 30);
-  --foreground: oklch(0.97 0.01 60);
-  --card: oklch(0.18 0.015 30);
-  --card-foreground: oklch(0.97 0.01 60);
-  --popover: oklch(0.18 0.015 30);
-  --popover-foreground: oklch(0.97 0.01 60);
-  --secondary: oklch(0.22 0.02 30);
-  --secondary-foreground: oklch(0.90 0.01 60);
-  --muted: oklch(0.22 0.01 30);
-  --muted-foreground: oklch(0.65 0.02 60);
+  --background: oklch(0.18 0.012 30);
+  --foreground: oklch(0.95 0.01 60);
+  --card: oklch(0.23 0.015 30);
+  --card-foreground: oklch(0.95 0.01 60);
+  --popover: oklch(0.23 0.015 30);
+  --popover-foreground: oklch(0.95 0.01 60);
+  --secondary: oklch(0.28 0.02 30);
+  --secondary-foreground: oklch(0.92 0.01 60);
+  --muted: oklch(0.28 0.012 30);
+  --muted-foreground: oklch(0.72 0.02 55);
   --accent: oklch(0.70 0.18 55);
-  --accent-foreground: oklch(0.13 0.01 30);
+  --accent-foreground: oklch(0.15 0.01 30);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.28 0.02 30);
-  --input: oklch(0.22 0.02 30);
+  --border: oklch(0.34 0.02 30);
+  --input: oklch(0.26 0.018 30);
   --ring: oklch(0.62 0.22 38);
-  --sidebar: oklch(0.16 0.015 30);
-  --sidebar-foreground: oklch(0.97 0.01 60);
-  --sidebar-accent: oklch(0.22 0.02 30);
-  --sidebar-accent-foreground: oklch(0.90 0.01 60);
-  --sidebar-border: oklch(0.28 0.02 30);
+  --sidebar: oklch(0.20 0.015 30);
+  --sidebar-foreground: oklch(0.95 0.01 60);
+  --sidebar-accent: oklch(0.28 0.02 30);
+  --sidebar-accent-foreground: oklch(0.92 0.01 60);
+  --sidebar-border: oklch(0.34 0.02 30);
   --sidebar-ring: oklch(0.62 0.22 38);
 }
 
@@ -236,7 +236,7 @@
 
 /* ── Glassmorphism utility ──────────────────────────────────── */
 .glass {
-  background: oklch(0.15 0.015 30 / 0.7);
+  background: oklch(0.20 0.015 30 / 0.7);
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   border: 1px solid oklch(0.97 0.01 60 / 0.08);
@@ -253,7 +253,7 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: oklch(0.15 0.01 30);
+  background: oklch(0.20 0.01 30);
 }
 ::-webkit-scrollbar-thumb {
   background: oklch(0.30 0.02 30);

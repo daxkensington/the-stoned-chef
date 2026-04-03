@@ -138,8 +138,8 @@ export default function OrderPage() {
   return (
     <div className="min-h-screen pb-24" style={{ background: "var(--color-background)" }}>
       <div
-        className="sticky top-0 z-10 border-b border-border"
-        style={{ background: "oklch(0.15 0.015 30 / 0.95)", backdropFilter: "blur(12px)" }}
+        className="border-b border-border"
+        style={{ background: "oklch(0.20 0.015 30 / 0.95)" }}
       >
         <div className="container">
           <div className="flex items-center gap-3 h-16">

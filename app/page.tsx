@@ -287,7 +287,7 @@ export default function Home() {
       <SectionReveal>
       <section
         className="py-12 overflow-hidden relative"
-        style={{ background: "oklch(0.11 0.015 28)" }}
+        style={{ background: "oklch(0.16 0.015 28)" }}
       >
         {/* Subtle top glow */}
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, oklch(0.62 0.22 38 / 0.4), transparent)" }} />
@@ -433,7 +433,7 @@ export default function Home() {
                 className="absolute inset-0 flex items-end p-5"
                 style={{
                   background:
-                    "linear-gradient(to top, oklch(0.10 0.02 25 / 0.85) 0%, transparent 60%)",
+                    "linear-gradient(to top, oklch(0.14 0.02 25 / 0.85) 0%, transparent 60%)",
                 }}
               >
                 <h3
@@ -598,7 +598,7 @@ export default function Home() {
       <SectionReveal>
       <section
         className="py-10 border-t border-border wave-divider"
-        style={{ background: "oklch(0.15 0.02 30)" }}
+        style={{ background: "oklch(0.20 0.02 30)" }}
       >
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
@@ -745,7 +745,7 @@ export default function Home() {
       {/* FOOTER */}
       <footer
         className="border-t border-border py-8"
-        style={{ background: "oklch(0.12 0.015 28)" }}
+        style={{ background: "oklch(0.17 0.015 28)" }}
       >
         <div className="container">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

@@ -91,7 +91,7 @@ export default function ConfirmationPage({
       <div
         className="py-10 px-4 text-center"
         style={{
-          background: "linear-gradient(160deg, oklch(0.16 0.03 30) 0%, oklch(0.12 0.02 25) 100%)",
+          background: "linear-gradient(160deg, oklch(0.22 0.03 30) 0%, oklch(0.17 0.02 25) 100%)",
           borderBottom: "1px solid var(--color-border)",
         }}
       >
