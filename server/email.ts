@@ -1,5 +1,5 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = "The Stoned Chef <orders@thestonedchef.ca>";
+const FROM_EMAIL = "The Stoned Chef <noreply@thestonedchef.ca>";
 const OWNER_EMAIL = process.env.OWNER_EMAIL || "owner@thestonedchef.ca";
 
 async function sendEmail(to: string, subject: string, html: string) {
