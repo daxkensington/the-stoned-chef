@@ -48,6 +48,12 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
     }
 
     async function initCard() {
+      // Wait for the container element to exist in the DOM
+      let attempts = 0;
+      while (!document.querySelector("#square-card-container") && attempts < 20) {
+        await new Promise((r) => setTimeout(r, 100));
+        attempts++;
+      }
       try {
         const payments = await window.Square!.payments(appId!, locationId!);
         const card = await payments.card();
