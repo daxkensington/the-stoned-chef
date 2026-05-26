@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import * as Sentry from "@sentry/nextjs";
 
 const SQUARE_API = "https://connect.squareup.com/v2";
 const SQUARE_VERSION = "2026-01-22";
@@ -139,12 +140,24 @@ export async function createSquareOrder(
 
     if (!response.ok) {
       console.error("[Square] Failed to create order:", data.errors);
+      Sentry.captureMessage("Square createOrder non-OK response", {
+        level: "error",
+        extra: {
+          status: response.status,
+          errors: data.errors,
+          locationId,
+          orderNumber: payload.orderNumber,
+        },
+      });
       return null;
     }
 
     return data.order?.id ?? null;
   } catch (err) {
     console.error("[Square] Network error:", err);
+    Sentry.captureException(err, {
+      extra: { where: "createSquareOrder", locationId, orderNumber: payload.orderNumber },
+    });
     return null;
   }
 }

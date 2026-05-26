@@ -1,5 +1,6 @@
 import { publicProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 import {
   createOrder,
   getOrderByNumber,
@@ -169,6 +170,18 @@ export const appRouter = router({
         let paymentMethod: string | null = null;
         const squareToken = process.env.SQUARE_ACCESS_TOKEN;
         const squareLocation = process.env.SQUARE_LOCATION_ID;
+
+        if (!squareToken || !squareLocation) {
+          Sentry.captureMessage("Square env missing at runtime — order not synced", {
+            level: "warning",
+            extra: {
+              hasToken: !!squareToken,
+              hasLocation: !!squareLocation,
+              tokenLen: squareToken?.length ?? 0,
+              orderNumber,
+            },
+          });
+        }
 
         if (squareToken && squareLocation) {
           squareOrderId = await createSquareOrder(squareToken, squareLocation, {
