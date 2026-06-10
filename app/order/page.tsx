@@ -62,7 +62,9 @@ export default function OrderPage() {
       router.push(`/confirmation/${data.orderNumber}`);
     },
     onError: (err) => {
-      toast.error("Failed to place order. Please try again.", {
+      // The server message may say the payment already went through — don't
+      // blanket-advise retrying.
+      toast.error("Couldn't place your order", {
         description: err.message,
         style: {
           background: "oklch(0.18 0.015 30)",

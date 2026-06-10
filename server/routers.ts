@@ -214,31 +214,52 @@ export const appRouter = router({
           throw new Error(result.error);
         }
 
-        const order = await createOrder(
-          {
-            orderNumber,
-            customerName: input.customerName,
-            customerPhone: input.customerPhone,
-            customerEmail: input.customerEmail ?? null,
-            pickupTime: input.pickupTime,
-            totalCents,
-            tipCents: input.tipCents,
-            status: "pending",
-            paymentStatus,
-            paymentMethod,
-            squareOrderId,
-            squarePaymentId,
-            smsOptIn: input.smsOptIn,
-            notes: input.notes ?? null,
-          },
-          input.items.map((item) => ({
-            orderId: 0,
-            itemName: item.customizations ? `${item.name} (${item.customizations})` : item.name,
-            itemCategory: item.category,
-            priceCents: item.priceCents,
-            quantity: item.quantity,
-          }))
-        );
+        // The card is already charged past this point — a DB failure here must
+        // never read as "try again" to the customer (that double-charges them;
+        // happened 2026-06-07, order SC-AMKXFT4T).
+        let order;
+        try {
+          order = await createOrder(
+            {
+              orderNumber,
+              customerName: input.customerName,
+              customerPhone: input.customerPhone,
+              customerEmail: input.customerEmail ?? null,
+              pickupTime: input.pickupTime,
+              totalCents,
+              tipCents: input.tipCents,
+              status: "pending",
+              paymentStatus,
+              paymentMethod,
+              squareOrderId,
+              squarePaymentId,
+              smsOptIn: input.smsOptIn,
+              notes: input.notes ?? null,
+            },
+            input.items.map((item) => ({
+              orderId: 0,
+              itemName: item.customizations ? `${item.name} (${item.customizations})` : item.name,
+              itemCategory: item.category,
+              priceCents: item.priceCents,
+              quantity: item.quantity,
+            }))
+          );
+        } catch (err) {
+          Sentry.captureException(err, {
+            level: "fatal",
+            extra: {
+              where: "createOrder after successful card charge",
+              orderNumber,
+              squareOrderId,
+              squarePaymentId,
+              totalCents,
+              tipCents: input.tipCents,
+            },
+          });
+          throw new Error(
+            `Your payment WAS processed, but we hit a problem confirming the order. Please do NOT submit it again — mention order #${orderNumber} at the truck and we'll sort it out.`
+          );
+        }
 
         // Send emails (fire and forget)
         const emailItems = input.items.map((i) => ({
