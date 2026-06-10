@@ -49,7 +49,9 @@ const ORDER_NUMBER_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 function orderNumberFromKey(key: string): string {
   const hash = createHash("sha256").update(key).digest();
   let s = "";
-  for (let i = 0; i < 8; i++) s += ORDER_NUMBER_ALPHABET[hash[i]! % 32];
+  for (let i = 0; i < 8; i++) {
+    s += ORDER_NUMBER_ALPHABET[hash[i]! % ORDER_NUMBER_ALPHABET.length];
+  }
   return `SC-${s}`;
 }
 
