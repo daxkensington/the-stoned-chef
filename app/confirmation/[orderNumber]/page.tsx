@@ -238,7 +238,7 @@ export default function ConfirmationPage({
                   ${(order.totalCents / 100).toFixed(2)} CAD
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Payment due at pickup</p>
+              <p className="text-xs text-muted-foreground">Paid online — just show this screen at pickup</p>
             </div>
           </div>
 

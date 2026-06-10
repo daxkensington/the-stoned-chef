@@ -28,6 +28,7 @@ interface SquareOrderPayload {
   orderNumber: string;
   lineItems: SquareLineItem[];
   totalCents: number;
+  idempotencyKey?: string;
 }
 
 interface SquarePaymentPayload {
@@ -38,6 +39,7 @@ interface SquarePaymentPayload {
   customerName: string;
   customerEmail?: string;
   tipCents?: number;
+  idempotencyKey?: string;
 }
 
 export async function createSquarePayment(
@@ -46,7 +48,7 @@ export async function createSquarePayment(
   payload: SquarePaymentPayload
 ): Promise<{ paymentId: string } | { error: string }> {
   const body: Record<string, unknown> = {
-    idempotency_key: randomUUID(),
+    idempotency_key: payload.idempotencyKey ?? randomUUID(),
     source_id: payload.sourceId,
     amount_money: {
       amount: payload.amountCents,
@@ -102,7 +104,7 @@ export async function createSquareOrder(
   const url = "https://connect.squareup.com/v2/orders";
 
   const body = {
-    idempotency_key: randomUUID(),
+    idempotency_key: payload.idempotencyKey ?? randomUUID(),
     order: {
       location_id: locationId,
       reference_id: payload.orderNumber,

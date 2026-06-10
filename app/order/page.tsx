@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
@@ -17,21 +17,14 @@ import { addPunch } from "@/components/PunchCard";
 import { TipSelector } from "@/components/TipSelector";
 import { SquarePayment } from "@/components/SquarePayment";
 
-function generateTimeSlots() {
-  const slots: string[] = [];
-  for (let h = 11; h <= 18; h++) {
-    for (let m = 0; m < 60; m += 15) {
-      if (h === 18 && m > 30) break;
-      const hour12 = h > 12 ? h - 12 : h;
-      const meridiem = h >= 12 ? "PM" : "AM";
-      const minStr = m === 0 ? "00" : String(m);
-      slots.push(`${hour12}:${minStr} ${meridiem}`);
-    }
-  }
-  return slots;
-}
+import { availableSlots } from "@shared/pickup";
 
-const TIME_SLOTS = generateTimeSlots();
+// Error keys → input element ids, for scrolling the first error into view
+const ERROR_FIELD_IDS: Record<string, string> = {
+  customerName: "name",
+  customerPhone: "phone",
+  pickupTime: "pickup",
+};
 
 export default function OrderPage() {
   const { items, totalCents, clearCart } = useCart();
@@ -49,6 +42,17 @@ export default function OrderPage() {
   const [tipCents, setTipCents] = useState(0);
   const grandTotal = totalCents + tipCents;
 
+  // Pickup slots the customer can still make today (computed once per visit)
+  const timeSlots = useMemo(() => availableSlots(), []);
+
+  // One idempotency key per checkout attempt: lets the server dedupe
+  // double-submits without double-charging. Regenerated whenever the order
+  // contents change so Square never sees the same key with a new payload.
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  useEffect(() => {
+    setIdempotencyKey(crypto.randomUUID());
+  }, [grandTotal, form.customerName, form.customerPhone, form.customerEmail, form.pickupTime, form.notes]);
+
   const placeOrder = trpc.orders.place.useMutation({
     onSuccess: (data) => {
       saveOrderToHistory({
@@ -62,6 +66,13 @@ export default function OrderPage() {
       router.push(`/confirmation/${data.orderNumber}`);
     },
     onError: (err) => {
+      // Fresh key for the next attempt (a new card token changes the payload,
+      // which Square rejects under a reused key) — EXCEPT when the charge
+      // already went through; then the key must survive so a resubmit can't
+      // double-charge.
+      if (!err.message.includes("do NOT submit")) {
+        setIdempotencyKey(crypto.randomUUID());
+      }
       // The server message may say the payment already went through — don't
       // blanket-advise retrying.
       toast.error("Couldn't place your order", {
@@ -85,13 +96,22 @@ export default function OrderPage() {
     return newErrors;
   };
 
-  const submitOrder = (paymentToken: string) => {
+  // Runs before card tokenization; scrolls the first invalid field into view
+  // (the payment form sits at the bottom, far from the inputs).
+  const validateBeforePay = () => {
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+    setErrors(validationErrors);
+    const firstError = Object.keys(validationErrors)[0];
+    if (firstError) {
+      document
+        .getElementById(ERROR_FIELD_IDS[firstError] ?? "")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
     }
-    setErrors({});
+    return true;
+  };
+
+  const submitOrder = (paymentToken: string) => {
     placeOrder.mutate({
       customerName: form.customerName.trim(),
       customerPhone: form.customerPhone.trim(),
@@ -101,6 +121,7 @@ export default function OrderPage() {
       tipCents: tipCents,
       smsOptIn: form.smsOptIn,
       paymentToken,
+      idempotencyKey,
       items: items.map((i) => ({
         id: i.id,
         name: i.name,
@@ -320,6 +341,7 @@ export default function OrderPage() {
                   onValueChange={(val) => setForm((f) => ({ ...f, pickupTime: val }))}
                 >
                   <SelectTrigger
+                    id="pickup"
                     className="h-11 rounded-xl w-full"
                     style={{
                       background: "var(--color-input)",
@@ -339,7 +361,7 @@ export default function OrderPage() {
                       border: "1px solid var(--color-border)",
                     }}
                   >
-                    {TIME_SLOTS.map((slot) => (
+                    {timeSlots.map((slot) => (
                       <SelectItem
                         key={slot}
                         value={slot}
@@ -414,6 +436,7 @@ export default function OrderPage() {
             <SquarePayment
               amountCents={grandTotal}
               disabled={placeOrder.isPending}
+              validateBeforePay={validateBeforePay}
               onToken={(token) => submitOrder(token)}
             />
           </form>

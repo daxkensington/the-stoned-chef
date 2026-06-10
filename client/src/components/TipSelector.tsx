@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 
 const TIP_PRESETS = [
@@ -8,6 +8,8 @@ const TIP_PRESETS = [
   { label: "15%", multiplier: 0.15 },
   { label: "20%", multiplier: 0.20 },
 ];
+
+const MAX_TIP_CENTS = 50_000; // $500 — matches the server-side cap
 
 interface TipSelectorProps {
   subtotalCents: number;
@@ -18,9 +20,20 @@ interface TipSelectorProps {
 export function TipSelector({ subtotalCents, tipCents, onTipChange }: TipSelectorProps) {
   const [customTip, setCustomTip] = useState("");
   const [isCustom, setIsCustom] = useState(false);
+  const [presetLabel, setPresetLabel] = useState<string | null>(null);
+
+  // A percentage tip tracks the cart: if the subtotal changes (e.g. the
+  // "add fries" upsell), recompute so the customer isn't tipping on a stale
+  // total.
+  useEffect(() => {
+    if (!presetLabel || isCustom) return;
+    const preset = TIP_PRESETS.find((p) => p.label === presetLabel);
+    if (preset) onTipChange(Math.round(subtotalCents * preset.multiplier));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotalCents, presetLabel, isCustom]);
 
   const selectedPreset = TIP_PRESETS.find(
-    (p) => Math.round(subtotalCents * p.multiplier) === tipCents && !isCustom
+    (p) => p.label === presetLabel && !isCustom
   );
 
   return (
@@ -44,6 +57,7 @@ export function TipSelector({ subtotalCents, tipCents, onTipChange }: TipSelecto
                 onClick={() => {
                   setIsCustom(false);
                   setCustomTip("");
+                  setPresetLabel(preset.label);
                   onTipChange(amount);
                 }}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
@@ -62,6 +76,7 @@ export function TipSelector({ subtotalCents, tipCents, onTipChange }: TipSelecto
           })}
           <button
             onClick={() => {
+              setPresetLabel(null);
               if (isCustom && tipCents > 0) {
                 setIsCustom(false);
                 setCustomTip("");
@@ -87,6 +102,7 @@ export function TipSelector({ subtotalCents, tipCents, onTipChange }: TipSelecto
               onClick={() => {
                 setIsCustom(false);
                 setCustomTip("");
+                setPresetLabel(null);
                 onTipChange(0);
               }}
               className="px-3 py-2.5 rounded-xl text-sm font-bold transition-all"
@@ -107,13 +123,15 @@ export function TipSelector({ subtotalCents, tipCents, onTipChange }: TipSelecto
             <input
               type="number"
               min="0"
+              max={MAX_TIP_CENTS / 100}
               step="0.25"
               placeholder="0.00"
               value={customTip}
               onChange={(e) => {
                 setCustomTip(e.target.value);
                 const val = parseFloat(e.target.value);
-                onTipChange(isNaN(val) ? 0 : Math.round(val * 100));
+                const cents = isNaN(val) ? 0 : Math.round(val * 100);
+                onTipChange(Math.min(Math.max(cents, 0), MAX_TIP_CENTS));
               }}
               className="w-full h-11 rounded-xl pl-8 text-sm"
               style={{

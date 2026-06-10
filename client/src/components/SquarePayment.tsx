@@ -19,11 +19,18 @@ declare global {
 
 interface SquarePaymentProps {
   onToken: (token: string) => void;
+  /** Runs before tokenization — return false to abort (e.g. form invalid). */
+  validateBeforePay?: () => boolean;
   disabled?: boolean;
   amountCents: number;
 }
 
-export function SquarePayment({ onToken, disabled, amountCents }: SquarePaymentProps) {
+const SQUARE_APP_ID =
+  process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID ?? "sq0idp-4ELLADDTQZXI-xMg0zXDkw";
+const SQUARE_LOCATION_ID =
+  process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? "LZ1QQMBD410Q8";
+
+export function SquarePayment({ onToken, validateBeforePay, disabled, amountCents }: SquarePaymentProps) {
   const cardRef = useRef<{ tokenize: () => Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>; destroy: () => void } | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,10 +57,7 @@ export function SquarePayment({ onToken, disabled, amountCents }: SquarePaymentP
       if (!document.getElementById("sq-card") || cancelled) return;
 
       try {
-        const payments = await window.Square.payments(
-          "sq0idp-4ELLADDTQZXI-xMg0zXDkw",
-          "LZ1QQMBD410Q8"
-        );
+        const payments = await window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
         const card = await payments.card();
         await card.attach("#sq-card");
         if (cancelled) { card.destroy(); return; }
@@ -79,7 +83,10 @@ export function SquarePayment({ onToken, disabled, amountCents }: SquarePaymentP
   }, []);
 
   const handleCardPay = useCallback(async () => {
-    if (!cardRef.current || loading) return;
+    if (!cardRef.current || loading || disabled) return;
+    // Validate the form BEFORE tokenizing so errors surface without burning
+    // a single-use card token.
+    if (validateBeforePay && !validateBeforePay()) return;
     setLoading(true);
     setError(null);
 
@@ -89,13 +96,15 @@ export function SquarePayment({ onToken, disabled, amountCents }: SquarePaymentP
         onToken(result.token);
       } else {
         setError(result.errors?.[0]?.message ?? "Card was declined. Please try again.");
-        setLoading(false);
       }
     } catch {
       setError("Payment failed. Please try again.");
+    } finally {
+      // The parent's `disabled` (mutation pending) takes over from here; never
+      // leave the button stuck on a local "Processing..." state.
       setLoading(false);
     }
-  }, [loading, onToken]);
+  }, [loading, disabled, onToken, validateBeforePay]);
 
   return (
     <div
@@ -143,7 +152,7 @@ export function SquarePayment({ onToken, disabled, amountCents }: SquarePaymentP
             color: "white",
           }}
         >
-          {loading ? (
+          {loading || disabled ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Processing...

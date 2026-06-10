@@ -27,18 +27,31 @@ import {
   sendOrderConfirmationToCustomer,
   sendOrderReadyNotification,
 } from "./email";
-import { nanoid } from "nanoid";
+import { createHash } from "crypto";
 import { verifyPassword, signJWT, getSessionCookie } from "./_core/auth";
 import { COOKIE_NAME } from "@shared/const";
+import { VALID_PICKUP_TIMES } from "@shared/pickup";
+import { validateCartPricing } from "./pricing";
 
 const cartItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  category: z.string(),
+  id: z.string().max(256),
+  name: z.string().max(128),
+  category: z.string().max(64),
   priceCents: z.number().int().positive(),
-  quantity: z.number().int().positive(),
-  customizations: z.string().optional(),
+  quantity: z.number().int().positive().max(50),
+  customizations: z.string().max(500).optional(),
 });
+
+// Deterministic order number from the client's idempotency key: a retried
+// submission maps to the same order_number (unique in the DB), so it can be
+// recognized instead of double-processed.
+const ORDER_NUMBER_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function orderNumberFromKey(key: string): string {
+  const hash = createHash("sha256").update(key).digest();
+  let s = "";
+  for (let i = 0; i < 8; i++) s += ORDER_NUMBER_ALPHABET[hash[i]! % 32];
+  return `SC-${s}`;
+}
 
 export const appRouter = router({
   auth: router({
@@ -52,6 +65,12 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const admin = await getAdminByUsername(input.username);
         if (!admin || !verifyPassword(input.password, admin.passwordHash)) {
+          // Slow brute-force attempts and leave an audit trail
+          await new Promise((r) => setTimeout(r, 1000));
+          Sentry.captureMessage("Failed admin login attempt", {
+            level: "warning",
+            extra: { username: input.username },
+          });
           return { success: false as const, error: "Invalid credentials" };
         }
         const token = await signJWT({
@@ -145,19 +164,41 @@ export const appRouter = router({
           customerEmail: z.string().email().max(320).optional(),
           pickupTime: z.string().min(1).max(64),
           notes: z.string().max(500).optional(),
-          items: z.array(cartItemSchema).min(1),
-          tipCents: z.number().int().nonnegative().default(0),
+          items: z.array(cartItemSchema).min(1).max(50),
+          tipCents: z.number().int().nonnegative().max(50_000).default(0),
           smsOptIn: z.boolean().default(false),
           // Online orders are prepaid only — a Square card token is mandatory.
           paymentToken: z.string().min(1),
+          idempotencyKey: z.string().uuid(),
         })
       )
       .mutation(async ({ input }) => {
-        const orderNumber = `SC-${nanoid(8).toUpperCase()}`;
-        const totalCents = input.items.reduce(
-          (sum, item) => sum + item.priceCents * item.quantity,
-          0
-        );
+        if (!VALID_PICKUP_TIMES.has(input.pickupTime)) {
+          throw new Error("Please pick a valid pickup time.");
+        }
+
+        const orderNumber = orderNumberFromKey(input.idempotencyKey);
+
+        // Same idempotency key resubmitted (double-click, network retry):
+        // return the already-placed order instead of charging again.
+        const existing = await getOrderByNumber(orderNumber);
+        if (existing) {
+          return {
+            orderNumber: existing.order.orderNumber,
+            totalCents: existing.order.totalCents,
+            status: existing.order.status,
+            squareSynced: !!existing.order.squareOrderId,
+            paid: existing.order.paymentStatus === "paid",
+            createdAt: existing.order.createdAt,
+          };
+        }
+
+        // Never trust client prices — re-price every item server-side.
+        const pricing = await validateCartPricing(input.items);
+        if (!pricing.ok) {
+          throw new Error(pricing.reason);
+        }
+        const totalCents = pricing.totalCents;
 
         const squareLineItems = input.items.map((item) => ({
           name: item.customizations ? `${item.name} (${item.customizations})` : item.name,
@@ -192,6 +233,7 @@ export const appRouter = router({
           orderNumber,
           lineItems: squareLineItems,
           totalCents,
+          idempotencyKey: `${input.idempotencyKey}-order`,
         });
 
         // Square charges amount_money + tip_money, so pass the order amount
@@ -204,6 +246,7 @@ export const appRouter = router({
           customerName: input.customerName,
           customerEmail: input.customerEmail,
           tipCents: input.tipCents,
+          idempotencyKey: input.idempotencyKey,
         });
 
         if ("paymentId" in result) {
@@ -245,6 +288,19 @@ export const appRouter = router({
             }))
           );
         } catch (err) {
+          // A concurrent duplicate submit loses the unique(order_number) race —
+          // the order exists and the charge was idempotent, so report success.
+          const raced = await getOrderByNumber(orderNumber).catch(() => null);
+          if (raced) {
+            return {
+              orderNumber: raced.order.orderNumber,
+              totalCents: raced.order.totalCents,
+              status: raced.order.status,
+              squareSynced: !!raced.order.squareOrderId,
+              paid: raced.order.paymentStatus === "paid",
+              createdAt: raced.order.createdAt,
+            };
+          }
           Sentry.captureException(err, {
             level: "fatal",
             extra: {
@@ -268,6 +324,13 @@ export const appRouter = router({
           priceCents: i.priceCents,
         }));
 
+        const reportNotifyFailure = (channel: string) => (err: unknown) => {
+          Sentry.captureException(err, {
+            level: "warning",
+            extra: { where: `order notification: ${channel}`, orderNumber },
+          });
+        };
+
         sendOrderNotificationToOwner({
           orderNumber,
           customerName: input.customerName,
@@ -276,7 +339,7 @@ export const appRouter = router({
           totalCents,
           items: emailItems,
           notes: input.notes,
-        }).catch(() => {});
+        }).catch(reportNotifyFailure("owner email"));
 
         if (input.customerEmail) {
           sendOrderConfirmationToCustomer(input.customerEmail, {
@@ -285,7 +348,7 @@ export const appRouter = router({
             pickupTime: input.pickupTime,
             totalCents,
             items: emailItems,
-          }).catch(() => {});
+          }).catch(reportNotifyFailure("customer email"));
         }
 
         // SMS notifications (fire and forget)
@@ -294,7 +357,7 @@ export const appRouter = router({
             orderNumber,
             pickupTime: input.pickupTime,
             totalCents,
-          }).catch(() => {});
+          }).catch(reportNotifyFailure("customer SMS"));
         }
 
         sendNewOrderSMSToOwner({
@@ -302,7 +365,7 @@ export const appRouter = router({
           customerName: input.customerName,
           totalCents,
           itemCount: input.items.reduce((sum, i) => sum + i.quantity, 0),
-        }).catch(() => {});
+        }).catch(reportNotifyFailure("owner SMS"));
 
         return {
           orderNumber: order.orderNumber,
@@ -315,11 +378,34 @@ export const appRouter = router({
       }),
 
     get: publicProcedure
-      .input(z.object({ orderNumber: z.string() }))
+      .input(z.object({ orderNumber: z.string().max(32) }))
       .query(async ({ input }) => {
         const result = await getOrderByNumber(input.orderNumber);
         if (!result) return null;
-        return { order: result.order, items: result.items };
+        // Public endpoint: expose only what the confirmation page renders —
+        // no email, no Square IDs, phone masked to the last 4 digits.
+        const o = result.order;
+        const digits = o.customerPhone.replace(/\D/g, "");
+        return {
+          order: {
+            orderNumber: o.orderNumber,
+            customerName: o.customerName,
+            customerPhone: `•••-${digits.slice(-4)}`,
+            pickupTime: o.pickupTime,
+            status: o.status,
+            notes: o.notes,
+            totalCents: o.totalCents,
+            tipCents: o.tipCents,
+            createdAt: o.createdAt,
+          },
+          items: result.items.map((i) => ({
+            id: i.id,
+            itemName: i.itemName,
+            itemCategory: i.itemCategory,
+            priceCents: i.priceCents,
+            quantity: i.quantity,
+          })),
+        };
       }),
 
     updateStatus: adminProcedure

@@ -1,4 +1,4 @@
-import { pbkdf2Sync, randomBytes } from "crypto";
+import { pbkdf2Sync, randomBytes, timingSafeEqual } from "crypto";
 import { SignJWT, jwtVerify } from "jose";
 import { COOKIE_NAME, SESSION_MAX_AGE_S } from "@shared/const";
 
@@ -9,6 +9,7 @@ const DIGEST = "sha512";
 function getSecret() {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("JWT_SECRET env var is required");
+  if (secret.length < 32) throw new Error("JWT_SECRET must be at least 32 characters");
   return new TextEncoder().encode(secret);
 }
 
@@ -21,8 +22,9 @@ export function hashPassword(password: string): string {
 export function verifyPassword(password: string, stored: string): boolean {
   const [salt, hash] = stored.split(":");
   if (!salt || !hash) return false;
-  const check = pbkdf2Sync(password, salt, ITERATIONS, KEY_LEN, DIGEST).toString("hex");
-  return check === hash;
+  const check = pbkdf2Sync(password, salt, ITERATIONS, KEY_LEN, DIGEST);
+  const expected = Buffer.from(hash, "hex");
+  return check.length === expected.length && timingSafeEqual(check, expected);
 }
 
 export async function signJWT(payload: { sub: string; username: string; role: string }) {
@@ -48,7 +50,7 @@ export function getSessionCookie(token: string) {
     value: token,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    sameSite: "strict" as const,
     path: "/",
     maxAge: SESSION_MAX_AGE_S,
   };
