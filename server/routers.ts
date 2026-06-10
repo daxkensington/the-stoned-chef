@@ -20,7 +20,7 @@ import {
   addEmailSubscriber,
   getSubscriberCount,
 } from "./db";
-import { createSquareOrder, createSquarePayment } from "./square";
+import { createSquareOrder, createSquarePayment, recordCashPayment } from "./square";
 import { sendOrderConfirmationSMS, sendOrderReadySMS, sendNewOrderSMSToOwner } from "./sms";
 import {
   sendOrderNotificationToOwner,
@@ -191,7 +191,20 @@ export const appRouter = router({
             orderNumber,
             lineItems: squareLineItems,
             totalCents,
+            payAtPickup: !input.paymentToken,
           });
+
+          // Pay-at-pickup: record a cash tender immediately so the order
+          // surfaces on the Square POS (unpaid API orders are never shown).
+          if (!input.paymentToken && squareOrderId) {
+            squarePaymentId = await recordCashPayment(squareToken, squareLocation, {
+              orderId: squareOrderId,
+              orderNumber,
+              amountCents: totalCents,
+              tipCents: input.tipCents,
+              customerName: input.customerName,
+            });
+          }
 
           // Process card payment if token provided
           if (input.paymentToken) {
