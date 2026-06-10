@@ -162,8 +162,11 @@ export async function createSquareOrder(
   }
 }
 
+const PICKUP_TZ = "America/Toronto";
+
+// Customer pickup times are Eastern wall-clock; the server runs in UTC, so
+// compute the UTC instant for that wall-clock time explicitly.
 function buildPickupAt(pickupTime: string): string {
-  const now = new Date();
   const [timePart, meridiem] = pickupTime.split(" ");
   const [hoursStr, minutesStr] = (timePart ?? "12:00").split(":");
   let hours = parseInt(hoursStr ?? "12", 10);
@@ -172,12 +175,44 @@ function buildPickupAt(pickupTime: string): string {
   if (meridiem === "PM" && hours !== 12) hours += 12;
   if (meridiem === "AM" && hours === 12) hours = 0;
 
-  const pickup = new Date(now);
-  pickup.setHours(hours, minutes, 0, 0);
+  const now = new Date();
+  let pickup = easternWallClockToUtc(easternDateParts(now), hours, minutes);
 
   if (pickup < now) {
-    pickup.setDate(pickup.getDate() + 1);
+    const tomorrow = new Date(now.getTime() + 24 * 3600_000);
+    pickup = easternWallClockToUtc(easternDateParts(tomorrow), hours, minutes);
   }
 
   return pickup.toISOString();
+}
+
+function easternDateParts(d: Date): { year: number; month: number; day: number } {
+  // en-CA formats as YYYY-MM-DD
+  const [year, month, day] = new Intl.DateTimeFormat("en-CA", {
+    timeZone: PICKUP_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(d)
+    .split("-")
+    .map(Number);
+  return { year: year!, month: month!, day: day! };
+}
+
+function easternWallClockToUtc(
+  { year, month, day }: { year: number; month: number; day: number },
+  hours: number,
+  minutes: number
+): Date {
+  const guess = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+  // Eastern offset is always a whole hour (-5 EST / -4 EDT)
+  const tzPart = new Intl.DateTimeFormat("en-US", {
+    timeZone: PICKUP_TZ,
+    timeZoneName: "shortOffset",
+  })
+    .formatToParts(guess)
+    .find((p) => p.type === "timeZoneName")?.value;
+  const offsetHours = parseInt(tzPart?.replace("GMT", "") ?? "-5", 10) || -5;
+  return new Date(guess.getTime() - offsetHours * 3600_000);
 }
