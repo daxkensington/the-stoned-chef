@@ -19,21 +19,17 @@ declare global {
 
 interface SquarePaymentProps {
   onToken: (token: string) => void;
-  onPayAtPickup: () => void;
   disabled?: boolean;
   amountCents: number;
 }
 
-export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }: SquarePaymentProps) {
+export function SquarePayment({ onToken, disabled, amountCents }: SquarePaymentProps) {
   const cardRef = useRef<{ tokenize: () => Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>; destroy: () => void } | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [payMethod, setPayMethod] = useState<"card" | "pickup">("card");
 
   useEffect(() => {
-    if (payMethod !== "card") return;
-
     let cancelled = false;
     let cardInstance: typeof cardRef.current = null;
 
@@ -80,7 +76,7 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
       cardRef.current = null;
       setReady(false);
     };
-  }, [payMethod]);
+  }, []);
 
   const handleCardPay = useCallback(async () => {
     if (!cardRef.current || loading) return;
@@ -112,105 +108,50 @@ export function SquarePayment({ onToken, onPayAtPickup, disabled, amountCents }:
       </div>
 
       <div className="px-5 py-5 space-y-4">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setPayMethod("card")}
-            className="flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all"
-            style={{
-              background: payMethod === "card"
-                ? "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)"
-                : "var(--color-input)",
-              color: payMethod === "card" ? "white" : "var(--color-muted-foreground)",
-              border: payMethod === "card" ? "none" : "1px solid var(--color-border)",
-            }}
-          >
-            Pay Now
-          </button>
-          <button
-            type="button"
-            onClick={() => setPayMethod("pickup")}
-            className="flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all"
-            style={{
-              background: payMethod === "pickup"
-                ? "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)"
-                : "var(--color-input)",
-              color: payMethod === "pickup" ? "white" : "var(--color-muted-foreground)",
-              border: payMethod === "pickup" ? "none" : "1px solid var(--color-border)",
-            }}
-          >
-            Pay at Pickup
-          </button>
+        <div
+          id="sq-card"
+          className="rounded-xl overflow-hidden min-h-[44px]"
+          style={{ background: "var(--color-input)" }}
+        />
+
+        {!ready && !error && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="w-4 h-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
+            Loading payment form...
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-center gap-2 text-sm" style={{ color: "oklch(0.70 0.20 30)" }}>
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Lock className="w-3 h-3" />
+          Secure payment powered by Square
         </div>
 
-        {payMethod === "card" && (
-          <>
-            <div
-              id="sq-card"
-              className="rounded-xl overflow-hidden min-h-[44px]"
-              style={{ background: "var(--color-input)" }}
-            />
-
-            {!ready && !error && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="w-4 h-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
-                Loading payment form...
-              </div>
-            )}
-
-            {error && (
-              <div className="flex items-center gap-2 text-sm" style={{ color: "oklch(0.70 0.20 30)" }}>
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
-              </div>
-            )}
-
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Lock className="w-3 h-3" />
-              Secure payment powered by Square
-            </div>
-
-            <button
-              type="button"
-              onClick={handleCardPay}
-              disabled={!ready || loading || disabled}
-              className="w-full h-14 text-base font-bold rounded-2xl shadow-lg transition-opacity disabled:opacity-50"
-              style={{
-                background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
-                color: "white",
-              }}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Processing...
-                </span>
-              ) : (
-                `Pay $${(amountCents / 100).toFixed(2)} CAD`
-              )}
-            </button>
-          </>
-        )}
-
-        {payMethod === "pickup" && (
-          <>
-            <p className="text-sm text-muted-foreground">
-              Pay with cash or card when you pick up your order.
-            </p>
-            <button
-              type="button"
-              onClick={onPayAtPickup}
-              disabled={disabled}
-              className="w-full h-14 text-base font-bold rounded-2xl shadow-lg transition-opacity disabled:opacity-50"
-              style={{
-                background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
-                color: "white",
-              }}
-            >
-              Place Order — Pay at Pickup
-            </button>
-          </>
-        )}
+        <button
+          type="button"
+          onClick={handleCardPay}
+          disabled={!ready || loading || disabled}
+          className="w-full h-14 text-base font-bold rounded-2xl shadow-lg transition-opacity disabled:opacity-50"
+          style={{
+            background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
+            color: "white",
+          }}
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Processing...
+            </span>
+          ) : (
+            `Pay $${(amountCents / 100).toFixed(2)} CAD`
+          )}
+        </button>
 
         {/* Trust Badges */}
         <div className="pt-4 border-t border-border">

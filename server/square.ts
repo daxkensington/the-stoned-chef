@@ -28,7 +28,6 @@ interface SquareOrderPayload {
   orderNumber: string;
   lineItems: SquareLineItem[];
   totalCents: number;
-  payAtPickup?: boolean;
 }
 
 interface SquarePaymentPayload {
@@ -118,9 +117,7 @@ export async function createSquareOrder(
               phone_number: payload.customerPhone,
             },
             pickup_at: buildPickupAt(payload.pickupTime),
-            note: payload.payAtPickup
-              ? `Online order #${payload.orderNumber} — Pickup: ${payload.pickupTime} — ** COLLECT $${(payload.totalCents / 100).toFixed(2)} AT WINDOW (pre-entered as cash) **`
-              : `Online order #${payload.orderNumber} — Pickup: ${payload.pickupTime}`,
+            note: `Online order #${payload.orderNumber} — Pickup: ${payload.pickupTime}`,
           },
         },
       ],
@@ -160,74 +157,6 @@ export async function createSquareOrder(
     console.error("[Square] Network error:", err);
     Sentry.captureException(err, {
       extra: { where: "createSquareOrder", locationId, orderNumber: payload.orderNumber },
-    });
-    return null;
-  }
-}
-
-// Square hides unpaid API orders from the POS/Dashboard, so pay-at-pickup
-// orders are recorded as a CASH tender immediately — that surfaces them on the
-// POS (and triggers order-ticket printing). The cash is physically collected
-// at the window; no-shows must be voided in Square.
-export async function recordCashPayment(
-  accessToken: string,
-  locationId: string,
-  payload: {
-    orderId: string;
-    orderNumber: string;
-    amountCents: number;
-    tipCents?: number;
-    customerName: string;
-  }
-): Promise<string | null> {
-  const buyerSupplied = payload.amountCents + (payload.tipCents ?? 0);
-  const body: Record<string, unknown> = {
-    idempotency_key: randomUUID(),
-    source_id: "CASH",
-    amount_money: { amount: payload.amountCents, currency: "CAD" },
-    cash_details: {
-      buyer_supplied_money: { amount: buyerSupplied, currency: "CAD" },
-    },
-    location_id: locationId,
-    order_id: payload.orderId,
-    reference_id: payload.orderNumber,
-    note: `PAY AT PICKUP #${payload.orderNumber} — ${payload.customerName} — collect at window`,
-  };
-
-  if (payload.tipCents && payload.tipCents > 0) {
-    body.tip_money = { amount: payload.tipCents, currency: "CAD" };
-  }
-
-  try {
-    const response = await fetch(`${SQUARE_API}/payments`, {
-      method: "POST",
-      headers: squareHeaders(accessToken),
-      body: JSON.stringify(body),
-    });
-
-    const data = (await response.json()) as {
-      payment?: { id?: string };
-      errors?: unknown[];
-    };
-
-    if (!response.ok || !data.payment?.id) {
-      console.error("[Square] Failed to record cash payment:", data.errors);
-      Sentry.captureMessage("Square recordCashPayment failed", {
-        level: "error",
-        extra: {
-          status: response.status,
-          errors: data.errors,
-          orderNumber: payload.orderNumber,
-        },
-      });
-      return null;
-    }
-
-    return data.payment.id;
-  } catch (err) {
-    console.error("[Square] Cash payment network error:", err);
-    Sentry.captureException(err, {
-      extra: { where: "recordCashPayment", orderNumber: payload.orderNumber },
     });
     return null;
   }

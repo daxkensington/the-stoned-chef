@@ -20,7 +20,7 @@ import {
   addEmailSubscriber,
   getSubscriberCount,
 } from "./db";
-import { createSquareOrder, createSquarePayment, recordCashPayment } from "./square";
+import { createSquareOrder, createSquarePayment } from "./square";
 import { sendOrderConfirmationSMS, sendOrderReadySMS, sendNewOrderSMSToOwner } from "./sms";
 import {
   sendOrderNotificationToOwner,
@@ -148,7 +148,8 @@ export const appRouter = router({
           items: z.array(cartItemSchema).min(1),
           tipCents: z.number().int().nonnegative().default(0),
           smsOptIn: z.boolean().default(false),
-          paymentToken: z.string().optional(),
+          // Online orders are prepaid only — a Square card token is mandatory.
+          paymentToken: z.string().min(1),
         })
       )
       .mutation(async ({ input }) => {
@@ -172,8 +173,8 @@ export const appRouter = router({
         const squareLocation = process.env.SQUARE_LOCATION_ID;
 
         if (!squareToken || !squareLocation) {
-          Sentry.captureMessage("Square env missing at runtime — order not synced", {
-            level: "warning",
+          Sentry.captureMessage("Square env missing at runtime — cannot take payment", {
+            level: "error",
             extra: {
               hasToken: !!squareToken,
               hasLocation: !!squareLocation,
@@ -181,52 +182,36 @@ export const appRouter = router({
               orderNumber,
             },
           });
+          throw new Error("Payment processing is unavailable right now. Please try again shortly.");
         }
 
-        if (squareToken && squareLocation) {
-          squareOrderId = await createSquareOrder(squareToken, squareLocation, {
-            customerName: input.customerName,
-            customerPhone: input.customerPhone,
-            pickupTime: input.pickupTime,
-            orderNumber,
-            lineItems: squareLineItems,
-            totalCents,
-            payAtPickup: !input.paymentToken,
-          });
+        squareOrderId = await createSquareOrder(squareToken, squareLocation, {
+          customerName: input.customerName,
+          customerPhone: input.customerPhone,
+          pickupTime: input.pickupTime,
+          orderNumber,
+          lineItems: squareLineItems,
+          totalCents,
+        });
 
-          // Pay-at-pickup: record a cash tender immediately so the order
-          // surfaces on the Square POS (unpaid API orders are never shown).
-          if (!input.paymentToken && squareOrderId) {
-            squarePaymentId = await recordCashPayment(squareToken, squareLocation, {
-              orderId: squareOrderId,
-              orderNumber,
-              amountCents: totalCents,
-              tipCents: input.tipCents,
-              customerName: input.customerName,
-            });
-          }
+        // Square charges amount_money + tip_money, so pass the order amount
+        // here and let createSquarePayment add the tip separately.
+        const result = await createSquarePayment(squareToken, squareLocation, {
+          sourceId: input.paymentToken,
+          amountCents: totalCents,
+          orderId: squareOrderId,
+          orderNumber,
+          customerName: input.customerName,
+          customerEmail: input.customerEmail,
+          tipCents: input.tipCents,
+        });
 
-          // Process card payment if token provided
-          if (input.paymentToken) {
-            const chargeAmount = totalCents + input.tipCents;
-            const result = await createSquarePayment(squareToken, squareLocation, {
-              sourceId: input.paymentToken,
-              amountCents: chargeAmount,
-              orderId: squareOrderId,
-              orderNumber,
-              customerName: input.customerName,
-              customerEmail: input.customerEmail,
-              tipCents: input.tipCents,
-            });
-
-            if ("paymentId" in result) {
-              squarePaymentId = result.paymentId;
-              paymentStatus = "paid";
-              paymentMethod = "card";
-            } else {
-              throw new Error(result.error);
-            }
-          }
+        if ("paymentId" in result) {
+          squarePaymentId = result.paymentId;
+          paymentStatus = "paid";
+          paymentMethod = "card";
+        } else {
+          throw new Error(result.error);
         }
 
         const order = await createOrder(

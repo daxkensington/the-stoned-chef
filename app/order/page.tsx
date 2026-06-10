@@ -83,7 +83,7 @@ export default function OrderPage() {
     return newErrors;
   };
 
-  const submitOrder = (paymentToken?: string) => {
+  const submitOrder = (paymentToken: string) => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -413,7 +413,6 @@ export default function OrderPage() {
               amountCents={grandTotal}
               disabled={placeOrder.isPending}
               onToken={(token) => submitOrder(token)}
-              onPayAtPickup={() => submitOrder()}
             />
           </form>
         </div>
