@@ -28,7 +28,7 @@ interface SquarePaymentProps {
 const SQUARE_APP_ID =
   process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID ?? "sq0idp-4ELLADDTQZXI-xMg0zXDkw";
 const SQUARE_LOCATION_ID =
-  process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? "LZ1QQMBD410Q8";
+  process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? "W4HEGR7907525";
 
 export function SquarePayment({ onToken, validateBeforePay, disabled, amountCents }: SquarePaymentProps) {
   const cardRef = useRef<{ tokenize: () => Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>; destroy: () => void } | null>(null);
