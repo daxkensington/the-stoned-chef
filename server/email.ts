@@ -81,7 +81,7 @@ export async function sendOrderConfirmationToCustomer(
         <h3>Your Order</h3>
         <ul>${itemsHtml}</ul>
         <p style="font-size:20px;font-weight:bold;color:#d4731a;">Total: $${(order.totalCents / 100).toFixed(2)} CAD</p>
-        <p style="color:#999;font-size:13px;">Payment at pickup · Questions? Call (613) 328-4766</p>
+        <p style="color:#999;font-size:13px;">Paid online · Questions? Call (343) 337-5810</p>
       </div>
     </div>
   `;

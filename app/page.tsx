@@ -692,7 +692,7 @@ export default function Home() {
               {
                 icon: <Phone className="w-5 h-5" />,
                 title: "Phone",
-                lines: ["(613) 328-4766"],
+                lines: ["(343) 337-5810"],
               },
             ].map((info) => (
               <div

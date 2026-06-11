@@ -284,11 +284,11 @@ export default function ConfirmationPage({
               </div>
               <div>
                 <p className="font-bold text-foreground text-sm">Questions about your order?</p>
-                <p className="text-muted-foreground text-sm">(613) 328-4766</p>
+                <p className="text-muted-foreground text-sm">(343) 337-5810</p>
               </div>
             </div>
             <a
-              href="tel:6133284766"
+              href="tel:3433375810"
               className="px-4 py-2 rounded-xl text-sm font-bold"
               style={{
                 background: "oklch(0.62 0.22 38 / 0.15)",
