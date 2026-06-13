@@ -19,7 +19,7 @@ const REVIEWS = [
   {
     name: "Sarah L.",
     rating: 5,
-    text: "Coma Mac burger is insane. My kids love the chicken fingers. Best chip truck food we've ever had!",
+    text: "Mac Daddy burger is insane. My kids love the chicken fingers. Best chip truck food we've ever had!",
     date: "3 weeks ago",
   },
   {
