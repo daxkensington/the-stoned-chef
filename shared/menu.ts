@@ -375,14 +375,6 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         image: "/food/whistle-dog.jpg",
       },
       {
-        id: "kids-side-fries",
-        name: "Side of Fries",
-        description: "Kid-sized portion of golden fries",
-        priceCents: 200,
-        category: "kids",
-        image: "/food/kids-fries.jpg",
-      },
-      {
         id: "kids-pop",
         name: "Pop",
         description: "Can of pop — Pepsi, Diet Pepsi, 7UP, or Orange Crush",
