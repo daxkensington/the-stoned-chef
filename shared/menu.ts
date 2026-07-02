@@ -33,6 +33,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1200,
         category: "appetizers",
         tags: ["vegetarian"],
+        image: "/food/battered-mushrooms.jpg",
       },
       {
         id: "app-mozzarella-sticks",
@@ -41,6 +42,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1000,
         category: "appetizers",
         tags: ["vegetarian"],
+        image: "/food/mozzarella-sticks.jpg",
       },
       {
         id: "app-jalapeno-poppers",
@@ -49,6 +51,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 1200,
         category: "appetizers",
         tags: ["vegetarian", "spicy"],
+        image: "/food/jalapeno-poppers.jpg",
       },
       {
         id: "app-pickle-spears",
@@ -57,6 +60,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 900,
         category: "appetizers",
         tags: ["vegetarian"],
+        image: "/food/pickle-spears.jpg",
       },
       {
         id: "app-cheese-curds",
@@ -66,6 +70,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         category: "appetizers",
         popular: true,
         tags: ["vegetarian"],
+        image: "/food/cheese-curds.jpg",
       },
       {
         id: "app-mac-cheese-balls",
@@ -74,6 +79,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         priceCents: 850,
         category: "appetizers",
         tags: ["vegetarian"],
+        image: "/food/mac-cheese-balls.jpg",
       },
     ],
   },
