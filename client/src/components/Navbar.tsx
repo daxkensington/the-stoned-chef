@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { CartDrawer } from "./CartDrawer";
@@ -60,9 +61,12 @@ export function Navbar() {
             </button>
 
             <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+              <Link href="/menu" className="font-bold text-foreground hover:text-primary transition-colors">
+                Menu
+              </Link>
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-primary" />
-                Thu–Sun · 11am–7pm
+                Open Daily · 11am–7pm
               </span>
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-primary" />
