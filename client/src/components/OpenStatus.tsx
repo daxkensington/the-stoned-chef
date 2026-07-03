@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 
-// Thu=4, Fri=5, Sat=6, Sun=0 — 11am to 7pm ET
-const OPEN_DAYS = [0, 4, 5, 6]; // Sunday, Thursday, Friday, Saturday
+// Open every day, 11am to 7pm ET
+const OPEN_DAYS = [0, 1, 2, 3, 4, 5, 6]; // Sunday through Saturday
 const OPEN_HOUR = 11;
 const CLOSE_HOUR = 19;
 

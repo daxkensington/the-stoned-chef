@@ -379,7 +379,7 @@ export default function OrderPage() {
                 )}
                 <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  Open Thu–Sun · 11:00 AM – 7:00 PM · 45 Dundas St, Deseronto
+                  Open Every Day · 11:00 AM – 7:00 PM · 45 Dundas St, Deseronto
                 </p>
               </div>
             </div>

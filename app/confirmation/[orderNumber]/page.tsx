@@ -256,7 +256,7 @@ export default function ConfirmationPage({
               <div>
                 <p className="font-bold text-foreground mb-0.5">Pick Up At</p>
                 <p className="text-muted-foreground text-sm">45 Dundas Street, Deseronto, ON</p>
-                <p className="text-muted-foreground text-sm">Thu–Sun · 11:00 AM – 7:00 PM</p>
+                <p className="text-muted-foreground text-sm">Every Day · 11:00 AM – 7:00 PM</p>
                 <a
                   href="https://maps.google.com/?q=45+Dundas+Street+Deseronto+Ontario"
                   target="_blank"

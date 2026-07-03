@@ -687,7 +687,7 @@ export default function Home() {
               {
                 icon: <Clock className="w-5 h-5" />,
                 title: "Hours",
-                lines: ["Thursday – Sunday", "11:00 AM – 7:00 PM"],
+                lines: ["Open 7 Days a Week", "11:00 AM – 7:00 PM"],
               },
               {
                 icon: <Phone className="w-5 h-5" />,
@@ -800,7 +800,7 @@ export default function Home() {
               </div>
               <div className="text-center sm:text-right text-sm text-muted-foreground">
                 <p>&copy; {new Date().getFullYear()} The Stoned Chef</p>
-                <p className="text-xs mt-0.5">Pay online or at pickup · Thu–Sun 11am–7pm</p>
+                <p className="text-xs mt-0.5">Pay online or at pickup · Open daily 11am–7pm</p>
               </div>
             </div>
           </div>

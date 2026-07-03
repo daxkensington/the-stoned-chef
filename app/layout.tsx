@@ -17,7 +17,7 @@ const bangers = Bangers({
 export const metadata: Metadata = {
   title: "The Stoned Chef | Deseronto's Favourite Chip Truck",
   description:
-    "Order online from The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open Thu-Sun 11am-7pm.",
+    "Order online from The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm.",
   metadataBase: new URL("https://thestonedchef.ca"),
   manifest: "/manifest.json",
   appleWebApp: {
