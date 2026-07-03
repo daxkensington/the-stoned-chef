@@ -32,6 +32,36 @@ export const metadata: Metadata = {
   },
 };
 
+// Structured data for search engines / Google Business — keep hours in sync
+// with OpenStatus and the customer-facing hours lines (open daily 11am–7pm).
+const restaurantJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  name: "The Stoned Chef",
+  description: "Deseronto's favourite chip truck — smash burgers, loaded poutines, crispy fish & chips, and more.",
+  url: "https://thestonedchef.ca",
+  telephone: "+1-343-337-5810",
+  servesCuisine: ["Burgers", "Poutine", "Fish & Chips", "Comfort Food"],
+  priceRange: "$$",
+  image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "45 Dundas Street",
+    addressLocality: "Deseronto",
+    addressRegion: "ON",
+    postalCode: "K0K 1X0",
+    addressCountry: "CA",
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      opens: "11:00",
+      closes: "19:00",
+    },
+  ],
+};
+
 export const viewport: Viewport = {
   themeColor: "#c44d18",
   width: "device-width",
@@ -43,6 +73,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={bangers.variable}>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantJsonLd) }}
+        />
         <Script src="https://web.squarecdn.com/v1/square.js" strategy="beforeInteractive" />
       </head>
       <body>
