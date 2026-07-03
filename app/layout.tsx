@@ -29,9 +29,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "The Stoned Chef",
-    description: "Where we cure the munchies — Deseronto's favourite chip truck",
+    description: "Where we cure the munchies — Deseronto's favourite chip truck. Order online for pickup, open daily 11am–7pm.",
     type: "website",
     url: "https://thestonedchef.ca",
+    siteName: "The Stoned Chef",
+    locale: "en_CA",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1280,
+        height: 720,
+        alt: "Bacon cheeseburger, loaded poutine, hand-cut fries, and fish & chips from The Stoned Chef",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Stoned Chef — Deseronto's Favourite Chip Truck",
+    description: "Smash burgers, loaded poutines, crispy fish & chips. Order online for pickup, open daily 11am–7pm.",
+    images: ["/og-image.jpg"],
   },
 };
 
@@ -46,7 +62,7 @@ const restaurantJsonLd = {
   telephone: "+1-343-337-5810",
   servesCuisine: ["Burgers", "Poutine", "Fish & Chips", "Comfort Food"],
   priceRange: "$$",
-  image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png",
+  image: "https://thestonedchef.ca/og-image.jpg",
   address: {
     "@type": "PostalAddress",
     streetAddress: "45 Dundas Street",
