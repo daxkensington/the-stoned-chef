@@ -6,6 +6,9 @@ import { Navbar } from "@/components/Navbar";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import "./globals.css";
 
+// GA4 Measurement ID — public by design (visible in page source).
+const GA_MEASUREMENT_ID = "G-M3RP59TZ7E";
+
 const bangers = Bangers({
   weight: "400",
   subsets: ["latin"],
@@ -77,6 +80,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantJsonLd) }}
         />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_MEASUREMENT_ID}');`}
+        </Script>
         <Script src="https://web.squarecdn.com/v1/square.js" strategy="beforeInteractive" />
       </head>
       <body>
