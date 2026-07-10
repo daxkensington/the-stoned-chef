@@ -5,23 +5,31 @@ import { MENU_CATEGORIES } from "@shared/menu";
 import { Zap, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+const ALL_ITEMS = MENU_CATEGORIES.flatMap((cat) => cat.items);
+
+function menuItem(id: string) {
+  const item = ALL_ITEMS.find((i) => i.id === id);
+  if (!item) return null;
+  return { id: item.id, name: item.name, priceCents: item.priceCents, category: item.category };
+}
+
 const COMBOS = [
   {
     trigger: ["burgers"],
-    suggest: { id: "fries-small", name: "Small Fries", priceCents: 600, category: "fries-poutine" },
+    suggest: menuItem("fries-small"),
     message: "Add fries to your burger?",
   },
   {
     trigger: ["burgers", "chicken"],
-    suggest: { id: "drink-pop", name: "Pop / Soda", priceCents: 250, category: "drinks" },
+    suggest: menuItem("drink-pop"),
     message: "Add a drink?",
   },
   {
     trigger: ["fish-chips"],
-    suggest: { id: "onion-rings", name: "Onion Rings", priceCents: 800, category: "fish-chips" },
+    suggest: menuItem("onion-rings"),
     message: "Onion rings with your fish?",
   },
-];
+].filter((c): c is typeof c & { suggest: NonNullable<ReturnType<typeof menuItem>> } => c.suggest !== null);
 
 export function ComboSuggestion() {
   const { items, addItem } = useCart();
