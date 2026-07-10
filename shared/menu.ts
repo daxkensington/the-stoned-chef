@@ -214,23 +214,6 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         tags: ["spicy", "vegetarian"],
         image: "/food/jalapeno-poutine.jpg",
       },
-      {
-        id: "poutine-pulled-pork",
-        name: "Pulled Pork Poutine",
-        description: "Poutine topped with slow-cooked pulled pork — a fan favourite",
-        priceCents: 1600,
-        category: "fries-poutine",
-        popular: true,
-        image: "/food/pulled-pork-poutine.jpg",
-      },
-      {
-        id: "poutine-shepherds-pie",
-        name: "Shepherd's Pie Poutine",
-        description: "Poutine loaded with hearty shepherd's pie filling — comfort food at its finest",
-        priceCents: 1800,
-        category: "fries-poutine",
-        image: "/food/shepherds-poutine.jpg",
-      },
     ],
   },
   {

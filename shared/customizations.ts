@@ -35,7 +35,6 @@ const POUTINE_ADDONS: AddOnOption[] = [
   { id: "extra-cheese-curds", label: "Extra Cheese Curds", priceCents: 200 },
   { id: "extra-gravy", label: "Extra Gravy", priceCents: 100 },
   { id: "add-jalapenos", label: "Add Jalapeños", priceCents: 100 },
-  { id: "add-pulled-pork", label: "Add Pulled Pork", priceCents: 300 },
 ];
 
 const WRAP_REMOVES: RemoveOption[] = [

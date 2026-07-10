@@ -54,10 +54,10 @@ const galleryItems = [
     category: "Kids Menu",
   },
   {
-    src: "/food/pulled-pork-poutine.jpg",
-    alt: "Pulled Pork Poutine",
-    label: "Pulled Pork Poutine",
-    category: "Fries & Poutine",
+    src: "/food/cheese-curds.jpg",
+    alt: "Deep Fried Cheese Curds",
+    label: "Deep Fried Cheese Curds",
+    category: "Appetizers",
   },
 ];
 

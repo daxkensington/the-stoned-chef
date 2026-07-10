@@ -34,7 +34,7 @@ const TRUCK_HERO =
 const POUTINE_HIGHRES = "/food/poutine-hero.jpg";
 const BURGER_JALAPENO = "/food/burger-hero.jpg";
 const BURGER_COMPOSITE = "/food/bacon-cheese.jpg";
-const POUTINE_CLOSE = "/food/pulled-pork-poutine.jpg";
+const FISH_CHIPS = "/food/fish-2pc.jpg";
 
 const CATEGORY_IMAGES: Record<string, string> = {
   burgers: BURGER_JALAPENO,
@@ -307,9 +307,9 @@ export default function Home() {
                 pos: "center 40%",
               },
               {
-                img: POUTINE_CLOSE,
-                label: "Pulled Pork Poutine",
-                sub: "Fan favourite",
+                img: FISH_CHIPS,
+                label: "Fish & Chips",
+                sub: "Beer-battered & golden",
                 pos: "center center",
               },
             ].map(({ img, label, sub, pos }, i) => (
