@@ -1,3 +1,4 @@
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Bangers } from "next/font/google";
@@ -114,6 +115,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`}
           <Navbar />
           {children}
         </Providers>
+              <ServiceWorkerRegistrar />
       </body>
     </html>
   );
