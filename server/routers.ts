@@ -179,6 +179,33 @@ export const appRouter = router({
           throw new Error("Please pick a valid pickup time.");
         }
 
+        /**
+         * FRAUD SCREEN — ahead of the Square charge below, which is the only
+         * placement that helps: past that call the card is already charged, and
+         * this store learned on 2026-06-07 (SC-AMKXFT4T) that a failure after
+         * the charge reads to the customer as "try again" and double-bills them.
+         *
+         * `server/_core/fraudCore.ts` is byte-identical in every storefront repo
+         * — one place to add a blocked identity. Email and phone only: this is a
+         * pickup counter, so there is no shipping address to match, and no
+         * decline cap either because Square declines are not recorded here as
+         * failed orders. The value is narrow and real: an actor barred elsewhere
+         * in the fleet cannot pay for pickup here.
+         */
+        {
+          const { screenStatic, customerMessage } = await import("./_core/fraudCore");
+          const screen = screenStatic({
+            email: input.customerEmail ?? null,
+            phone: input.customerPhone,
+          });
+          if (screen.action !== "allow") {
+            console.warn(
+              `[fraudScreen] ${screen.action} (${screen.reason}) phone=${input.customerPhone}`,
+            );
+            throw new Error(customerMessage(screen));
+          }
+        }
+
         const orderNumber = orderNumberFromKey(input.idempotencyKey);
 
         // Same idempotency key resubmitted (double-click, network retry):
