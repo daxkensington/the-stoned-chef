@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 import { Navbar } from "@/components/Navbar";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import "./globals.css";
+import { ONLINE_ORDERING_ENABLED } from "@shared/const";
 
 // GA4 Measurement ID — public by design (visible in page source).
 const GA_MEASUREMENT_ID = "G-M3RP59TZ7E";
@@ -19,8 +20,9 @@ const bangers = Bangers({
 
 export const metadata: Metadata = {
   title: "The Stoned Chef | Deseronto's Favourite Chip Truck",
-  description:
-    "Order online from The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm.",
+  description: ONLINE_ORDERING_ENABLED
+    ? "Order online from The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm."
+    : "The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm. Order at the truck.",
   metadataBase: new URL("https://thestonedchef.ca"),
   manifest: "/manifest.json",
   appleWebApp: {
@@ -30,7 +32,9 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "The Stoned Chef",
-    description: "Where we cure the munchies — Deseronto's favourite chip truck. Order online for pickup, open daily 11am–7pm.",
+    description: ONLINE_ORDERING_ENABLED
+      ? "Where we cure the munchies — Deseronto's favourite chip truck. Order online for pickup, open daily 11am–7pm."
+      : "Where we cure the munchies — Deseronto's favourite chip truck. Open daily 11am–7pm at 45 Dundas St, Deseronto.",
     type: "website",
     url: "https://thestonedchef.ca",
     siteName: "The Stoned Chef",
@@ -47,7 +51,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "The Stoned Chef — Deseronto's Favourite Chip Truck",
-    description: "Smash burgers, loaded poutines, crispy fish & chips. Order online for pickup, open daily 11am–7pm.",
+    description: ONLINE_ORDERING_ENABLED
+      ? "Smash burgers, loaded poutines, crispy fish & chips. Order online for pickup, open daily 11am–7pm."
+      : "Smash burgers, loaded poutines, crispy fish & chips. Open daily 11am–7pm at 45 Dundas St, Deseronto.",
     images: ["/og-image.jpg"],
   },
 };
@@ -107,7 +113,9 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${GA_MEASUREMENT_ID}');`}
         </Script>
-        <Script src="https://web.squarecdn.com/v1/square.js" strategy="beforeInteractive" />
+        {ONLINE_ORDERING_ENABLED && (
+          <Script src="https://web.squarecdn.com/v1/square.js" strategy="beforeInteractive" />
+        )}
       </head>
       <body>
         <Providers>

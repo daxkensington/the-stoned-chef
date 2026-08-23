@@ -1,4 +1,5 @@
 import { publicProcedure, adminProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -29,7 +30,7 @@ import {
 } from "./email";
 import { createHash } from "crypto";
 import { verifyPassword, signJWT, getSessionCookie } from "./_core/auth";
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, ONLINE_ORDERING_ENABLED, ORDERING_CLOSED_MSG } from "@shared/const";
 import { VALID_PICKUP_TIMES } from "@shared/pickup";
 import { validateCartPricing } from "./pricing";
 
@@ -175,6 +176,13 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
+        // Till closed (2026-08-23). First statement in the mutation, ahead of
+        // the fraud screen and the Square charge, so no card can be touched
+        // while ordering is off — regardless of what any client renders.
+        if (!ONLINE_ORDERING_ENABLED) {
+          throw new TRPCError({ code: "FORBIDDEN", message: ORDERING_CLOSED_MSG });
+        }
+
         if (!VALID_PICKUP_TIMES.has(input.pickupTime)) {
           throw new Error("Please pick a valid pickup time.");
         }

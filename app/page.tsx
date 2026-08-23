@@ -19,6 +19,11 @@ import { PunchCard } from "@/components/PunchCard";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import { CustomizeModal } from "@/components/CustomizeModal";
+import {
+  ONLINE_ORDERING_ENABLED,
+  ORDERING_CLOSED_HEADING,
+  ORDERING_CLOSED_MSG,
+} from "@shared/const";
 import { hasCustomizations } from "@shared/customizations";
 import type { MenuItem } from "@shared/menu";
 import { Reviews } from "@/components/Reviews";
@@ -243,7 +248,7 @@ export default function Home() {
                 }}
                 onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Order Now
+                {ONLINE_ORDERING_ENABLED ? "Order Now" : "See the Menu"}
                 <ChevronRight className="w-5 h-5 ml-1" />
               </Button>
               <Button
@@ -365,11 +370,24 @@ export default function Home() {
       </SectionReveal>
 
       {/* HOW IT WORKS */}
-      <HowItWorks />
+      {ONLINE_ORDERING_ENABLED && <HowItWorks />}
 
       {/* MENU */}
       <section id="menu" className="py-10 sm:py-14">
         <div className="container">
+          {!ONLINE_ORDERING_ENABLED && (
+            <div
+              className="mb-6 rounded-2xl px-5 py-4 text-center"
+              style={{
+                background: "oklch(0.22 0.02 30)",
+                border: "1px solid oklch(0.62 0.22 38 / 0.45)",
+              }}
+            >
+              <p className="font-bold text-foreground">{ORDERING_CLOSED_HEADING}</p>
+              <p className="text-sm text-muted-foreground mt-1">{ORDERING_CLOSED_MSG}</p>
+            </div>
+          )}
+
           <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
             <h2
               className="text-4xl sm:text-5xl font-black leading-none fire-text"
@@ -544,6 +562,17 @@ export default function Home() {
                       >
                         ${(item.priceCents / 100).toFixed(2)}
                       </span>
+                      {!ONLINE_ORDERING_ENABLED ? (
+                        isSoldOut ? (
+                          <span
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold"
+                            style={{ background: "oklch(0.30 0.02 30)", color: "white" }}
+                          >
+                            <Ban className="w-4 h-4" />
+                            Sold Out
+                          </span>
+                        ) : null
+                      ) : (
                       <button
                         onClick={() => !isSoldOut && handleAddItem(item)}
                         disabled={isSoldOut}
@@ -569,6 +598,7 @@ export default function Home() {
                           </>
                         )}
                       </button>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -800,7 +830,11 @@ export default function Home() {
               </div>
               <div className="text-center sm:text-right text-sm text-muted-foreground">
                 <p>&copy; {new Date().getFullYear()} The Stoned Chef</p>
-                <p className="text-xs mt-0.5">Pay online or at pickup · Open daily 11am–7pm</p>
+                <p className="text-xs mt-0.5">
+                    {ONLINE_ORDERING_ENABLED
+                      ? "Pay online or at pickup · Open daily 11am–7pm"
+                      : "45 Dundas St, Deseronto · Open daily 11am–7pm"}
+                  </p>
               </div>
             </div>
           </div>
@@ -808,7 +842,7 @@ export default function Home() {
       </footer>
 
       {/* STICKY MOBILE CART */}
-      {totalItems > 0 && (
+      {ONLINE_ORDERING_ENABLED && totalItems > 0 && (
         <div className="fixed bottom-4 left-4 right-4 z-40 sm:hidden">
           <button
             onClick={() => setCartOpen(true)}
@@ -835,12 +869,16 @@ export default function Home() {
         </div>
       )}
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-      <CustomizeModal
-        item={customizeItem}
-        open={!!customizeItem}
-        onClose={() => setCustomizeItem(null)}
-      />
+      {ONLINE_ORDERING_ENABLED && (
+        <>
+          <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+          <CustomizeModal
+            item={customizeItem}
+            open={!!customizeItem}
+            onClose={() => setCustomizeItem(null)}
+          />
+        </>
+      )}
     </div>
   );
 }

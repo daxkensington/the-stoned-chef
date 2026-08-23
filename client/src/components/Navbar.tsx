@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import { ONLINE_ORDERING_ENABLED } from "@shared/const";
 import { CartDrawer } from "./CartDrawer";
 import { ShoppingBag, MapPin, Clock, Sparkles, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -103,6 +104,7 @@ export function Navbar() {
               </div>
             )}
 
+            {ONLINE_ORDERING_ENABLED && (
             <button
               onClick={() => setCartOpen(true)}
               aria-label={totalItems > 0 ? `Open cart with ${totalItems} items` : "Open cart"}
@@ -125,11 +127,14 @@ export function Navbar() {
                 </span>
               )}
             </button>
+            )}
           </div>
         </div>
       </nav>
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      {ONLINE_ORDERING_ENABLED && (
+        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      )}
     </>
   );
 }

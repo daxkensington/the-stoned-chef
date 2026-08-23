@@ -2,15 +2,23 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { MENU_CATEGORIES } from "@shared/menu";
+import {
+  ONLINE_ORDERING_ENABLED,
+  ORDERING_CLOSED_HEADING,
+  ORDERING_CLOSED_MSG,
+} from "@shared/const";
 
 export const metadata: Metadata = {
   title: "Menu | The Stoned Chef — Deseronto Chip Truck",
-  description:
-    "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wings, wraps, and kids' meals. Order online for pickup, open daily 11am–7pm.",
+  description: ONLINE_ORDERING_ENABLED
+    ? "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wings, wraps, and kids' meals. Order online for pickup, open daily 11am–7pm."
+    : "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wings, wraps, and kids' meals. Open daily 11am–7pm at 45 Dundas St.",
   alternates: { canonical: "https://thestonedchef.ca/menu" },
   openGraph: {
     title: "The Stoned Chef Menu — Deseronto, ON",
-    description: "Smash burgers, loaded poutines, crispy fish & chips, and more. Order online for pickup.",
+    description: ONLINE_ORDERING_ENABLED
+      ? "Smash burgers, loaded poutines, crispy fish & chips, and more. Order online for pickup."
+      : "Smash burgers, loaded poutines, crispy fish & chips, and more. Open daily at 45 Dundas St, Deseronto.",
     url: "https://thestonedchef.ca/menu",
     type: "website",
   },
@@ -35,15 +43,28 @@ export default function MenuPage() {
           Deseronto&apos;s favourite chip truck — smash burgers, loaded poutines, crispy fish &amp; chips,
           and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St.
         </p>
-        <Link
-          href="/order"
-          className="inline-flex items-center gap-2 mt-5 px-6 py-3 rounded-xl font-bold text-white transition-transform hover:scale-105 active:scale-95"
-          style={{
-            background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
-          }}
-        >
-          Order Online for Pickup →
-        </Link>
+        {ONLINE_ORDERING_ENABLED ? (
+          <Link
+            href="/order"
+            className="inline-flex items-center gap-2 mt-5 px-6 py-3 rounded-xl font-bold text-white transition-transform hover:scale-105 active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
+            }}
+          >
+            Order Online for Pickup →
+          </Link>
+        ) : (
+          <div
+            className="mt-5 mx-auto max-w-xl rounded-2xl px-5 py-4"
+            style={{
+              background: "oklch(0.22 0.02 30)",
+              border: "1px solid oklch(0.62 0.22 38 / 0.45)",
+            }}
+          >
+            <p className="font-bold text-foreground">{ORDERING_CLOSED_HEADING}</p>
+            <p className="text-sm text-muted-foreground mt-1">{ORDERING_CLOSED_MSG}</p>
+          </div>
+        )}
       </section>
 
       {/* Categories */}
@@ -115,17 +136,33 @@ export default function MenuPage() {
       {/* Bottom CTA */}
       <section className="container pb-20 text-center">
         <p className="text-sm text-muted-foreground mb-4">
-          Prices in CAD. Item availability updates in real time on the order page.
+          {ONLINE_ORDERING_ENABLED
+            ? "Prices in CAD. Item availability updates in real time on the order page."
+            : "Prices in CAD. Ask at the window for today's specials and sold-out items."}
         </p>
-        <Link
-          href="/order"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white text-lg transition-transform hover:scale-105 active:scale-95"
-          style={{
-            background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
-          }}
-        >
-          Start Your Order →
-        </Link>
+        {ONLINE_ORDERING_ENABLED ? (
+          <Link
+            href="/order"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white text-lg transition-transform hover:scale-105 active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
+            }}
+          >
+            Start Your Order →
+          </Link>
+        ) : (
+          <a
+            href="https://maps.google.com/?q=45+Dundas+St,+Deseronto,+ON"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white text-lg transition-transform hover:scale-105 active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
+            }}
+          >
+            Find the Truck →
+          </a>
+        )}
       </section>
     </main>
   );
