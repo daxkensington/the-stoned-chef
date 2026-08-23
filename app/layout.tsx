@@ -24,6 +24,11 @@ export const metadata: Metadata = {
     ? "Order online from The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm."
     : "The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm. Order at the truck.",
   metadataBase: new URL("https://thestonedchef.ca"),
+  alternates: { canonical: "https://thestonedchef.ca" },
+  icons: {
+    icon: [{ url: "/icon-192.png", type: "image/png" }],
+    apple: "/icon-192.png",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

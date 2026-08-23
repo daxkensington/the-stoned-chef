@@ -1,7 +1,7 @@
 {
   "name": "The Stoned Chef",
   "short_name": "Stoned Chef",
-  "description": "Order online from Deseronto's favourite chip truck",
+  "description": "Deseronto's favourite chip truck — smash burgers, poutine, fish & chips. 45 Dundas St.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1410",

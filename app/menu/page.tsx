@@ -11,8 +11,8 @@ import {
 export const metadata: Metadata = {
   title: "Menu | The Stoned Chef — Deseronto Chip Truck",
   description: ONLINE_ORDERING_ENABLED
-    ? "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wings, wraps, and kids' meals. Order online for pickup, open daily 11am–7pm."
-    : "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wings, wraps, and kids' meals. Open daily 11am–7pm at 45 Dundas St.",
+    ? "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wraps, and kids' meals. Order online for pickup, open daily 11am–7pm."
+    : "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wraps, and kids' meals. Open daily 11am–7pm at 45 Dundas St.",
   alternates: { canonical: "https://thestonedchef.ca/menu" },
   openGraph: {
     title: "The Stoned Chef Menu — Deseronto, ON",

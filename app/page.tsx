@@ -34,8 +34,7 @@ import { SectionReveal } from "@/components/SectionReveal";
 import { HowItWorks } from "@/components/HowItWorks";
 import { StatsCounter } from "@/components/StatsCounter";
 
-const TRUCK_HERO =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663152852200/C7iRCrsUdcotHueyd4W2GL/truck-hero-clean_f3681cb6.png";
+const TRUCK_HERO = "/food/truck-hero.webp";
 const POUTINE_HIGHRES = "/food/poutine-hero.jpg";
 const BURGER_JALAPENO = "/food/burger-hero.jpg";
 const BURGER_COMPOSITE = "/food/bacon-cheese.jpg";
@@ -741,11 +740,21 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="font-bold text-foreground mb-1">{info.title}</p>
-                  {info.lines.map((line) => (
-                    <p key={line} className="text-muted-foreground text-sm">
-                      {line}
-                    </p>
-                  ))}
+                  {info.lines.map((line) =>
+                    info.title === "Phone" ? (
+                      <a
+                        key={line}
+                        href="tel:+13433375810"
+                        className="text-muted-foreground text-sm hover:text-foreground underline-offset-2 hover:underline"
+                      >
+                        {line}
+                      </a>
+                    ) : (
+                      <p key={line} className="text-muted-foreground text-sm">
+                        {line}
+                      </p>
+                    )
+                  )}
                 </div>
               </div>
             ))}
