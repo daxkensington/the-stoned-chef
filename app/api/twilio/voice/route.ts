@@ -18,6 +18,11 @@ import { validateRequest } from "twilio";
 // what we validate against, so it is pinned.
 const PUBLIC_URL = "https://thestonedchef.ca/api/twilio/voice";
 
+// Played to the answering party before the legs bridge, so a store call is
+// recognisable as one — the forwarded call carries the customer's caller ID,
+// which is right for the screen but says nothing about which line it came in on.
+const WHISPER_URL = "https://thestonedchef.ca/api/twilio/whisper";
+
 function twiml(body: string) {
   return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${body}</Response>`, {
     status: 200,
@@ -53,7 +58,7 @@ export async function POST(request: Request) {
   // phone that rings shows who is calling instead of the store's own line.
   // Anything after <Dial> runs only when the call was not answered.
   return twiml(
-    `<Dial timeout="20">${forwardTo}</Dial>` +
+    `<Dial timeout="20"><Number url="${WHISPER_URL}">${forwardTo}</Number></Dial>` +
       `<Say voice="alice">Sorry we missed you. We're open daily, eleven a.m. to seven p.m., at forty-five Dundas Street in Deseronto.</Say>`
   );
 }
