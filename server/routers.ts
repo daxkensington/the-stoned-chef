@@ -175,7 +175,7 @@ export const appRouter = router({
           idempotencyKey: z.string().uuid(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         // Till closed (2026-08-23). First statement in the mutation, ahead of
         // the fraud screen and the Square charge, so no card can be touched
         // while ordering is off — regardless of what any client renders.
@@ -299,9 +299,12 @@ export const appRouter = router({
         // happened 2026-06-07, order SC-AMKXFT4T).
         let order;
         try {
+          const { collectRequestContext, sessionColumns } = await import("./_core/requestContext");
+          const requestContext = collectRequestContext(ctx.req?.headers);
           order = await createOrder(
             {
               orderNumber,
+              ...sessionColumns(requestContext),
               customerName: input.customerName,
               customerPhone: input.customerPhone,
               customerEmail: input.customerEmail ?? null,
