@@ -6,6 +6,7 @@ import { getAdminByUsername } from "../db";
 export type FetchContext = {
   admin: Admin | null;
   resHeaders: Headers;
+  req: Request;
 };
 
 function parseCookies(cookieHeader: string | null): Record<string, string> {
@@ -40,5 +41,5 @@ export async function createFetchContext({
     admin = null;
   }
 
-  return { admin, resHeaders };
+  return { admin, resHeaders, req };
 }

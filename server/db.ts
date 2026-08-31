@@ -40,7 +40,17 @@ export async function createOrder(
   items: InsertOrderItem[]
 ): Promise<Order> {
   const db = getDb();
-  const [created] = await db.insert(orders).values(order).returning();
+  let created: Order | undefined;
+  try {
+    [created] = await db.insert(orders).values(order).returning();
+  } catch (err) {
+    const { isMissingColumnError } = await import("./_core/requestContext");
+    if (!isMissingColumnError(err)) throw err;
+    const { ipAddress: _ip, userAgent: _ua, sessionContext: _sc, ...rest } = order as typeof order & {
+      ipAddress?: unknown; userAgent?: unknown; sessionContext?: unknown;
+    };
+    [created] = await db.insert(orders).values(rest).returning();
+  }
   if (!created) throw new Error("Failed to create order");
 
   if (items.length > 0) {

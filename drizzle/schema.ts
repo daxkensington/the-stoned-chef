@@ -58,6 +58,9 @@ export const orders = pgTable("orders", {
   squarePaymentId: varchar("square_payment_id", { length: 128 }),
   smsOptIn: boolean("sms_opt_in").default(false).notNull(),
   notes: text("notes"),
+  ipAddress: varchar("ip_address", { length: 64 }),
+  userAgent: varchar("user_agent", { length: 512 }),
+  sessionContext: text("session_context"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
