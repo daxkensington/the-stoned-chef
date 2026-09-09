@@ -25,6 +25,7 @@ interface SquareOrderPayload {
   customerName: string;
   customerPhone: string;
   pickupTime: string;
+  notes?: string;
   orderNumber: string;
   lineItems: SquareLineItem[];
   totalCents: number;
@@ -47,6 +48,12 @@ export async function createSquarePayment(
   locationId: string,
   payload: SquarePaymentPayload
 ): Promise<{ paymentId: string } | { error: string }> {
+  // A standalone payment cannot produce the pickup ticket on the Square POS.
+  // Stop before charging if creating the linked Square order failed.
+  if (!payload.orderId?.trim()) {
+    return { error: "We couldn't confirm your pickup order with Square. Please retry this checkout." };
+  }
+
   const body: Record<string, unknown> = {
     idempotency_key: payload.idempotencyKey ?? randomUUID(),
     source_id: payload.sourceId,
@@ -55,13 +62,10 @@ export async function createSquarePayment(
       currency: "CAD",
     },
     location_id: locationId,
+    order_id: payload.orderId,
     reference_id: payload.orderNumber,
     note: `Online order #${payload.orderNumber} — ${payload.customerName}`,
   };
-
-  if (payload.orderId) {
-    body.order_id = payload.orderId;
-  }
 
   if (payload.tipCents && payload.tipCents > 0) {
     body.tip_money = { amount: payload.tipCents, currency: "CAD" };
@@ -119,7 +123,10 @@ export async function createSquareOrder(
               phone_number: payload.customerPhone,
             },
             pickup_at: buildPickupAt(payload.pickupTime),
-            note: `Online order #${payload.orderNumber} — Pickup: ${payload.pickupTime}`,
+            note: [
+              `Online order #${payload.orderNumber} — Pickup: ${payload.pickupTime}`,
+              payload.notes?.trim() ? `Customer notes: ${payload.notes.trim()}` : null,
+            ].filter(Boolean).join("\n"),
           },
         },
       ],
