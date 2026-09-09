@@ -267,6 +267,7 @@ export const appRouter = router({
           customerName: input.customerName,
           customerPhone: input.customerPhone,
           pickupTime: input.pickupTime,
+          notes: input.notes,
           orderNumber,
           lineItems: squareLineItems,
           totalCents,
