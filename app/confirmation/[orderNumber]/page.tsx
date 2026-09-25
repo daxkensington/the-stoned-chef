@@ -4,7 +4,7 @@ import { use, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2, ChefHat, Share2 } from "lucide-react";
+import { CheckCircle2, Clock, MapPin, Phone, ChevronRight, Loader2, ChefHat, Share2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { OrderQR } from "@/components/OrderQR";
 
@@ -85,6 +85,8 @@ export default function ConfirmationPage({
   }
 
   const { order, items } = data;
+  const isCancelled = order.status === "cancelled";
+  const isCompleted = order.status === "completed";
 
   return (
     <div className="min-h-screen pb-16" style={{ background: "var(--color-background)" }}>
@@ -98,11 +100,15 @@ export default function ConfirmationPage({
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
           style={{
-            background: "oklch(0.62 0.22 38 / 0.15)",
-            border: "2px solid oklch(0.62 0.22 38 / 0.4)",
+            background: isCancelled ? "oklch(0.55 0.18 25 / 0.15)" : "oklch(0.62 0.22 38 / 0.15)",
+            border: isCancelled ? "2px solid oklch(0.55 0.18 25 / 0.4)" : "2px solid oklch(0.62 0.22 38 / 0.4)",
           }}
         >
-          <CheckCircle2 className="w-8 h-8" style={{ color: "oklch(0.62 0.22 38)" }} />
+          {isCancelled ? (
+            <XCircle className="w-8 h-8" style={{ color: "oklch(0.55 0.18 25)" }} />
+          ) : (
+            <CheckCircle2 className="w-8 h-8" style={{ color: "oklch(0.62 0.22 38)" }} />
+          )}
         </div>
         <h1
           className="text-3xl sm:text-4xl font-black mb-2"
@@ -112,11 +118,15 @@ export default function ConfirmationPage({
             color: "oklch(0.97 0.01 60)",
           }}
         >
-          Order Confirmed!
+          {isCancelled ? "Order Cancelled" : "Order Confirmed!"}
         </h1>
         <p className="text-muted-foreground text-base mb-1">
-          Thanks, <span className="text-foreground font-semibold">{order.customerName}</span>! Your
-          order is being prepared.
+          Thanks, <span className="text-foreground font-semibold">{order.customerName}</span>!
+          {isCancelled
+            ? " This order was cancelled. Questions? Call us at (343) 337-5810."
+            : isCompleted
+              ? " Your order is complete — enjoy!"
+              : " Your order is being prepared."}
         </p>
         <div
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mt-3"
@@ -130,45 +140,47 @@ export default function ConfirmationPage({
         </div>
 
         {/* Live Status Tracker */}
-        <div className="flex items-center justify-center gap-2 mt-6">
-          {(["pending", "preparing", "ready"] as const).map((step, i) => {
-            const steps = ["pending", "preparing", "ready"];
-            const currentIdx = steps.indexOf(order.status);
-            const stepIdx = i;
-            const isActive = stepIdx <= currentIdx;
-            const isCurrent = step === order.status;
-            const icons = { pending: Clock, preparing: ChefHat, ready: CheckCircle2 };
-            const labels = { pending: "Received", preparing: "Preparing", ready: "Ready!" };
-            const Icon = icons[step];
+        {!isCancelled && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {(["pending", "preparing", "ready"] as const).map((step, i) => {
+              const steps = ["pending", "preparing", "ready"];
+              const currentIdx = isCompleted ? steps.length : steps.indexOf(order.status);
+              const stepIdx = i;
+              const isActive = stepIdx <= currentIdx;
+              const isCurrent = step === order.status;
+              const icons = { pending: Clock, preparing: ChefHat, ready: CheckCircle2 };
+              const labels = { pending: "Received", preparing: "Preparing", ready: "Ready!" };
+              const Icon = icons[step];
 
-            return (
-              <div key={step} className="flex items-center gap-2">
-                {i > 0 && (
-                  <div className="w-8 h-0.5 rounded-full" style={{ background: isActive ? "oklch(0.62 0.22 38)" : "oklch(0.28 0.02 30)" }} />
-                )}
-                <div className="flex flex-col items-center gap-1">
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${isCurrent ? "animate-pulse" : ""}`}
-                    style={{
-                      background: isActive
-                        ? step === "ready" ? "oklch(0.45 0.15 145)" : "oklch(0.62 0.22 38)"
-                        : "oklch(0.22 0.02 30)",
-                      color: isActive ? "white" : "oklch(0.50 0.04 60)",
-                    }}
-                  >
-                    <Icon className="w-4 h-4" />
+              return (
+                <div key={step} className="flex items-center gap-2">
+                  {i > 0 && (
+                    <div className="w-8 h-0.5 rounded-full" style={{ background: isActive ? "oklch(0.62 0.22 38)" : "oklch(0.28 0.02 30)" }} />
+                  )}
+                  <div className="flex flex-col items-center gap-1">
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${isCurrent ? "animate-pulse" : ""}`}
+                      style={{
+                        background: isActive
+                          ? step === "ready" ? "oklch(0.45 0.15 145)" : "oklch(0.62 0.22 38)"
+                          : "oklch(0.22 0.02 30)",
+                        color: isActive ? "white" : "oklch(0.50 0.04 60)",
+                      }}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-bold" style={{ color: isActive ? "oklch(0.85 0.04 60)" : "oklch(0.50 0.04 60)" }}>
+                      {labels[step]}
+                    </span>
                   </div>
-                  <span className="text-xs font-bold" style={{ color: isActive ? "oklch(0.85 0.04 60)" : "oklch(0.50 0.04 60)" }}>
-                    {labels[step]}
-                  </span>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Estimated wait */}
-        {order.status !== "ready" && order.status !== "completed" && pendingCount != null && pendingCount > 0 && (
+        {order.status !== "ready" && order.status !== "completed" && order.status !== "cancelled" && pendingCount != null && pendingCount > 0 && (
           <p className="text-sm mt-4" style={{ color: "oklch(0.75 0.04 60)" }}>
             Estimated wait: ~{Math.max(5, pendingCount * 8)} min ({pendingCount} order{pendingCount > 1 ? "s" : ""} ahead)
           </p>
