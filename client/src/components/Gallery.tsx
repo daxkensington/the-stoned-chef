@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { X, ZoomIn } from "lucide-react";
+import { useRef, useState } from "react";
+import { ZoomIn } from "lucide-react";
 import Image from "next/image";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 const galleryItems = [
   {
@@ -62,16 +63,14 @@ const galleryItems = [
 ];
 
 export default function Gallery() {
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  const [lightboxLabel, setLightboxLabel] = useState<string>("");
+  const [selected, setSelected] = useState<(typeof galleryItems)[number] | null>(null);
+  const [open, setOpen] = useState(false);
+  const openerRef = useRef<HTMLButtonElement | null>(null);
 
-  const openLightbox = (src: string, label: string) => {
-    setLightboxSrc(src);
-    setLightboxLabel(label);
-  };
-
-  const closeLightbox = () => {
-    setLightboxSrc(null);
+  const openLightbox = (item: (typeof galleryItems)[number], opener: HTMLButtonElement) => {
+    openerRef.current = opener;
+    setSelected(item);
+    setOpen(true);
   };
 
   return (
@@ -99,70 +98,82 @@ export default function Gallery() {
       <div className="container">
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
           {galleryItems.map((item, idx) => (
-            <div
+            <button
               key={idx}
-              className="break-inside-avoid group relative overflow-hidden rounded-xl cursor-pointer"
-              onClick={() => openLightbox(item.src, item.label)}
+              type="button"
+              className="break-inside-avoid group relative overflow-hidden rounded-xl cursor-pointer block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              aria-label={`View ${item.label} full size`}
+              onClick={(e) => openLightbox(item, e.currentTarget)}
             >
               <Image
                 src={item.src}
                 alt={item.alt}
                 width={800}
                 height={600}
-                className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full object-cover transition-transform duration-500 group-hover:scale-105 group-focus-visible:scale-105"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-400 text-xs font-semibold uppercase tracking-widest">
+              <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                <span className="flex items-center justify-between">
+                  <span className="block">
+                    <span className="block text-orange-400 text-xs font-semibold uppercase tracking-widest">
                       {item.category}
-                    </p>
-                    <p
-                      className="text-white text-xl font-black uppercase"
+                    </span>
+                    <span
+                      className="block text-white text-xl font-black uppercase"
                       style={{ fontFamily: "'Bangers', cursive" }}
                     >
                       {item.label}
-                    </p>
-                  </div>
-                  <div className="bg-orange-500 rounded-full p-2">
+                    </span>
+                  </span>
+                  <span className="bg-orange-500 rounded-full p-2" aria-hidden="true">
                     <ZoomIn className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
+                  </span>
+                </span>
+              </span>
+            </button>
           ))}
         </div>
       </div>
 
-      {lightboxSrc && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
-          onClick={closeLightbox}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[95vh] overflow-y-auto border-border"
+          style={{ background: "oklch(0.10 0.015 28)" }}
+          onCloseAutoFocus={(e) => {
+            if (openerRef.current) {
+              e.preventDefault();
+              openerRef.current.focus();
+            }
+          }}
         >
-          <button
-            className="absolute top-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-2 transition-colors z-10"
-            onClick={closeLightbox}
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <div className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={lightboxSrc}
-              alt={lightboxLabel}
-              className="w-full rounded-xl shadow-2xl object-contain max-h-[80vh]"
-            />
-            {/* Lightbox uses raw img for full-res viewing */}
-            <p
-              className="text-center text-white text-2xl font-black uppercase mt-4"
-              style={{ fontFamily: "'Bangers', cursive", letterSpacing: "0.05em" }}
-            >
-              {lightboxLabel}
-            </p>
-          </div>
-        </div>
-      )}
+          {selected && (
+            <>
+              <SheetHeader className="mb-4 px-6">
+                <SheetTitle
+                  className="text-center text-white text-2xl font-black uppercase"
+                  style={{ fontFamily: "'Bangers', cursive", letterSpacing: "0.05em" }}
+                >
+                  {selected.label}
+                </SheetTitle>
+                <SheetDescription className="text-orange-400 text-center">
+                  {selected.category}
+                </SheetDescription>
+              </SheetHeader>
+              <div className="max-w-4xl w-full mx-auto">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selected.src}
+                  alt={selected.alt}
+                  className="w-full rounded-xl shadow-2xl object-contain max-h-[80vh]"
+                />
+                {/* Lightbox uses raw img for full-res viewing */}
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </section>
   );
 }
