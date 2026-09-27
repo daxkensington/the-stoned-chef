@@ -21,6 +21,20 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
 
+  const resetSelections = () => {
+    setSelectedRemoves(new Set());
+    setSelectedAddOns(new Set());
+    setQuantity(1);
+  };
+
+  // Clear stale selections when a different item is opened
+  const itemId = item?.id ?? null;
+  const [prevItemId, setPrevItemId] = useState(itemId);
+  if (itemId !== prevItemId) {
+    setPrevItemId(itemId);
+    resetSelections();
+  }
+
   if (!item) return null;
 
   const customizations = getCustomizations(item.category);
@@ -48,19 +62,24 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
     });
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      resetSelections();
+      onClose();
+    }
+  };
+
   const handleAdd = () => {
-    const removeLabels = customizations.removes
-      .filter((r) => selectedRemoves.has(r.id))
-      .map((r) => r.label);
-    const addOnLabels = customizations.addOns
-      .filter((a) => selectedAddOns.has(a.id))
-      .map((a) => a.label);
+    const chosenRemoves = customizations.removes.filter((r) => selectedRemoves.has(r.id));
+    const chosenAddOns = customizations.addOns.filter((a) => selectedAddOns.has(a.id));
+    const removeLabels = chosenRemoves.map((r) => r.label);
+    const addOnLabels = chosenAddOns.map((a) => a.label);
     const allMods = [...removeLabels, ...addOnLabels];
     const customizationStr = allMods.length > 0 ? allMods.join(", ") : undefined;
 
-    // Create a unique ID based on customizations
+    // Create a unique ID based on customizations valid for this category
     const customId = customizationStr
-      ? `${item.id}__${[...selectedRemoves, ...selectedAddOns].sort().join("_")}`
+      ? `${item.id}__${[...chosenRemoves.map((r) => r.id), ...chosenAddOns.map((a) => a.id)].sort().join("_")}`
       : item.id;
 
     for (let i = 0; i < quantity; i++) {
@@ -83,14 +102,12 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
     });
 
     // Reset and close
-    setSelectedRemoves(new Set());
-    setSelectedAddOns(new Set());
-    setQuantity(1);
+    resetSelections();
     onClose();
   };
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="bottom"
         className="rounded-t-2xl max-h-[85vh] overflow-y-auto p-0"
