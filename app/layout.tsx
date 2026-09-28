@@ -19,20 +19,23 @@ const bangers = Bangers({
 });
 
 export const metadata: Metadata = {
-  title: "The Stoned Chef | Deseronto's Favourite Chip Truck",
+  title: "The Stoned Chef | Deseronto Restaurants & Chip Truck",
   description: ONLINE_ORDERING_ENABLED
-    ? "Order online from The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm."
-    : "The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm. Order at the truck.",
+    ? "Order online from The Stoned Chef — Deseronto's favourite restaurant & chip truck for smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St. Open daily 11am-7pm."
+    : "The Stoned Chef — Deseronto's favourite restaurant & chip truck for smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St. Open daily 11am-7pm.",
   metadataBase: new URL("https://thestonedchef.ca"),
   alternates: { canonical: "https://thestonedchef.ca" },
   keywords: [
     "The Stoned Chef",
+    "Deseronto restaurants",
+    "restaurants in Deseronto",
+    "restaurants in Deseronto Ontario",
     "chip truck Deseronto",
     "best poutine Deseronto",
     "smash burgers Deseronto",
     "food truck Tyendinaga",
     "fish and chips Deseronto",
-    "Deseronto restaurants",
+    "food near me Deseronto",
     "chip truck Tyendinaga",
     "45 Dundas Street Deseronto",
   ],
