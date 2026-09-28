@@ -773,6 +773,63 @@ export default function Home() {
               title="The Stoned Chef location - 45 Dundas St, Deseronto, ON"
             />
           </div>
+
+          {/* Dundas Street Plaza Complex */}
+          <div
+            className="mt-6 rounded-2xl p-6 border border-border"
+            style={{ background: "var(--color-card)", boxShadow: "0 4px 20px oklch(0 0 0 / 0.25)" }}
+          >
+            <h3
+              className="text-2xl font-black mb-2"
+              style={{
+                fontFamily: "var(--font-bangers), 'Bangers', cursive",
+                letterSpacing: "0.04em",
+                color: "oklch(0.92 0.10 55)",
+              }}
+            >
+              Park Once at 39–45 Dundas Street
+            </h3>
+            <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+              We&apos;re located in the Dundas Street plaza alongside our neighbours in Deseronto &amp; Tyendinaga Mohawk Territory. Grab dinner, fuel up, and shop in one convenient stop:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <a
+                href="https://mohawkmedibles.ca/"
+                target="_blank"
+                rel="noopener"
+                className="group rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] border border-border/60 hover:border-amber-500/50"
+                style={{ background: "oklch(0.20 0.015 28)" }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-foreground group-hover:text-amber-400 transition-colors">
+                    Mohawk Medibles
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono">45 Dundas St</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Premier Indigenous cannabis dispensary right beside the truck. Canada-wide shipping &amp; open daily 8am–10pm.
+                </p>
+              </a>
+
+              <a
+                href="https://www.lnmenterprises.ca/"
+                target="_blank"
+                rel="noopener"
+                className="group rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] border border-border/60 hover:border-amber-500/50"
+                style={{ background: "oklch(0.20 0.015 28)" }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-foreground group-hover:text-amber-400 transition-colors">
+                    L&amp;M Enterprises &amp; SAGO Gas Bar
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono">39–43 Dundas St</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Lowest gas prices in Tyendinaga, full-service regular, premium &amp; diesel, plus convenience store &amp; tobacco.
+                </p>
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

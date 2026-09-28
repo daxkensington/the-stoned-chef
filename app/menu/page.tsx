@@ -28,9 +28,37 @@ function price(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+const menuJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Menu",
+  name: "The Stoned Chef Menu",
+  url: "https://thestonedchef.ca/menu",
+  mainEntityOfPage: "https://thestonedchef.ca/menu",
+  inLanguage: "en-CA",
+  hasMenuSection: MENU_CATEGORIES.map((cat) => ({
+    "@type": "MenuSection",
+    name: cat.name,
+    hasMenuItem: cat.items.map((item) => ({
+      "@type": "MenuItem",
+      name: item.name,
+      description: item.description,
+      image: item.image ? `https://thestonedchef.ca${item.image}` : undefined,
+      offers: {
+        "@type": "Offer",
+        price: (item.priceCents / 100).toFixed(2),
+        priceCurrency: "CAD",
+      },
+    })),
+  })),
+};
+
 export default function MenuPage() {
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(menuJsonLd) }}
+      />
       {/* Header */}
       <section className="container pt-10 pb-6 text-center">
         <h1
@@ -41,7 +69,7 @@ export default function MenuPage() {
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           Deseronto&apos;s favourite chip truck — smash burgers, loaded poutines, crispy fish &amp; chips,
-          and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St.
+          and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St, right beside <a href="https://mohawkmedibles.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">Mohawk Medibles</a> and <a href="https://www.lnmenterprises.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">L&amp;M Enterprises</a>.
         </p>
         {ONLINE_ORDERING_ENABLED ? (
           <Link

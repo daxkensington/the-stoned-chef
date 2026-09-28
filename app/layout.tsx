@@ -25,6 +25,17 @@ export const metadata: Metadata = {
     : "The Stoned Chef — smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St, Deseronto, ON. Open daily 11am-7pm. Order at the truck.",
   metadataBase: new URL("https://thestonedchef.ca"),
   alternates: { canonical: "https://thestonedchef.ca" },
+  keywords: [
+    "The Stoned Chef",
+    "chip truck Deseronto",
+    "best poutine Deseronto",
+    "smash burgers Deseronto",
+    "food truck Tyendinaga",
+    "fish and chips Deseronto",
+    "Deseronto restaurants",
+    "chip truck Tyendinaga",
+    "45 Dundas Street Deseronto",
+  ],
   icons: {
     icon: [{ url: "/icon-192.png", type: "image/png" }],
     apple: "/icon-192.png",
@@ -73,6 +84,7 @@ const restaurantJsonLd = {
   url: "https://thestonedchef.ca",
   telephone: "+1-343-337-5810",
   servesCuisine: ["Burgers", "Poutine", "Fish & Chips", "Comfort Food"],
+  hasMenu: "https://thestonedchef.ca/menu",
   priceRange: "$$",
   image: "https://thestonedchef.ca/og-image.jpg",
   address: {
@@ -83,6 +95,16 @@ const restaurantJsonLd = {
     postalCode: "K0K 1X0",
     addressCountry: "CA",
   },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 44.1958,
+    longitude: -77.0489,
+  },
+  hasMap: "https://www.google.com/maps?cid=7494400003244602449",
+  areaServed: [
+    { "@type": "City", name: "Deseronto" },
+    { "@type": "AdministrativeArea", name: "Tyendinaga Mohawk Territory" },
+  ],
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",
@@ -91,6 +113,18 @@ const restaurantJsonLd = {
       closes: "19:00",
     },
   ],
+  isContainedInPlace: {
+    "@type": "Place",
+    name: "39–45 Dundas Street Complex",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "39-45 Dundas Street",
+      addressLocality: "Deseronto",
+      addressRegion: "ON",
+      postalCode: "K0K 1X0",
+      addressCountry: "CA",
+    },
+  },
 };
 
 export const viewport: Viewport = {
