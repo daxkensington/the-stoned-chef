@@ -8,11 +8,31 @@ const OPEN_DAYS = [0, 1, 2, 3, 4, 5, 6]; // Sunday through Saturday
 const OPEN_HOUR = 11;
 const CLOSE_HOUR = 19;
 
+// Hours are in Toronto time, not the viewer's local clock
+const TORONTO_TIME = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Toronto",
+  weekday: "short",
+  hour: "numeric",
+  minute: "numeric",
+  hourCycle: "h23",
+});
+
+// Matches Date.getDay() indexes
+const WEEKDAY_INDEX: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+function getTorontoNow(): { day: number; hour: number; min: number } {
+  const parts = TORONTO_TIME.formatToParts(new Date());
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? "";
+
+  const day = WEEKDAY_INDEX[part("weekday").replace(/[^A-Za-z]/g, "").slice(0, 3)] ?? 0;
+  const hour = parseInt(part("hour"), 10) % 24;
+  const min = parseInt(part("minute"), 10);
+
+  return { day, hour, min };
+}
+
 function getStatus() {
-  const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
-  const min = now.getMinutes();
+  const { day, hour, min } = getTorontoNow();
 
   const isOpenDay = OPEN_DAYS.includes(day);
   const isOpenTime = hour >= OPEN_HOUR && hour < CLOSE_HOUR;
