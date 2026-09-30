@@ -161,8 +161,26 @@ export async function getPendingOrderCount(): Promise<number> {
 
 export async function getDailySalesStats(daysBack = 7) {
   const db = getDb();
-  const since = new Date();
-  since.setDate(since.getDate() - daysBack);
+  const dayFmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Toronto",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const localDay = (d: Date) => dayFmt.format(d);
+
+  // `since` is Toronto local midnight daysBack days before today's Toronto date,
+  // so the oldest bucket covers a full local day rather than a partial UTC slice.
+  const [y, m, d] = localDay(new Date()).split("-").map(Number);
+  const guess = new Date(Date.UTC(y!, m! - 1, d! - daysBack));
+  const tzPart = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Toronto",
+    timeZoneName: "shortOffset",
+  })
+    .formatToParts(guess)
+    .find((p) => p.type === "timeZoneName")?.value;
+  const offsetHours = parseInt(tzPart?.replace("GMT", "") ?? "-5", 10) || -5;
+  const since = new Date(guess.getTime() - offsetHours * 3600_000);
 
   const dailyOrders = await db
     .select()
@@ -172,7 +190,7 @@ export async function getDailySalesStats(daysBack = 7) {
 
   const byDay: Record<string, { orders: number; revenue: number }> = {};
   for (const order of dailyOrders) {
-    const day = order.createdAt.toISOString().slice(0, 10);
+    const day = localDay(order.createdAt);
     if (!byDay[day]) byDay[day] = { orders: 0, revenue: 0 };
     byDay[day].orders++;
     byDay[day].revenue += order.totalCents;
