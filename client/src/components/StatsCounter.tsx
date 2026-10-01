@@ -15,6 +15,7 @@ function AnimatedNumber({ value, suffix, decimals = 0 }: { value: number; suffix
   const [current, setCurrent] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!inView) return;
@@ -26,10 +27,18 @@ function AnimatedNumber({ value, suffix, decimals = 0 }: { value: number; suffix
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
       setCurrent(value * eased);
-      if (progress < 1) requestAnimationFrame(tick);
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(tick);
+      }
     };
 
-    requestAnimationFrame(tick);
+    animationFrameRef.current = requestAnimationFrame(tick);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [inView, value]);
 
   return (
