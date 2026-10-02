@@ -62,6 +62,7 @@ export function MenuSearch({ search, onSearchChange, activeFilters, onToggleFilt
                 color: active ? config.color : "var(--color-muted-foreground)",
                 border: `1px solid ${active ? `color-mix(in oklch, ${config.color} 40%, transparent)` : "var(--color-border)"}`,
               }}
+              aria-pressed={active}
             >
               {config.icon}
               {config.label}
