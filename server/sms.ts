@@ -30,6 +30,8 @@ async function sendSMS(to: string, body: string) {
     console.log(`[SMS] Sent to ${phone}`);
   } catch (err) {
     console.error("[SMS] Failed:", err);
+    // Rethrow so callers' .catch handlers can report the failed notification.
+    throw err;
   }
 }
 
