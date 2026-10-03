@@ -7,12 +7,29 @@ import { Clock } from "lucide-react";
 const OPEN_DAYS = [0, 1, 2, 3, 4, 5, 6]; // Sunday through Saturday
 const OPEN_HOUR = 11;
 const CLOSE_HOUR = 19;
+const TORONTO_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Toronto",
+  weekday: "short",
+  hour: "numeric",
+  minute: "numeric",
+  hourCycle: "h23",
+});
+const WEEKDAY_NUMBERS: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
 
 function getStatus() {
   const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
-  const min = now.getMinutes();
+  const parts = TORONTO_TIME_FORMATTER.formatToParts(now);
+  const day = WEEKDAY_NUMBERS[parts.find((part) => part.type === "weekday")!.value]!;
+  const hour = Number(parts.find((part) => part.type === "hour")!.value);
+  const min = Number(parts.find((part) => part.type === "minute")!.value);
 
   const isOpenDay = OPEN_DAYS.includes(day);
   const isOpenTime = hour >= OPEN_HOUR && hour < CLOSE_HOUR;
