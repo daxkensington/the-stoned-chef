@@ -30,6 +30,7 @@ async function sendSMS(to: string, body: string) {
     console.log(`[SMS] Sent to ${phone}`);
   } catch (err) {
     console.error("[SMS] Failed:", err);
+    throw err;
   }
 }
 
