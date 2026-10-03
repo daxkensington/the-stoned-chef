@@ -13,7 +13,7 @@ import { useEffect } from "react";
  * 5-day-old worker after a deploy, so every visitor ran stale code and none of
  * that deploy's fixes took effect.
  */
-const SW_VERSION = "1";
+const SW_VERSION = "2";
 
 export default function ServiceWorkerRegistrar() {
     useEffect(() => {

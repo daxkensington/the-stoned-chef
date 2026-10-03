@@ -86,14 +86,29 @@ self.addEventListener("fetch", (event) => {
 
   // Navigation: network-first with offline fallback
   if (request.mode === "navigate") {
+    // Confirmation pages must never be cached or served from cache — a stale
+    // "order confirmed" screen after a failed retry is worse than an error.
+    if (url.pathname.startsWith("/confirmation")) {
+      event.respondWith(fetch(request));
+      return;
+    }
     event.respondWith(
       fetch(request)
         .then((response) => {
+          // Error pages pass through but are never cached, or they'd be
+          // served offline as if they were real content.
+          if (!response.ok) return response;
           const clone = response.clone();
           caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
+        .catch(() =>
+          caches.match(request).then((cached) => {
+            // Entries cached by older workers may be error pages; skip them.
+            if (cached && cached.ok) return cached;
+            return caches.match("/");
+          })
+        )
     );
     return;
   }
@@ -114,8 +129,7 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || "Notification", {
       body: data.body || "",
-      icon: data.icon || "/icons/icon-192.png",
-      badge: data.badge || "/icons/badge-72.png",
+      icon: data.icon || "/icon-192.png",
       // Per-message tag from the sender; a constant would make every alert
       // replace the previous one.
       tag: data.tag || "app-notification",
