@@ -19,7 +19,16 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
   const [selectedRemoves, setSelectedRemoves] = useState<Set<string>>(new Set());
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set());
   const [quantity, setQuantity] = useState(1);
+  const [previousSession, setPreviousSession] = useState({ itemId: item?.id, open });
   const { addItem } = useCart();
+
+  // Reset before rendering a new item or opening/closing the sheet.
+  if (previousSession.itemId !== item?.id || previousSession.open !== open) {
+    setPreviousSession({ itemId: item?.id, open });
+    setSelectedRemoves(new Set());
+    setSelectedAddOns(new Set());
+    setQuantity(1);
+  }
 
   if (!item) return null;
 
@@ -46,6 +55,13 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
       else next.add(id);
       return next;
     });
+  };
+
+  const handleClose = () => {
+    setSelectedRemoves(new Set());
+    setSelectedAddOns(new Set());
+    setQuantity(1);
+    onClose();
   };
 
   const handleAdd = () => {
@@ -83,14 +99,11 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
     });
 
     // Reset and close
-    setSelectedRemoves(new Set());
-    setSelectedAddOns(new Set());
-    setQuantity(1);
-    onClose();
+    handleClose();
   };
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={(nextOpen) => { if (!nextOpen) handleClose(); }}>
       <SheetContent
         side="bottom"
         className="rounded-t-2xl max-h-[85vh] overflow-y-auto p-0"
