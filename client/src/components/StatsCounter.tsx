@@ -18,13 +18,13 @@ function AnimatedNumber({ value, suffix, decimals = 0 }: { value: number; suffix
 
   useEffect(() => {
     if (!inView) return;
-    const duration = 1500;
+    const duration = 800;
     const start = Date.now();
 
     const tick = () => {
       const elapsed = Date.now() - start;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 5); // ease-out quintic
       setCurrent(value * eased);
       if (progress < 1) requestAnimationFrame(tick);
     };
