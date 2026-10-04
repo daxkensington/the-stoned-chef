@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Ban, Check } from "lucide-react";
+import { ArrowLeft, Ban, Check, Loader2 } from "lucide-react";
 import { MENU_CATEGORIES } from "@shared/menu";
 import { toast } from "sonner";
 
@@ -13,7 +13,10 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const soldOutQuery = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const { data: soldOutIds, isLoading: isInventoryLoading, isError: isInventoryError, isSuccess: isInventorySuccess } = soldOutQuery;
+
+  const isReady = isInventorySuccess && !isInventoryError && Array.isArray(soldOutIds);
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
@@ -65,63 +68,86 @@ export default function SoldOutPage() {
       </div>
 
       <div className="container py-6 max-w-3xl">
-        {MENU_CATEGORIES.map((cat) => (
-          <div key={cat.id} className="mb-8">
-            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-              <span>{cat.emoji}</span> {cat.name}
-            </h3>
-            <div className="space-y-2">
-              {cat.items.map((item) => {
-                const isSoldOut = soldOutIds.includes(item.id);
-                return (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-xl px-4 py-3"
-                    style={{
-                      background: isSoldOut ? "oklch(0.55 0.18 25 / 0.08)" : "oklch(0.16 0.02 30)",
-                      border: `1px solid ${isSoldOut ? "oklch(0.55 0.18 25 / 0.25)" : "oklch(0.28 0.02 30)"}`,
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      {isSoldOut && <Ban className="w-4 h-4 flex-shrink-0" style={{ color: "oklch(0.55 0.18 25)" }} />}
-                      <div>
-                        <span className={`text-sm font-medium ${isSoldOut ? "line-through opacity-60" : ""} text-foreground`}>
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground ml-2">
-                          ${(item.priceCents / 100).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        isSoldOut
-                          ? removeSoldOut.mutate({ menuItemId: item.id })
-                          : setSoldOut.mutate({ menuItemId: item.id })
-                      }
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+        {isInventoryLoading && (
+          <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Loading inventory status...</span>
+          </div>
+        )}
+
+        {isInventoryError && (
+          <div
+            className="p-4 mb-6 rounded-xl border border-destructive/40 bg-destructive/10 text-destructive text-sm"
+            role="alert"
+          >
+            Failed to load sold-out inventory status. Controls are disabled until reloaded successfully.
+          </div>
+        )}
+
+        {isReady &&
+          MENU_CATEGORIES.map((cat) => (
+            <div key={cat.id} className="mb-8">
+              <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                <span>{cat.emoji}</span> {cat.name}
+              </h3>
+              <div className="space-y-2">
+                {cat.items.map((item) => {
+                  const isSoldOut = soldOutIds.includes(item.id);
+                  const isMutating = setSoldOut.isPending || removeSoldOut.isPending;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between rounded-xl px-4 py-3"
                       style={{
-                        background: isSoldOut
-                          ? "oklch(0.35 0.10 145 / 0.3)"
-                          : "oklch(0.55 0.18 25 / 0.15)",
-                        color: isSoldOut
-                          ? "oklch(0.70 0.15 145)"
-                          : "oklch(0.70 0.12 25)",
-                        border: `1px solid ${isSoldOut ? "oklch(0.45 0.12 145 / 0.4)" : "oklch(0.55 0.18 25 / 0.3)"}`,
+                        background: isSoldOut ? "oklch(0.55 0.18 25 / 0.08)" : "oklch(0.16 0.02 30)",
+                        border: `1px solid ${isSoldOut ? "oklch(0.55 0.18 25 / 0.25)" : "oklch(0.28 0.02 30)"}`,
                       }}
                     >
-                      {isSoldOut ? (
-                        <span className="flex items-center gap-1"><Check className="w-3 h-3" /> Restock</span>
-                      ) : (
-                        <span className="flex items-center gap-1"><Ban className="w-3 h-3" /> Sold Out</span>
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
+                      <div className="flex items-center gap-3">
+                        {isSoldOut && <Ban className="w-4 h-4 flex-shrink-0" style={{ color: "oklch(0.55 0.18 25)" }} />}
+                        <div>
+                          <span className={`text-sm font-medium ${isSoldOut ? "line-through opacity-60" : ""} text-foreground`}>
+                            {item.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ${(item.priceCents / 100).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        disabled={!isReady || isMutating}
+                        onClick={() => {
+                          if (!isReady || isMutating) return;
+                          if (isSoldOut) {
+                            removeSoldOut.mutate({ menuItemId: item.id });
+                          } else {
+                            setSoldOut.mutate({ menuItemId: item.id });
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          background: isSoldOut
+                            ? "oklch(0.35 0.10 145 / 0.3)"
+                            : "oklch(0.55 0.18 25 / 0.15)",
+                          color: isSoldOut
+                            ? "oklch(0.70 0.15 145)"
+                            : "oklch(0.70 0.12 25)",
+                          border: `1px solid ${isSoldOut ? "oklch(0.45 0.12 145 / 0.4)" : "oklch(0.55 0.18 25 / 0.3)"}`,
+                        }}
+                      >
+                        {isSoldOut ? (
+                          <span className="flex items-center gap-1"><Check className="w-3 h-3" /> Restock</span>
+                        ) : (
+                          <span className="flex items-center gap-1"><Ban className="w-3 h-3" /> Sold Out</span>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
