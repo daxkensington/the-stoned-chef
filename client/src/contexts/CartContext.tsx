@@ -73,10 +73,29 @@ function loadCart(): CartState {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed.items)) return parsed;
+      if (parsed != null && typeof parsed === "object" && Array.isArray(parsed.items)) {
+        return { items: parsed.items.filter(isValidCartItem) };
+      }
     }
   } catch {}
   return { items: [] };
+}
+
+function isValidCartItem(value: unknown): value is CartItem {
+  if (value == null || typeof value !== "object") return false;
+  const item = value as CartItem;
+  return (
+    typeof item.id === "string" &&
+    typeof item.name === "string" &&
+    typeof item.category === "string" &&
+    Number.isInteger(item.priceCents) &&
+    item.priceCents >= 0 &&
+    Number.isFinite(item.priceCents) &&
+    Number.isInteger(item.quantity) &&
+    item.quantity > 0 &&
+    Number.isFinite(item.quantity) &&
+    (item.customizations === undefined || typeof item.customizations === "string")
+  );
 }
 
 function saveCart(state: CartState) {
