@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Check, Plus, Minus, ChevronRight } from "lucide-react";
@@ -20,6 +20,13 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set());
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
+  const itemId = item?.id;
+
+  useEffect(() => {
+    setSelectedRemoves(new Set());
+    setSelectedAddOns(new Set());
+    setQuantity(1);
+  }, [open, itemId]);
 
   if (!item) return null;
 
