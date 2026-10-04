@@ -14,10 +14,45 @@ interface PastOrder {
 
 const HISTORY_KEY = "sc_order_history";
 
+function isValidOrder(order: unknown): order is PastOrder {
+  if (order === null || typeof order !== "object") return false;
+  const o = order as Partial<PastOrder>;
+  if (typeof o.orderNumber !== "string" || !o.orderNumber) return false;
+  if (!Array.isArray(o.items)) return false;
+  for (const item of o.items) {
+    if (item === null || typeof item !== "object") return false;
+    const i = item as Partial<PastOrder['items'][0]>;
+    if (typeof i.id !== "string" || !i.id) return false;
+    if (typeof i.name !== "string" || !i.name) return false;
+    if (typeof i.category !== "string" || !i.category) return false;
+    if (typeof i.priceCents !== "number" || isNaN(i.priceCents)) return false;
+    if (typeof i.quantity !== "number" || isNaN(i.quantity)) return false;
+  }
+  if (typeof o.totalCents !== "number" || isNaN(o.totalCents)) return false;
+  if (typeof o.date !== "string" || !o.date) return false;
+  return true;
+}
+
+function isValidHistory(history: unknown): history is PastOrder[] {
+  if (!Array.isArray(history)) return false;
+  for (const order of history) {
+    if (!isValidOrder(order)) return false;
+  }
+  return true;
+}
+
 export function saveOrderToHistory(order: PastOrder) {
   try {
     const stored = localStorage.getItem(HISTORY_KEY);
-    const history: PastOrder[] = stored ? JSON.parse(stored) : [];
+    let history: PastOrder[] = [];
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (isValidHistory(parsed)) {
+          history = parsed;
+        }
+      } catch {}
+    }
     history.unshift(order);
     if (history.length > 20) history.length = 20;
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
@@ -32,7 +67,10 @@ export function OrderHistory() {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(HISTORY_KEY);
-      if (stored) setHistory(JSON.parse(stored));
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (isValidHistory(parsed)) setHistory(parsed);
+      }
     } catch {}
   }, []);
 
