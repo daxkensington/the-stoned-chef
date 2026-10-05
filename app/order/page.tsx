@@ -53,6 +53,23 @@ export default function OrderPage() {
     setIdempotencyKey(crypto.randomUUID());
   }, [grandTotal, form.customerName, form.customerPhone, form.customerEmail, form.pickupTime, form.notes]);
 
+  // GA4 begin_checkout event tracking
+  useEffect(() => {
+    if (items.length > 0 && typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+      (window as any).gtag("event", "begin_checkout", {
+        currency: "CAD",
+        value: totalCents / 100,
+        items: items.map((i) => ({
+          item_id: String(i.id),
+          item_name: i.name,
+          item_category: i.category,
+          price: (i.priceCents || 0) / 100,
+          quantity: i.quantity,
+        })),
+      });
+    }
+  }, []);
+
   const placeOrder = trpc.orders.place.useMutation({
     onSuccess: (data) => {
       saveOrderToHistory({

@@ -31,11 +31,16 @@ export const metadata: Metadata = {
     "restaurants in Deseronto",
     "restaurants in Deseronto Ontario",
     "chip truck Deseronto",
+    "chip truck Napanee",
+    "restaurants near Napanee",
     "best poutine Deseronto",
     "smash burgers Deseronto",
     "food truck Tyendinaga",
     "fish and chips Deseronto",
     "food near me Deseronto",
+    "food near me",
+    "restaurants near me",
+    "chip truck near me",
     "chip truck Tyendinaga",
     "45 Dundas Street Deseronto",
   ],
@@ -107,6 +112,10 @@ const restaurantJsonLd = {
   areaServed: [
     { "@type": "City", name: "Deseronto" },
     { "@type": "AdministrativeArea", name: "Tyendinaga Mohawk Territory" },
+    { "@type": "City", name: "Napanee" },
+    { "@type": "AdministrativeArea", name: "Greater Napanee" },
+    { "@type": "City", name: "Shannonville" },
+    { "@type": "City", name: "Belleville" },
   ],
   openingHoursSpecification: [
     {

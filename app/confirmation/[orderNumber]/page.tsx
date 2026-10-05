@@ -34,6 +34,29 @@ export default function ConfirmationPage({
 
   // Sound + vibration on status change
   const prevStatus = useRef<string | null>(null);
+  const purchaseTracked = useRef<string | null>(null);
+
+  // GA4 E-commerce Purchase Tracking (fires once per confirmed order)
+  useEffect(() => {
+    if (!data?.order || !data?.items) return;
+    if (purchaseTracked.current === data.order.orderNumber) return;
+    purchaseTracked.current = data.order.orderNumber;
+
+    if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+      (window as any).gtag("event", "purchase", {
+        transaction_id: data.order.orderNumber,
+        value: data.order.totalCents / 100,
+        currency: "CAD",
+        items: data.items.map((it: any) => ({
+          item_id: String(it.id || it.itemName),
+          item_name: it.itemName,
+          price: (it.priceCents || 0) / 100,
+          quantity: it.quantity || 1,
+        })),
+      });
+    }
+  }, [data?.order, data?.items]);
+
   useEffect(() => {
     if (!data?.order) return;
     const status = data.order.status;

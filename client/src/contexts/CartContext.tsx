@@ -96,11 +96,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", item });
+    if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+      (window as any).gtag("event", "add_to_cart", {
+        currency: "CAD",
+        value: (item.priceCents || 0) / 100,
+        items: [
+          {
+            item_id: String(item.id),
+            item_name: item.name,
+            item_category: item.category,
+            price: (item.priceCents || 0) / 100,
+            quantity: 1,
+          },
+        ],
+      });
+    }
   }, []);
 
   const removeItem = useCallback((id: string) => {
+    const item = state.items.find((i) => i.id === id);
     dispatch({ type: "REMOVE_ITEM", id });
-  }, []);
+    if (item && typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+      (window as any).gtag("event", "remove_from_cart", {
+        currency: "CAD",
+        value: ((item.priceCents || 0) * (item.quantity || 1)) / 100,
+        items: [
+          {
+            item_id: String(item.id),
+            item_name: item.name,
+            item_category: item.category,
+            price: (item.priceCents || 0) / 100,
+            quantity: item.quantity || 1,
+          },
+        ],
+      });
+    }
+  }, [state.items]);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
     dispatch({ type: "UPDATE_QUANTITY", id, quantity });
