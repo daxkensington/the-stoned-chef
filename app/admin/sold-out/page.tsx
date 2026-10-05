@@ -13,7 +13,12 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const {
+    data: soldOutIds,
+    isLoading,
+    error,
+    refetch,
+  } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
@@ -65,63 +70,79 @@ export default function SoldOutPage() {
       </div>
 
       <div className="container py-6 max-w-3xl">
-        {MENU_CATEGORIES.map((cat) => (
-          <div key={cat.id} className="mb-8">
-            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-              <span>{cat.emoji}</span> {cat.name}
-            </h3>
-            <div className="space-y-2">
-              {cat.items.map((item) => {
-                const isSoldOut = soldOutIds.includes(item.id);
-                return (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-xl px-4 py-3"
-                    style={{
-                      background: isSoldOut ? "oklch(0.55 0.18 25 / 0.08)" : "oklch(0.16 0.02 30)",
-                      border: `1px solid ${isSoldOut ? "oklch(0.55 0.18 25 / 0.25)" : "oklch(0.28 0.02 30)"}`,
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      {isSoldOut && <Ban className="w-4 h-4 flex-shrink-0" style={{ color: "oklch(0.55 0.18 25)" }} />}
-                      <div>
-                        <span className={`text-sm font-medium ${isSoldOut ? "line-through opacity-60" : ""} text-foreground`}>
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground ml-2">
-                          ${(item.priceCents / 100).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        isSoldOut
-                          ? removeSoldOut.mutate({ menuItemId: item.id })
-                          : setSoldOut.mutate({ menuItemId: item.id })
-                      }
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+        {error ? (
+          <div
+            className="rounded-2xl p-10 text-center"
+            style={{ background: "oklch(0.16 0.02 30)", border: "1px dashed oklch(0.30 0.02 30)" }}
+          >
+            <p className="text-destructive font-medium mb-4">
+              Failed to load sold out items: {error.message}
+            </p>
+            <Button onClick={() => refetch()} variant="outline">
+              Retry
+            </Button>
+          </div>
+        ) : isLoading || soldOutIds === undefined ? (
+          <p className="text-muted-foreground text-sm">Loading sold out items...</p>
+        ) : (
+          MENU_CATEGORIES.map((cat) => (
+            <div key={cat.id} className="mb-8">
+              <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                <span>{cat.emoji}</span> {cat.name}
+              </h3>
+              <div className="space-y-2">
+                {cat.items.map((item) => {
+                  const isSoldOut = soldOutIds.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between rounded-xl px-4 py-3"
                       style={{
-                        background: isSoldOut
-                          ? "oklch(0.35 0.10 145 / 0.3)"
-                          : "oklch(0.55 0.18 25 / 0.15)",
-                        color: isSoldOut
-                          ? "oklch(0.70 0.15 145)"
-                          : "oklch(0.70 0.12 25)",
-                        border: `1px solid ${isSoldOut ? "oklch(0.45 0.12 145 / 0.4)" : "oklch(0.55 0.18 25 / 0.3)"}`,
+                        background: isSoldOut ? "oklch(0.55 0.18 25 / 0.08)" : "oklch(0.16 0.02 30)",
+                        border: `1px solid ${isSoldOut ? "oklch(0.55 0.18 25 / 0.25)" : "oklch(0.28 0.02 30)"}`,
                       }}
                     >
-                      {isSoldOut ? (
-                        <span className="flex items-center gap-1"><Check className="w-3 h-3" /> Restock</span>
-                      ) : (
-                        <span className="flex items-center gap-1"><Ban className="w-3 h-3" /> Sold Out</span>
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
+                      <div className="flex items-center gap-3">
+                        {isSoldOut && <Ban className="w-4 h-4 flex-shrink-0" style={{ color: "oklch(0.55 0.18 25)" }} />}
+                        <div>
+                          <span className={`text-sm font-medium ${isSoldOut ? "line-through opacity-60" : ""} text-foreground`}>
+                            {item.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ${(item.priceCents / 100).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() =>
+                          isSoldOut
+                            ? removeSoldOut.mutate({ menuItemId: item.id })
+                            : setSoldOut.mutate({ menuItemId: item.id })
+                        }
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                        style={{
+                          background: isSoldOut
+                            ? "oklch(0.35 0.10 145 / 0.3)"
+                            : "oklch(0.55 0.18 25 / 0.15)",
+                          color: isSoldOut
+                            ? "oklch(0.70 0.15 145)"
+                            : "oklch(0.70 0.12 25)",
+                          border: `1px solid ${isSoldOut ? "oklch(0.45 0.12 145 / 0.4)" : "oklch(0.55 0.18 25 / 0.3)"}`,
+                        }}
+                      >
+                        {isSoldOut ? (
+                          <span className="flex items-center gap-1"><Check className="w-3 h-3" /> Restock</span>
+                        ) : (
+                          <span className="flex items-center gap-1"><Ban className="w-3 h-3" /> Sold Out</span>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
