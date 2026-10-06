@@ -9,7 +9,7 @@ import "./globals.css";
 import { ONLINE_ORDERING_ENABLED } from "@shared/const";
 
 // GA4 Measurement ID — public by design (visible in page source).
-const GA_MEASUREMENT_ID = "G-M3RP59TZ7E";
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-SPKGRFZPY8";
 
 const bangers = Bangers({
   weight: "400",
