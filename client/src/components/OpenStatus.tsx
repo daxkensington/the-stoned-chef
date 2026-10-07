@@ -1,64 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { Clock } from "lucide-react";
+import { getOpeningStatus } from "@shared/openingHours";
 
-// Open every day, 11am to 7pm ET
-const OPEN_DAYS = [0, 1, 2, 3, 4, 5, 6]; // Sunday through Saturday
-const OPEN_HOUR = 11;
-const CLOSE_HOUR = 19;
-
-function getStatus() {
-  const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
-  const min = now.getMinutes();
-
-  const isOpenDay = OPEN_DAYS.includes(day);
-  const isOpenTime = hour >= OPEN_HOUR && hour < CLOSE_HOUR;
-  const isOpen = isOpenDay && isOpenTime;
-
-  let nextOpenText = "";
-  if (!isOpen) {
-    if (isOpenDay && hour < OPEN_HOUR) {
-      nextOpenText = `Opens today at ${OPEN_HOUR}:00 AM`;
-    } else if (isOpenDay && hour >= CLOSE_HOUR) {
-      // Find next open day
-      nextOpenText = getNextOpenDay(day);
-    } else {
-      nextOpenText = getNextOpenDay(day);
-    }
-  } else {
-    const minsLeft = (CLOSE_HOUR - hour) * 60 - min;
-    if (minsLeft <= 60) {
-      nextOpenText = `Closing in ${minsLeft} min`;
-    } else {
-      nextOpenText = `Open until 7:00 PM`;
-    }
-  }
-
-  return { isOpen, nextOpenText };
+function subscribeToClock(onChange: () => void) {
+  const interval = setInterval(onChange, 60_000);
+  return () => clearInterval(interval);
 }
-
-function getNextOpenDay(currentDay: number): string {
-  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  for (let i = 1; i <= 7; i++) {
-    const check = (currentDay + i) % 7;
-    if (OPEN_DAYS.includes(check)) {
-      return `Opens ${dayNames[check]} at ${OPEN_HOUR}:00 AM`;
-    }
-  }
-  return "Check back soon";
-}
+const currentMinute = () => Math.floor(Date.now() / 60_000);
+const serverMinute = () => null;
 
 export function OpenStatus() {
-  const [status, setStatus] = useState({ isOpen: false, nextOpenText: "" });
-
-  useEffect(() => {
-    setStatus(getStatus());
-    const interval = setInterval(() => setStatus(getStatus()), 60_000);
-    return () => clearInterval(interval);
-  }, []);
+  const minute = useSyncExternalStore(subscribeToClock, currentMinute, serverMinute);
+  if (minute === null) return null;
+  const status = getOpeningStatus(new Date(minute * 60_000));
 
   return (
     <div
