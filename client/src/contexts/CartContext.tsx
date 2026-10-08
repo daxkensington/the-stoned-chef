@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useRef, useState } from "react";
 
 export interface CartItem {
   id: string;
@@ -19,7 +19,8 @@ type CartAction =
   | { type: "ADD_ITEM"; item: Omit<CartItem, "quantity"> }
   | { type: "REMOVE_ITEM"; id: string }
   | { type: "UPDATE_QUANTITY"; id: string; quantity: number }
-  | { type: "CLEAR_CART" };
+  | { type: "CLEAR_CART" }
+  | { type: "HYDRATE"; state: CartState };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
@@ -50,6 +51,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
     case "CLEAR_CART":
       return { items: [] };
+    case "HYDRATE":
+      return action.state;
     default:
       return state;
   }
@@ -67,13 +70,45 @@ interface CartContextValue {
 
 const CART_STORAGE_KEY = "sc_cart";
 
+function toCartItem(value: unknown): CartItem | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const v = value as Record<string, unknown>;
+  if (
+    typeof v.id !== "string" ||
+    typeof v.name !== "string" ||
+    typeof v.category !== "string" ||
+    typeof v.priceCents !== "number" ||
+    !Number.isFinite(v.priceCents) ||
+    typeof v.quantity !== "number" ||
+    !Number.isFinite(v.quantity) ||
+    (v.customizations !== undefined && typeof v.customizations !== "string")
+  ) {
+    return null;
+  }
+  const item: CartItem = {
+    id: v.id,
+    name: v.name,
+    category: v.category,
+    priceCents: v.priceCents,
+    quantity: v.quantity,
+  };
+  if (v.customizations !== undefined) item.customizations = v.customizations as string;
+  return item;
+}
+
 function loadCart(): CartState {
   if (typeof window === "undefined") return { items: [] };
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed.items)) return parsed;
+      const parsed: unknown = JSON.parse(stored);
+      if (typeof parsed === "object" && parsed !== null && Array.isArray((parsed as CartState).items)) {
+        // Drop malformed entries instead of trusting stored data.
+        const items = (parsed as { items: unknown[] }).items
+          .map(toCartItem)
+          .filter((i): i is CartItem => i !== null);
+        return { items };
+      }
     }
   } catch {}
   return { items: [] };
@@ -88,11 +123,25 @@ function saveCart(state: CartState) {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] }, loadCart);
+  // Start empty so the server render and the client's first render match;
+  // the stored cart is restored after mount.
+  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [hydrated, setHydrated] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
+    // Effects re-run on StrictMode remounts and Activity re-shows; read storage only once.
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+    dispatch({ type: "HYDRATE", state: loadCart() });
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    // Don't overwrite the stored cart before it has been restored.
+    if (!hydrated) return;
     saveCart(state);
-  }, [state]);
+  }, [state, hydrated]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", item });
