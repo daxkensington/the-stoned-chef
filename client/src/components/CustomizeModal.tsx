@@ -19,7 +19,25 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
   const [selectedRemoves, setSelectedRemoves] = useState<Set<string>>(new Set());
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set());
   const [quantity, setQuantity] = useState(1);
+  const [prevItemId, setPrevItemId] = useState(item?.id);
   const { addItem } = useCart();
+
+  const clearSelections = () => {
+    setSelectedRemoves(new Set());
+    setSelectedAddOns(new Set());
+    setQuantity(1);
+  };
+
+  const resetAndClose = () => {
+    clearSelections();
+    onClose();
+  };
+
+  // A different item must never inherit the previous item's selections
+  if (item?.id !== prevItemId) {
+    setPrevItemId(item?.id);
+    clearSelections();
+  }
 
   if (!item) return null;
 
@@ -58,9 +76,13 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
     const allMods = [...removeLabels, ...addOnLabels];
     const customizationStr = allMods.length > 0 ? allMods.join(", ") : undefined;
 
-    // Create a unique ID based on customizations
+    // Create a unique ID based on customizations valid for this category
+    const validIds = [
+      ...customizations.removes.filter((r) => selectedRemoves.has(r.id)).map((r) => r.id),
+      ...customizations.addOns.filter((a) => selectedAddOns.has(a.id)).map((a) => a.id),
+    ];
     const customId = customizationStr
-      ? `${item.id}__${[...selectedRemoves, ...selectedAddOns].sort().join("_")}`
+      ? `${item.id}__${validIds.sort().join("_")}`
       : item.id;
 
     for (let i = 0; i < quantity; i++) {
@@ -82,15 +104,16 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
       },
     });
 
-    // Reset and close
-    setSelectedRemoves(new Set());
-    setSelectedAddOns(new Set());
-    setQuantity(1);
-    onClose();
+    resetAndClose();
   };
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) resetAndClose();
+      }}
+    >
       <SheetContent
         side="bottom"
         className="rounded-t-2xl max-h-[85vh] overflow-y-auto p-0"
