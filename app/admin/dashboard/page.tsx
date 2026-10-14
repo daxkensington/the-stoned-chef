@@ -10,8 +10,8 @@ export default function DashboardPage() {
   const { isAdmin, loading } = useAuth();
   const router = useRouter();
 
-  const { data: stats } = trpc.dashboard.stats.useQuery({ daysBack: 7 }, { enabled: isAdmin });
-  const { data: subCount } = trpc.dashboard.subscriberCount.useQuery(undefined, { enabled: isAdmin });
+  const { data: stats, isPending: statsPending } = trpc.dashboard.stats.useQuery({ daysBack: 7 }, { enabled: isAdmin });
+  const { data: subCount, isPending: subCountPending } = trpc.dashboard.subscriberCount.useQuery(undefined, { enabled: isAdmin });
 
   if (loading) return null;
   if (!isAdmin) {
@@ -25,22 +25,25 @@ export default function DashboardPage() {
     );
   }
 
+  const statsLoading = statsPending || stats === undefined;
+  const subCountLoading = subCountPending || subCount === undefined;
+
   const statCards = [
     {
       label: "Orders (7 days)",
-      value: stats?.totalOrders ?? 0,
+      value: statsLoading ? "—" : stats.totalOrders,
       icon: <ShoppingBag className="w-5 h-5" />,
       color: "oklch(0.62 0.22 38)",
     },
     {
       label: "Revenue (7 days)",
-      value: `$${((stats?.totalRevenue ?? 0) / 100).toFixed(2)}`,
+      value: statsLoading ? "—" : `$${(stats.totalRevenue / 100).toFixed(2)}`,
       icon: <DollarSign className="w-5 h-5" />,
       color: "oklch(0.65 0.20 145)",
     },
     {
       label: "Email Subscribers",
-      value: subCount ?? 0,
+      value: subCountLoading ? "—" : subCount,
       icon: <Users className="w-5 h-5" />,
       color: "oklch(0.60 0.18 260)",
     },
