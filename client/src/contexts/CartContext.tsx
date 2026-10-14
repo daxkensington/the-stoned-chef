@@ -67,13 +67,40 @@ interface CartContextValue {
 
 const CART_STORAGE_KEY = "sc_cart";
 
+function toCartItem(value: unknown): CartItem | null {
+  if (typeof value !== "object" || value === null) return null;
+  const { id, name, category, priceCents, quantity, customizations } =
+    value as Record<string, unknown>;
+  if (
+    typeof id !== "string" ||
+    typeof name !== "string" ||
+    typeof category !== "string" ||
+    typeof priceCents !== "number" ||
+    !Number.isInteger(priceCents) ||
+    priceCents < 0 ||
+    typeof quantity !== "number" ||
+    !Number.isInteger(quantity) ||
+    quantity <= 0
+  ) {
+    return null;
+  }
+  const item: CartItem = { id, name, category, priceCents, quantity };
+  if (typeof customizations === "string") item.customizations = customizations;
+  return item;
+}
+
 function loadCart(): CartState {
   if (typeof window === "undefined") return { items: [] };
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed.items)) return parsed;
+      if (Array.isArray(parsed.items)) {
+        const sanitized = parsed.items
+          .map(toCartItem)
+          .filter((i: CartItem | null): i is CartItem => i !== null);
+        return { items: sanitized };
+      }
     }
   } catch {}
   return { items: [] };
