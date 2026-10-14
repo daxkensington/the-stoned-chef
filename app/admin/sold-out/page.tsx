@@ -13,21 +13,31 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  // No [] fallback: a missing or failed list must not read as "nothing sold out".
+  const soldOutQuery = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
-      utils.soldOut.list.invalidate();
       toast.success("Marked as sold out");
+      // Returning the promise keeps isPending true until the list has refreshed.
+      return utils.soldOut.list.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Couldn't mark item as sold out");
     },
   });
 
   const removeSoldOut = trpc.soldOut.remove.useMutation({
     onSuccess: () => {
-      utils.soldOut.list.invalidate();
       toast.success("Back in stock!");
+      return utils.soldOut.list.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Couldn't restock item");
     },
   });
+
+  const togglePending = setSoldOut.isPending || removeSoldOut.isPending;
 
   if (loading) return null;
   if (!isAdmin) {
@@ -37,6 +47,8 @@ export default function SoldOutPage() {
       </div>
     );
   }
+
+  const soldOutIds = soldOutQuery.data;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
@@ -65,63 +77,87 @@ export default function SoldOutPage() {
       </div>
 
       <div className="container py-6 max-w-3xl">
-        {MENU_CATEGORIES.map((cat) => (
-          <div key={cat.id} className="mb-8">
-            <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-              <span>{cat.emoji}</span> {cat.name}
-            </h3>
-            <div className="space-y-2">
-              {cat.items.map((item) => {
-                const isSoldOut = soldOutIds.includes(item.id);
-                return (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-xl px-4 py-3"
-                    style={{
-                      background: isSoldOut ? "oklch(0.55 0.18 25 / 0.08)" : "oklch(0.16 0.02 30)",
-                      border: `1px solid ${isSoldOut ? "oklch(0.55 0.18 25 / 0.25)" : "oklch(0.28 0.02 30)"}`,
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      {isSoldOut && <Ban className="w-4 h-4 flex-shrink-0" style={{ color: "oklch(0.55 0.18 25)" }} />}
-                      <div>
-                        <span className={`text-sm font-medium ${isSoldOut ? "line-through opacity-60" : ""} text-foreground`}>
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground ml-2">
-                          ${(item.priceCents / 100).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        isSoldOut
-                          ? removeSoldOut.mutate({ menuItemId: item.id })
-                          : setSoldOut.mutate({ menuItemId: item.id })
-                      }
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+        {soldOutQuery.isError ? (
+          <div
+            role="alert"
+            className="rounded-xl px-4 py-4 space-y-3"
+            style={{
+              background: "oklch(0.55 0.18 25 / 0.08)",
+              border: "1px solid oklch(0.55 0.18 25 / 0.25)",
+            }}
+          >
+            <p className="text-sm font-bold text-foreground">Couldn&apos;t load the sold-out list.</p>
+            <p className="text-xs text-muted-foreground">{soldOutQuery.error.message}</p>
+            <Button onClick={() => soldOutQuery.refetch()} disabled={soldOutQuery.isFetching}>
+              {soldOutQuery.isFetching ? "Retrying…" : "Retry"}
+            </Button>
+          </div>
+        ) : soldOutIds === undefined ? (
+          <p className="text-sm text-muted-foreground">Loading sold-out list…</p>
+        ) : (
+          MENU_CATEGORIES.map((cat) => (
+            <div key={cat.id} className="mb-8">
+              <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                <span>{cat.emoji}</span> {cat.name}
+              </h3>
+              <div className="space-y-2">
+                {cat.items.map((item) => {
+                  const isSoldOut = soldOutIds.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between rounded-xl px-4 py-3"
                       style={{
-                        background: isSoldOut
-                          ? "oklch(0.35 0.10 145 / 0.3)"
-                          : "oklch(0.55 0.18 25 / 0.15)",
-                        color: isSoldOut
-                          ? "oklch(0.70 0.15 145)"
-                          : "oklch(0.70 0.12 25)",
-                        border: `1px solid ${isSoldOut ? "oklch(0.45 0.12 145 / 0.4)" : "oklch(0.55 0.18 25 / 0.3)"}`,
+                        background: isSoldOut ? "oklch(0.55 0.18 25 / 0.08)" : "oklch(0.16 0.02 30)",
+                        border: `1px solid ${isSoldOut ? "oklch(0.55 0.18 25 / 0.25)" : "oklch(0.28 0.02 30)"}`,
                       }}
                     >
-                      {isSoldOut ? (
-                        <span className="flex items-center gap-1"><Check className="w-3 h-3" /> Restock</span>
-                      ) : (
-                        <span className="flex items-center gap-1"><Ban className="w-3 h-3" /> Sold Out</span>
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
+                      <div className="flex items-center gap-3">
+                        {isSoldOut && <Ban className="w-4 h-4 flex-shrink-0" style={{ color: "oklch(0.55 0.18 25)" }} />}
+                        <div>
+                          <span className={`text-sm font-medium ${isSoldOut ? "line-through opacity-60" : ""} text-foreground`}>
+                            {item.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ${(item.priceCents / 100).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (togglePending) return;
+                          if (isSoldOut) {
+                            removeSoldOut.mutate({ menuItemId: item.id });
+                          } else {
+                            setSoldOut.mutate({ menuItemId: item.id });
+                          }
+                        }}
+                        disabled={togglePending}
+                        aria-busy={togglePending}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          background: isSoldOut
+                            ? "oklch(0.35 0.10 145 / 0.3)"
+                            : "oklch(0.55 0.18 25 / 0.15)",
+                          color: isSoldOut
+                            ? "oklch(0.70 0.15 145)"
+                            : "oklch(0.70 0.12 25)",
+                          border: `1px solid ${isSoldOut ? "oklch(0.45 0.12 145 / 0.4)" : "oklch(0.55 0.18 25 / 0.3)"}`,
+                        }}
+                      >
+                        {isSoldOut ? (
+                          <span className="flex items-center gap-1"><Check className="w-3 h-3" /> Restock</span>
+                        ) : (
+                          <span className="flex items-center gap-1"><Ban className="w-3 h-3" /> Sold Out</span>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
