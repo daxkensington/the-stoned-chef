@@ -4,20 +4,32 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
+import { ONLINE_ORDERING_ENABLED } from "@shared/const";
 
 interface PastOrder {
   orderNumber: string;
-  items: { id: string; name: string; category: string; priceCents: number; quantity: number }[];
+  items: { id: string; name: string; category: string; priceCents: number; quantity: number; customizations?: string }[];
   totalCents: number;
   date: string;
 }
 
 const HISTORY_KEY = "sc_order_history";
 
-export function saveOrderToHistory(order: PastOrder) {
+function readHistory(): PastOrder[] {
   try {
     const stored = localStorage.getItem(HISTORY_KEY);
-    const history: PastOrder[] = stored ? JSON.parse(stored) : [];
+    if (stored === null) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((order) => order && typeof order === "object" && Array.isArray(order.items)) as PastOrder[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveOrderToHistory(order: PastOrder) {
+  try {
+    const history = readHistory();
     history.unshift(order);
     if (history.length > 20) history.length = 20;
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
@@ -31,17 +43,17 @@ export function OrderHistory() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(HISTORY_KEY);
-      if (stored) setHistory(JSON.parse(stored));
+      setHistory(readHistory());
     } catch {}
   }, []);
 
   if (history.length === 0) return null;
 
   const reorder = (order: PastOrder) => {
+    if (!ONLINE_ORDERING_ENABLED) return;
     for (const item of order.items) {
       for (let i = 0; i < item.quantity; i++) {
-        addItem({ id: item.id, name: item.name, category: item.category, priceCents: item.priceCents });
+        addItem({ id: item.id, name: item.name, category: item.category, priceCents: item.priceCents, customizations: item.customizations });
       }
     }
     toast.success("Items added to cart!", {
@@ -95,17 +107,19 @@ export function OrderHistory() {
                   ${(order.totalCents / 100).toFixed(2)} · {order.date}
                 </p>
               </div>
-              <button
-                onClick={() => reorder(order)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105 active:scale-95 ml-3 flex-shrink-0"
-                style={{
-                  background: "linear-gradient(135deg, oklch(0.58 0.24 30), oklch(0.68 0.22 45))",
-                  color: "white",
-                }}
-              >
-                <RotateCcw className="w-3 h-3" />
-                Reorder
-              </button>
+              {ONLINE_ORDERING_ENABLED && (
+                <button
+                  onClick={() => reorder(order)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105 active:scale-95 ml-3 flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.58 0.24 30), oklch(0.68 0.22 45))",
+                    color: "white",
+                  }}
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Reorder
+                </button>
+              )}
             </div>
           ))}
         </div>
