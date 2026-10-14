@@ -13,7 +13,7 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const { data: soldOutIds, isPending, isError } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
@@ -34,6 +34,22 @@ export default function SoldOutPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Button onClick={() => router.push("/admin/login")}>Login</Button>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-background)" }}>
+        <p role="alert" className="text-foreground">Unable to load stock status. Stock controls are unavailable.</p>
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-background)" }}>
+        <p role="status" className="text-foreground">Loading stock status...</p>
       </div>
     );
   }
