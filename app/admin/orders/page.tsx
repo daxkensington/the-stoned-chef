@@ -26,7 +26,7 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: orders, isLoading } = trpc.orders.recent.useQuery(undefined, { enabled: isAdmin });
+  const { data: orders, isLoading, error, refetch, isFetching } = trpc.orders.recent.useQuery(undefined, { enabled: isAdmin });
 
   const updateStatus = trpc.orders.updateStatus.useMutation({
     onSuccess: (_, vars) => {
@@ -76,82 +76,107 @@ export default function AdminOrdersPage() {
       <div className="container py-6 max-w-3xl">
         {isLoading ? (
           <p className="text-muted-foreground text-sm">Loading orders...</p>
-        ) : !orders || orders.length === 0 ? (
-          <div className="rounded-2xl p-10 text-center" style={{ background: "oklch(0.16 0.02 30)", border: "1px dashed oklch(0.30 0.02 30)" }}>
-            <p className="text-muted-foreground">No orders yet.</p>
-          </div>
         ) : (
-          <div className="space-y-3">
-            {orders.map((order) => {
-              const config = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
-              const StatusIcon = config.icon;
-              const nextStatus = NEXT_STATUS[order.status];
-
-              return (
-                <div
-                  key={order.id}
-                  className="rounded-2xl p-4"
-                  style={{ background: "oklch(0.16 0.02 30)", border: "1px solid oklch(0.28 0.02 30)" }}
+          <>
+            {error && (
+              <div
+                role="alert"
+                className="rounded-2xl p-4"
+                style={{ background: "oklch(0.16 0.02 30)", border: "1px solid oklch(0.35 0.08 25)" }}
+              >
+                <h2 className="font-bold text-foreground">Couldn&apos;t load orders.</h2>
+                <p className="text-sm text-muted-foreground mt-1 mb-3">{error.message}</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => void refetch()}
+                  disabled={isFetching}
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-foreground">#{order.orderNumber}</span>
-                        <span
-                          className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
-                          style={{
-                            background: `color-mix(in oklch, ${config.color} 20%, transparent)`,
-                            color: config.color,
-                            border: `1px solid color-mix(in oklch, ${config.color} 40%, transparent)`,
-                          }}
-                        >
-                          <StatusIcon className="w-3 h-3" />
-                          {config.label}
+                  {isFetching ? "Retrying..." : "Retry"}
+                </Button>
+              </div>
+            )}
+
+            {orders && orders.length > 0 && (
+              <div className={error ? "space-y-3 mt-3" : "space-y-3"}>
+                {orders.map((order) => {
+                  const config = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
+                  const StatusIcon = config.icon;
+                  const nextStatus = NEXT_STATUS[order.status];
+
+                  return (
+                    <div
+                      key={order.id}
+                      className="rounded-2xl p-4"
+                      style={{ background: "oklch(0.16 0.02 30)", border: "1px solid oklch(0.28 0.02 30)" }}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-foreground">#{order.orderNumber}</span>
+                            <span
+                              className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
+                              style={{
+                                background: `color-mix(in oklch, ${config.color} 20%, transparent)`,
+                                color: config.color,
+                                border: `1px solid color-mix(in oklch, ${config.color} 40%, transparent)`,
+                              }}
+                            >
+                              <StatusIcon className="w-3 h-3" />
+                              {config.label}
+                            </span>
+                          </div>
+                          <p className="text-sm text-foreground">{order.customerName} · {order.customerPhone}</p>
+                          <p className="text-xs text-muted-foreground">Pickup: {order.pickupTime} · {new Date(order.createdAt).toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}</p>
+                        </div>
+                        <span className="font-black text-lg" style={{ fontFamily: "var(--font-bangers), 'Bangers', cursive", color: "oklch(0.70 0.20 45)" }}>
+                          ${(order.totalCents / 100).toFixed(2)}
                         </span>
                       </div>
-                      <p className="text-sm text-foreground">{order.customerName} · {order.customerPhone}</p>
-                      <p className="text-xs text-muted-foreground">Pickup: {order.pickupTime} · {new Date(order.createdAt).toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}</p>
-                    </div>
-                    <span className="font-black text-lg" style={{ fontFamily: "var(--font-bangers), 'Bangers', cursive", color: "oklch(0.70 0.20 45)" }}>
-                      ${(order.totalCents / 100).toFixed(2)}
-                    </span>
-                  </div>
 
-                  <div className="text-xs text-muted-foreground mb-3">
-                    {order.items.map((item) => `${item.quantity}x ${item.itemName}`).join(" · ")}
-                    {order.notes && <span className="block mt-1 text-foreground italic">Notes: {order.notes}</span>}
-                  </div>
+                      <div className="text-xs text-muted-foreground mb-3">
+                        {order.items.map((item) => `${item.quantity}x ${item.itemName}`).join(" · ")}
+                        {order.notes && <span className="block mt-1 text-foreground italic">Notes: {order.notes}</span>}
+                      </div>
 
-                  {nextStatus && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => updateStatus.mutate({ orderNumber: order.orderNumber, status: nextStatus as "preparing" | "ready" | "completed" })}
-                        disabled={updateStatus.isPending}
-                        style={{
-                          background: `linear-gradient(135deg, ${STATUS_CONFIG[nextStatus as keyof typeof STATUS_CONFIG]?.color || config.color}, ${config.color})`,
-                          color: "white",
-                        }}
-                      >
-                        Mark as {STATUS_CONFIG[nextStatus as keyof typeof STATUS_CONFIG]?.label}
-                      </Button>
-                      {order.status !== "cancelled" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateStatus.mutate({ orderNumber: order.orderNumber, status: "cancelled" })}
-                          disabled={updateStatus.isPending}
-                          style={{ background: "oklch(0.20 0.02 30)", color: "oklch(0.55 0.18 25)", border: "1px solid oklch(0.35 0.08 25)" }}
-                        >
-                          Cancel
-                        </Button>
+                      {nextStatus && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => updateStatus.mutate({ orderNumber: order.orderNumber, status: nextStatus as "preparing" | "ready" | "completed" })}
+                            disabled={updateStatus.isPending}
+                            style={{
+                              background: `linear-gradient(135deg, ${STATUS_CONFIG[nextStatus as keyof typeof STATUS_CONFIG]?.color || config.color}, ${config.color})`,
+                              color: "white",
+                            }}
+                          >
+                            Mark as {STATUS_CONFIG[nextStatus as keyof typeof STATUS_CONFIG]?.label}
+                          </Button>
+                          {order.status !== "cancelled" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updateStatus.mutate({ orderNumber: order.orderNumber, status: "cancelled" })}
+                              disabled={updateStatus.isPending}
+                              style={{ background: "oklch(0.20 0.02 30)", color: "oklch(0.55 0.18 25)", border: "1px solid oklch(0.35 0.08 25)" }}
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {!error && orders && orders.length === 0 && (
+              <div className="rounded-2xl p-10 text-center" style={{ background: "oklch(0.16 0.02 30)", border: "1px dashed oklch(0.30 0.02 30)" }}>
+                <p className="text-muted-foreground">No orders yet.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
