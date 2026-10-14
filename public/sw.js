@@ -39,7 +39,14 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
+          // CacheStorage is shared across the origin; only clean up old versions
+          // belonging to this worker's naming scheme so other caches are left alone.
+          .filter(
+            (key) =>
+              (key.startsWith("static-") || key.startsWith("dynamic-")) &&
+              key !== STATIC_CACHE &&
+              key !== DYNAMIC_CACHE
+          )
           .map((key) => caches.delete(key))
       )
     )
