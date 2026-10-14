@@ -14,10 +14,33 @@ interface PastOrder {
 
 const HISTORY_KEY = "sc_order_history";
 
+function isPastOrder(value: unknown): value is PastOrder {
+  if (typeof value !== "object" || value === null) return false;
+
+  const order = value as Record<string, unknown>;
+  return (
+    typeof order.orderNumber === "string" &&
+    Array.isArray(order.items) &&
+    typeof order.totalCents === "number" &&
+    typeof order.date === "string"
+  );
+}
+
+function parseHistory(stored: string | null): PastOrder[] {
+  if (!stored) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return Array.isArray(parsed) && parsed.every(isPastOrder) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function saveOrderToHistory(order: PastOrder) {
   try {
     const stored = localStorage.getItem(HISTORY_KEY);
-    const history: PastOrder[] = stored ? JSON.parse(stored) : [];
+    const history = parseHistory(stored);
     history.unshift(order);
     if (history.length > 20) history.length = 20;
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
@@ -32,7 +55,7 @@ export function OrderHistory() {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(HISTORY_KEY);
-      if (stored) setHistory(JSON.parse(stored));
+      setHistory(parseHistory(stored));
     } catch {}
   }, []);
 
