@@ -16,7 +16,7 @@ export default function ConfirmationPage({
   const { orderNumber } = use(params);
   const router = useRouter();
 
-  const { data, isLoading, error } = trpc.orders.get.useQuery(
+  const { data, isLoading, error, refetch, isFetching } = trpc.orders.get.useQuery(
     { orderNumber: orderNumber ?? "" },
     {
       enabled: !!orderNumber,
@@ -88,7 +88,38 @@ export default function ConfirmationPage({
     );
   }
 
-  if (error || !data) {
+  if (!data) {
+    const isNotFound = error?.data?.code === "NOT_FOUND";
+
+    if (error && !isNotFound) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+          <div className="text-5xl">😕</div>
+          <h2 className="text-xl font-bold text-foreground">We couldn&apos;t load your order</h2>
+          <p className="text-sm text-muted-foreground">Check your connection and try again.</p>
+          <Button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            style={{
+              background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
+              color: "white",
+            }}
+            className="rounded-xl h-11 px-6 font-bold"
+          >
+            {isFetching && <Loader2 className="w-4 h-4 animate-spin" />}
+            Retry
+          </Button>
+          <Button
+            onClick={() => router.push("/")}
+            variant="outline"
+            className="rounded-xl h-11 px-6 font-bold border-border text-foreground hover:bg-secondary"
+          >
+            Back to Menu
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
         <div className="text-5xl">😕</div>
@@ -207,6 +238,19 @@ export default function ConfirmationPage({
           <p className="text-sm mt-4" style={{ color: "oklch(0.75 0.04 60)" }}>
             Estimated wait: ~{Math.max(5, pendingCount * 8)} min ({pendingCount} order{pendingCount > 1 ? "s" : ""} ahead)
           </p>
+        )}
+        {error && (
+          <div>
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-xs mt-4 inline-flex items-center gap-1.5"
+              style={{ color: "oklch(0.75 0.12 70)" }}
+            >
+              {isFetching && <Loader2 className="w-3 h-3 animate-spin" />}
+              Having trouble refreshing — retrying…
+            </p>
+          </div>
         )}
       </div>
 
