@@ -13,6 +13,24 @@ interface PastOrder {
 }
 
 const HISTORY_KEY = "sc_order_history";
+const MAX_ITEM_QUANTITY = 99;
+
+function isPastOrderItem(value: unknown): value is PastOrder["items"][number] {
+  if (typeof value !== "object" || value === null) return false;
+
+  const item = value as Record<string, unknown>;
+  return (
+    typeof item.id === "string" &&
+    typeof item.name === "string" &&
+    typeof item.category === "string" &&
+    typeof item.priceCents === "number" &&
+    Number.isFinite(item.priceCents) &&
+    typeof item.quantity === "number" &&
+    Number.isInteger(item.quantity) &&
+    item.quantity >= 1 &&
+    item.quantity <= MAX_ITEM_QUANTITY
+  );
+}
 
 function isPastOrder(value: unknown): value is PastOrder {
   if (typeof value !== "object" || value === null) return false;
@@ -21,7 +39,9 @@ function isPastOrder(value: unknown): value is PastOrder {
   return (
     typeof order.orderNumber === "string" &&
     Array.isArray(order.items) &&
+    order.items.every(isPastOrderItem) &&
     typeof order.totalCents === "number" &&
+    Number.isFinite(order.totalCents) &&
     typeof order.date === "string"
   );
 }
@@ -31,7 +51,7 @@ function parseHistory(stored: string | null): PastOrder[] {
 
   try {
     const parsed: unknown = JSON.parse(stored);
-    return Array.isArray(parsed) && parsed.every(isPastOrder) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.filter(isPastOrder) : [];
   } catch {
     return [];
   }
