@@ -130,11 +130,12 @@ export default function AdminOrdersPage() {
                           <p className="text-xs text-muted-foreground">Pickup: {order.pickupTime} · {new Date(order.createdAt).toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}</p>
                         </div>
                         <span className="font-black text-lg" style={{ fontFamily: "var(--font-bangers), 'Bangers', cursive", color: "oklch(0.70 0.20 45)" }}>
-                          ${(order.totalCents / 100).toFixed(2)}
+                          ${((order.totalCents + order.tipCents) / 100).toFixed(2)} CAD
                         </span>
                       </div>
 
                       <div className="text-xs text-muted-foreground mb-3">
+                        <p>Food: ${(order.totalCents / 100).toFixed(2)} CAD · Tip: ${(order.tipCents / 100).toFixed(2)} CAD · Payment: {order.paymentStatus}</p>
                         {order.items.map((item) => `${item.quantity}x ${item.itemName}`).join(" · ")}
                         {order.notes && <span className="block mt-1 text-foreground italic">Notes: {order.notes}</span>}
                       </div>

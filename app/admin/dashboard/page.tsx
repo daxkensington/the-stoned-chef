@@ -75,6 +75,7 @@ export default function DashboardPage() {
             </span>
           </div>
           <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => router.push("/admin/tips")}>Tips</Button>
             <Button size="sm" variant="outline" onClick={() => router.push("/admin/orders")}
               style={{ background: "oklch(0.20 0.02 30)", color: "oklch(0.75 0.04 60)", border: "1px solid oklch(0.30 0.02 30)" }}>
               <ClipboardList className="w-4 h-4 mr-1" /> Orders

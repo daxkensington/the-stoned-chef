@@ -1,4 +1,6 @@
 import { publicProcedure, adminProcedure, router } from "./_core/trpc";
+import { tipsInputSchema } from "../shared/adminTips";
+import { getAdminTipsReport, exportAdminTips } from "./adminTips";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
@@ -57,6 +59,10 @@ function orderNumberFromKey(key: string): string {
 }
 
 export const appRouter = router({
+  tips: router({
+    report: adminProcedure.input(tipsInputSchema).query(({ input }) => getAdminTipsReport(input)),
+    export: adminProcedure.input(tipsInputSchema).query(({ input }) => exportAdminTips(input)),
+  }),
   auth: router({
     me: publicProcedure.query(({ ctx }) => {
       if (!ctx.admin) return null;
