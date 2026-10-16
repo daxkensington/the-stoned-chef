@@ -13,7 +13,8 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const { data: soldOutIds, isLoading, error, refetch, isFetching, isSuccess } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const controlsDisabled = !isSuccess || isFetching;
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
@@ -65,6 +66,30 @@ export default function SoldOutPage() {
       </div>
 
       <div className="container py-6 max-w-3xl">
+        {isLoading || (isFetching && !error) ? (
+          <p role="status" className="text-muted-foreground text-sm mb-3">Loading sold-out items...</p>
+        ) : null}
+        {error && (
+          <div
+            role="alert"
+            className="rounded-2xl p-4 mb-3"
+            style={{ background: "oklch(0.16 0.02 30)", border: "1px solid oklch(0.35 0.08 25)" }}
+          >
+            <h2 className="font-bold text-foreground">Couldn&apos;t load sold-out items.</h2>
+            <p className="text-sm text-muted-foreground mt-1 mb-3">{error.message}</p>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+            >
+              {isFetching ? "Retrying..." : "Retry"}
+            </Button>
+          </div>
+        )}
+        {isSuccess && !isFetching && soldOutIds.length === 0 && (
+          <p className="text-muted-foreground text-sm mb-3">No sold-out items.</p>
+        )}
         {MENU_CATEGORIES.map((cat) => (
           <div key={cat.id} className="mb-8">
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
@@ -72,7 +97,7 @@ export default function SoldOutPage() {
             </h3>
             <div className="space-y-2">
               {cat.items.map((item) => {
-                const isSoldOut = soldOutIds.includes(item.id);
+                const isSoldOut = soldOutIds?.includes(item.id);
                 return (
                   <div
                     key={item.id}
@@ -94,12 +119,13 @@ export default function SoldOutPage() {
                       </div>
                     </div>
                     <button
+                      disabled={controlsDisabled}
                       onClick={() =>
                         isSoldOut
                           ? removeSoldOut.mutate({ menuItemId: item.id })
                           : setSoldOut.mutate({ menuItemId: item.id })
                       }
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
                         background: isSoldOut
                           ? "oklch(0.35 0.10 145 / 0.3)"
