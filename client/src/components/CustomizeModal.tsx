@@ -135,6 +135,8 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
                   return (
                     <button
                       key={opt.id}
+                      type="button"
+                      aria-pressed={selected}
                       onClick={() => toggleRemove(opt.id)}
                       className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left"
                       style={{
@@ -144,6 +146,7 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
                       }}
                     >
                       <div
+                        aria-hidden="true"
                         className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
                         style={{
                           background: selected ? "oklch(0.55 0.18 25)" : "var(--color-muted)",
@@ -172,6 +175,8 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
                   return (
                     <button
                       key={opt.id}
+                      type="button"
+                      aria-pressed={selected}
                       onClick={() => toggleAddOn(opt.id)}
                       className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-medium transition-all"
                       style={{
@@ -183,6 +188,7 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
                     >
                       <div className="flex items-center gap-3">
                         <div
+                          aria-hidden="true"
                           className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
                           style={{
                             background: selected ? "oklch(0.62 0.22 38)" : "var(--color-muted)",
@@ -211,14 +217,20 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
             <span className="text-sm font-bold text-foreground">Quantity</span>
             <div className="flex items-center gap-3">
               <button
+                type="button"
+                aria-label="Decrease quantity"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                 style={{ background: "var(--color-secondary)", color: "var(--color-foreground)" }}
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="w-8 text-center font-bold text-lg text-foreground">{quantity}</span>
+              <span aria-live="polite" className="w-8 text-center font-bold text-lg text-foreground">
+                {quantity}
+              </span>
               <button
+                type="button"
+                aria-label="Increase quantity"
                 onClick={() => setQuantity((q) => q + 1)}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                 style={{ background: "var(--color-secondary)", color: "var(--color-foreground)" }}
