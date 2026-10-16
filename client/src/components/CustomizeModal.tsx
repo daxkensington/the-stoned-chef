@@ -135,6 +135,8 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
                   return (
                     <button
                       key={opt.id}
+                      type="button"
+                      aria-pressed={selected}
                       onClick={() => toggleRemove(opt.id)}
                       className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left"
                       style={{
@@ -172,6 +174,8 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
                   return (
                     <button
                       key={opt.id}
+                      type="button"
+                      aria-pressed={selected}
                       onClick={() => toggleAddOn(opt.id)}
                       className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-medium transition-all"
                       style={{
@@ -211,6 +215,8 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
             <span className="text-sm font-bold text-foreground">Quantity</span>
             <div className="flex items-center gap-3">
               <button
+                type="button"
+                aria-label={`Decrease ${item.name} quantity`}
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                 style={{ background: "var(--color-secondary)", color: "var(--color-foreground)" }}
@@ -219,6 +225,8 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
               </button>
               <span className="w-8 text-center font-bold text-lg text-foreground">{quantity}</span>
               <button
+                type="button"
+                aria-label={`Increase ${item.name} quantity`}
                 onClick={() => setQuantity((q) => q + 1)}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                 style={{ background: "var(--color-secondary)", color: "var(--color-foreground)" }}
