@@ -126,6 +126,14 @@ self.addEventListener("push", (event) => {
   try { data = event.data.json(); }
   catch { data = { title: "Notification", body: event.data.text() }; }
 
+  // Valid-JSON non-objects could otherwise throw and suppress the notification.
+  if (!(typeof data === "object" && data !== null && !Array.isArray(data))) {
+    data = {
+      title: "Notification",
+      body: typeof data === "string" && data.length > 0 ? data : "",
+    };
+  }
+
   event.waitUntil(
     self.registration.showNotification(data.title || "Notification", {
       body: data.body || "",
