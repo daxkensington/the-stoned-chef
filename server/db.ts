@@ -55,7 +55,15 @@ export async function createOrder(
 
   if (items.length > 0) {
     const itemsWithOrderId = items.map((item) => ({ ...item, orderId: created.id }));
-    await db.insert(orderItems).values(itemsWithOrderId);
+    // neon-http has no interactive transactions; an order without items lets routers.ts's duplicate-race check report a paid order as success.
+    try {
+      await db.insert(orderItems).values(itemsWithOrderId);
+    } catch (err) {
+      try {
+        await db.delete(orders).where(eq(orders.id, created.id));
+      } catch { /* best-effort */ }
+      throw err;
+    }
   }
 
   return created;
