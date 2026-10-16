@@ -13,13 +13,14 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [] } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const { data: soldOutIds = [], isPending: soldOutPending } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
       utils.soldOut.list.invalidate();
       toast.success("Marked as sold out");
     },
+    onError: (e) => toast.error(e.message),
   });
 
   const removeSoldOut = trpc.soldOut.remove.useMutation({
@@ -27,7 +28,10 @@ export default function SoldOutPage() {
       utils.soldOut.list.invalidate();
       toast.success("Back in stock!");
     },
+    onError: (e) => toast.error(e.message),
   });
+
+  const pending = soldOutPending || setSoldOut.isPending || removeSoldOut.isPending;
 
   if (loading) return null;
   if (!isAdmin) {
@@ -94,6 +98,10 @@ export default function SoldOutPage() {
                       </div>
                     </div>
                     <button
+                      type="button"
+                      aria-pressed={isSoldOut}
+                      aria-label={isSoldOut ? `Restock ${item.name}` : `Mark ${item.name} as sold out`}
+                      disabled={pending}
                       onClick={() =>
                         isSoldOut
                           ? removeSoldOut.mutate({ menuItemId: item.id })
