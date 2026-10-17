@@ -1,4 +1,4 @@
-import { and, eq, or, gt, gte, lte, isNull, desc, sql, count } from "drizzle-orm";
+import { and, eq, or, gt, gte, lte, isNull, desc, sql, count, inArray } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import {
@@ -139,13 +139,21 @@ export async function listRecentOrders(limit = 50): Promise<(Order & { items: Or
     .from(orders)
     .orderBy(desc(orders.createdAt))
     .limit(limit);
+  if (recentOrders.length === 0) return [];
 
-  const result: (Order & { items: OrderItem[] })[] = [];
-  for (const order of recentOrders) {
-    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
-    result.push({ ...order, items });
+  const items = await db
+    .select()
+    .from(orderItems)
+    .where(inArray(orderItems.orderId, recentOrders.map((o) => o.id)));
+
+  const byOrder = new Map<number, OrderItem[]>();
+  for (const item of items) {
+    const list = byOrder.get(item.orderId);
+    if (list) list.push(item);
+    else byOrder.set(item.orderId, [item]);
   }
-  return result;
+
+  return recentOrders.map((order) => ({ ...order, items: byOrder.get(order.id) ?? [] }));
 }
 
 export async function getPendingOrderCount(): Promise<number> {
