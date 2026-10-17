@@ -39,10 +39,17 @@ export function SquarePayment({ onToken, validateBeforePay, disabled, amountCent
   useEffect(() => {
     let cancelled = false;
     let cardInstance: typeof cardRef.current = null;
+    let cardDestroyed = false;
+
+    const destroyCard = () => {
+      if (!cardInstance || cardDestroyed) return;
+      cardDestroyed = true;
+      cardInstance.destroy();
+    };
 
     async function init() {
       // Poll for Square SDK (loaded via Script in layout.tsx)
-      for (let i = 0; i < 50 && !window.Square; i++) {
+      for (let i = 0; i < 50 && !window.Square && !cancelled; i++) {
         await new Promise((r) => setTimeout(r, 200));
       }
       if (!window.Square || cancelled) {
@@ -51,7 +58,7 @@ export function SquarePayment({ onToken, validateBeforePay, disabled, amountCent
       }
 
       // Poll for the container div
-      for (let i = 0; i < 30 && !document.getElementById("sq-card"); i++) {
+      for (let i = 0; i < 30 && !document.getElementById("sq-card") && !cancelled; i++) {
         await new Promise((r) => setTimeout(r, 100));
       }
       if (!document.getElementById("sq-card") || cancelled) return;
@@ -59,13 +66,15 @@ export function SquarePayment({ onToken, validateBeforePay, disabled, amountCent
       try {
         const payments = await window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
         const card = await payments.card();
-        await card.attach("#sq-card");
-        if (cancelled) { card.destroy(); return; }
         cardInstance = card;
+        if (cancelled) { destroyCard(); return; }
+        await card.attach("#sq-card");
+        if (cancelled) { destroyCard(); return; }
         cardRef.current = card;
         setReady(true);
         setError(null);
       } catch (err: unknown) {
+        destroyCard();
         const msg = err instanceof Error ? err.message : "Unknown error";
         console.error("[Square] Init error:", msg);
         if (!cancelled) setError("Payment form error: " + msg);
@@ -76,7 +85,7 @@ export function SquarePayment({ onToken, validateBeforePay, disabled, amountCent
 
     return () => {
       cancelled = true;
-      cardInstance?.destroy();
+      destroyCard();
       cardRef.current = null;
       setReady(false);
     };
