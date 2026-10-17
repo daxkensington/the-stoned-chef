@@ -9,7 +9,8 @@ const PUNCHES_NEEDED = 10;
 export function getPunches(): number {
   if (typeof window === "undefined") return 0;
   try {
-    return parseInt(localStorage.getItem(PUNCH_KEY) || "0", 10);
+    const value = Number(localStorage.getItem(PUNCH_KEY) || "0");
+    return Number.isFinite(value) && Number.isInteger(value) && value >= 0 ? value : 0;
   } catch {
     return 0;
   }
