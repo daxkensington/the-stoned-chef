@@ -13,25 +13,25 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [], isPending: soldOutPending } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const { data: soldOutIds, isPending: soldOutPending, isSuccess, error, refetch, isFetching } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
-      utils.soldOut.list.invalidate();
       toast.success("Marked as sold out");
+      return utils.soldOut.list.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
 
   const removeSoldOut = trpc.soldOut.remove.useMutation({
     onSuccess: () => {
-      utils.soldOut.list.invalidate();
       toast.success("Back in stock!");
+      return utils.soldOut.list.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
 
-  const pending = soldOutPending || setSoldOut.isPending || removeSoldOut.isPending;
+  const pending = soldOutPending || isFetching || !!error || setSoldOut.isPending || removeSoldOut.isPending;
 
   if (loading) return null;
   if (!isAdmin) {
@@ -69,7 +69,28 @@ export default function SoldOutPage() {
       </div>
 
       <div className="container py-6 max-w-3xl">
-        {MENU_CATEGORIES.map((cat) => (
+        {soldOutPending && (
+          <p role="status" className="text-muted-foreground text-sm">Loading sold out items...</p>
+        )}
+        {error && (
+          <div
+            role="alert"
+            className="rounded-2xl p-4"
+            style={{ background: "oklch(0.16 0.02 30)", border: "1px solid oklch(0.35 0.08 25)" }}
+          >
+            <h2 className="font-bold text-foreground">Couldn&apos;t load sold out items.</h2>
+            <p className="text-sm text-muted-foreground mt-1 mb-3">{error.message}</p>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+            >
+              {isFetching ? "Retrying..." : "Retry"}
+            </Button>
+          </div>
+        )}
+        {isSuccess && soldOutIds && MENU_CATEGORIES.map((cat) => (
           <div key={cat.id} className="mb-8">
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
               <span>{cat.emoji}</span> {cat.name}
