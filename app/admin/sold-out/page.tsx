@@ -13,7 +13,17 @@ export default function SoldOutPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: soldOutIds = [], isPending: soldOutPending } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+  const {
+    data: soldOutData,
+    isPending: soldOutPending,
+    isError: soldOutIsError,
+    isRefetchError: soldOutRefetchError,
+    error: soldOutError,
+    isFetching: soldOutFetching,
+    refetch: refetchSoldOut,
+  } = trpc.soldOut.list.useQuery(undefined, { enabled: isAdmin });
+
+  const soldOutLoaded = !soldOutIsError && !soldOutRefetchError && soldOutData !== undefined;
 
   const setSoldOut = trpc.soldOut.set.useMutation({
     onSuccess: () => {
@@ -31,7 +41,7 @@ export default function SoldOutPage() {
     onError: (e) => toast.error(e.message),
   });
 
-  const pending = soldOutPending || setSoldOut.isPending || removeSoldOut.isPending;
+  const pending = !soldOutLoaded || soldOutPending || setSoldOut.isPending || removeSoldOut.isPending;
 
   if (loading) return null;
   if (!isAdmin) {
@@ -69,6 +79,34 @@ export default function SoldOutPage() {
       </div>
 
       <div className="container py-6 max-w-3xl">
+        {soldOutIsError ? (
+          <div
+            role="alert"
+            className="mb-6 rounded-xl px-4 py-3"
+            style={{
+              background: "oklch(0.55 0.18 25 / 0.08)",
+              border: "1px solid oklch(0.55 0.18 25 / 0.25)",
+            }}
+          >
+            <p className="text-sm font-bold text-foreground mb-1">Couldn’t load the sold-out list</p>
+            <p className="text-xs text-muted-foreground mb-3">
+              Items can’t be marked sold out or restocked until the list loads.
+              {soldOutError?.message ? ` (${soldOutError.message})` : ""}
+            </p>
+            <Button
+              size="sm"
+              onClick={() => void refetchSoldOut()}
+              disabled={soldOutFetching}
+            >
+              {soldOutFetching ? "Retrying…" : "Retry"}
+            </Button>
+          </div>
+        ) : !soldOutLoaded ? (
+          <p role="status" className="text-sm text-muted-foreground mb-6">
+            Loading sold-out list…
+          </p>
+        ) : null}
+
         {MENU_CATEGORIES.map((cat) => (
           <div key={cat.id} className="mb-8">
             <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
@@ -76,7 +114,7 @@ export default function SoldOutPage() {
             </h3>
             <div className="space-y-2">
               {cat.items.map((item) => {
-                const isSoldOut = soldOutIds.includes(item.id);
+                const isSoldOut = soldOutLoaded && (soldOutData ?? []).includes(item.id);
                 return (
                   <div
                     key={item.id}
@@ -102,12 +140,15 @@ export default function SoldOutPage() {
                       aria-pressed={isSoldOut}
                       aria-label={isSoldOut ? `Restock ${item.name}` : `Mark ${item.name} as sold out`}
                       disabled={pending}
-                      onClick={() =>
-                        isSoldOut
-                          ? removeSoldOut.mutate({ menuItemId: item.id })
-                          : setSoldOut.mutate({ menuItemId: item.id })
-                      }
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                      onClick={() => {
+                        if (!soldOutLoaded) return;
+                        if (isSoldOut) {
+                          removeSoldOut.mutate({ menuItemId: item.id });
+                        } else {
+                          setSoldOut.mutate({ menuItemId: item.id });
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
                         background: isSoldOut
                           ? "oklch(0.35 0.10 145 / 0.3)"
