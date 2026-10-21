@@ -52,6 +52,29 @@ const menuJsonLd = {
   })),
 };
 
+const menuFaqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How far is The Stoned Chef chip truck from Napanee and Highway 401?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "The Stoned Chef is located at 45 Dundas Street in Deseronto, Ontario — about 5 minutes south of Highway 401 Exit 570 (Hwy 49) and 10–15 minutes west of Napanee via County Rd 2 or Hwy 401.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What are the most popular items on The Stoned Chef menu?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Customer favourites include fresh-pressed smash burgers (Single, Double & Bacon Cheeseburger), hand-cut fries with St-Albert cheese curd poutines, crispy battered fish & chips, wraps, and kids' meals.",
+      },
+    },
+  ],
+};
+
 export default function MenuPage() {
   return (
     <main className="min-h-screen">
@@ -69,7 +92,7 @@ export default function MenuPage() {
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           Deseronto &amp; Napanee area&apos;s favourite chip truck — smash burgers, loaded poutines, crispy fish &amp; chips,
-          and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St (5 mins west of Napanee off Hwy 401), right beside <a href="https://mohawkmedibles.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">Mohawk Medibles</a> and <a href="https://www.lnmenterprises.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">L&amp;M Enterprises</a>.
+          and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St (5 mins west of Napanee off Hwy 401) on Highway 49 (just 5 minutes south of Highway 401 Exit 570).
         </p>
         {ONLINE_ORDERING_ENABLED ? (
           <Link
@@ -160,6 +183,31 @@ export default function MenuPage() {
           </section>
         ))}
       </div>
+
+      {/* Local Directions & Napanee / Hwy 401 FAQ */}
+      <section className="container pb-12">
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 max-w-4xl mx-auto">
+          <h2
+            className="text-2xl sm:text-3xl mb-3"
+            style={{ fontFamily: "'Bangers', cursive", letterSpacing: "0.03em" }}
+          >
+            Visiting from Napanee, Tyendinaga, Belleville, or Hwy 401?
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
+            Looking for the best chip truck, smash burgers, loaded poutine, or fish &amp; chips near Napanee and Deseronto? We&apos;re parked at <strong>45 Dundas Street, Deseronto, ON</strong> — just <strong>5 minutes off Highway 401 Exit 570 (Hwy 49 South)</strong> and a quick drive west of Napanee. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM with lots of free parking.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 text-sm">
+            <div className="rounded-xl bg-secondary/40 p-4">
+              <h3 className="font-bold text-foreground mb-1">From Napanee &amp; Greater Napanee</h3>
+              <p className="text-muted-foreground">Take Hwy 401 West to Exit 570 (Hwy 49 South) or take County Rd 2 West straight into Deseronto to 45 Dundas St.</p>
+            </div>
+            <div className="rounded-xl bg-secondary/40 p-4">
+              <h3 className="font-bold text-foreground mb-1">From Belleville, Shannonville &amp; Hwy 401</h3>
+              <p className="text-muted-foreground">Take Hwy 401 East to Exit 570 (Hwy 49 South) for 5 minutes, or follow Hwy 2 East through Tyendinaga Mohawk Territory to 45 Dundas St.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Bottom CTA */}
       <section className="container pb-20 text-center">
