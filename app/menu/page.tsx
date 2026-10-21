@@ -9,16 +9,16 @@ import {
 } from "@shared/const";
 
 export const metadata: Metadata = {
-  title: "Menu | The Stoned Chef — Deseronto Chip Truck",
+  title: "Menu & Prices | The Stoned Chef — Deseronto & Napanee Chip Truck (Burgers, Poutine, Fish & Chips)",
   description: ONLINE_ORDERING_ENABLED
-    ? "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wraps, and kids' meals. Order online for pickup, open daily 11am–7pm."
-    : "See the full menu at The Stoned Chef in Deseronto, ON — smash burgers, loaded poutines, crispy fish & chips, wraps, and kids' meals. Open daily 11am–7pm at 45 Dundas St.",
+    ? "See the full menu & prices at The Stoned Chef (5 mins from Napanee off Hwy 401 at 45 Dundas St, Deseronto) — smash burgers, loaded poutines, crispy fish & chips, wraps, and kids' meals. Order online for pickup, open daily 11am–7pm."
+    : "See the full menu & prices at The Stoned Chef (5 mins from Napanee off Hwy 401 at 45 Dundas St, Deseronto) — smash burgers, loaded poutines, crispy fish & chips, wraps, and kids' meals. Open daily 11am–7pm.",
   alternates: { canonical: "https://thestonedchef.ca/menu" },
   openGraph: {
-    title: "The Stoned Chef Menu — Deseronto, ON",
+    title: "The Stoned Chef Menu & Prices — Deseronto & Napanee Chip Truck",
     description: ONLINE_ORDERING_ENABLED
-      ? "Smash burgers, loaded poutines, crispy fish & chips, and more. Order online for pickup."
-      : "Smash burgers, loaded poutines, crispy fish & chips, and more. Open daily at 45 Dundas St, Deseronto.",
+      ? "Smash burgers, loaded poutines, crispy fish & chips, and more. Order online for pickup (5 mins from Napanee off Hwy 401)."
+      : "Smash burgers, loaded poutines, crispy fish & chips, and more. Open daily at 45 Dundas St, Deseronto (5 mins from Napanee).",
     url: "https://thestonedchef.ca/menu",
     type: "website",
   },
@@ -68,8 +68,8 @@ export default function MenuPage() {
           Our Menu
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Deseronto&apos;s favourite chip truck — smash burgers, loaded poutines, crispy fish &amp; chips,
-          and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St, right beside <a href="https://mohawkmedibles.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">Mohawk Medibles</a> and <a href="https://www.lnmenterprises.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">L&amp;M Enterprises</a>.
+          Deseronto &amp; Napanee area&apos;s favourite chip truck — smash burgers, loaded poutines, crispy fish &amp; chips,
+          and everything in between. Open daily 11:00&nbsp;AM&nbsp;–&nbsp;7:00&nbsp;PM at 45 Dundas St (5 mins west of Napanee off Hwy 401), right beside <a href="https://mohawkmedibles.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">Mohawk Medibles</a> and <a href="https://www.lnmenterprises.ca/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">L&amp;M Enterprises</a>.
         </p>
         {ONLINE_ORDERING_ENABLED ? (
           <Link

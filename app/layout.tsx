@@ -19,10 +19,10 @@ const bangers = Bangers({
 });
 
 export const metadata: Metadata = {
-  title: "The Stoned Chef | Deseronto Restaurants & Chip Truck",
+  title: "The Stoned Chef | Deseronto & Napanee Chip Truck — Smash Burgers, Poutine & Fish & Chips",
   description: ONLINE_ORDERING_ENABLED
-    ? "Order online from The Stoned Chef — Deseronto's favourite restaurant & chip truck for smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St. Open daily 11am-7pm."
-    : "The Stoned Chef — Deseronto's favourite restaurant & chip truck for smash burgers, loaded poutines, crispy fish & chips, and more. 45 Dundas St. Open daily 11am-7pm.",
+    ? "Order online from The Stoned Chef — Deseronto & Napanee area's favourite chip truck for smash burgers, loaded poutines, and crispy fish & chips. Just 5 mins west of Napanee off Hwy 401 at 45 Dundas St, Deseronto. Open daily 11am-7pm."
+    : "The Stoned Chef — Deseronto & Napanee area's favourite chip truck for smash burgers, loaded poutines, and crispy fish & chips. Just 5 mins west of Napanee off Hwy 401 at 45 Dundas St, Deseronto. Open daily 11am-7pm.",
   metadataBase: new URL("https://thestonedchef.ca"),
   alternates: { canonical: "https://thestonedchef.ca" },
   keywords: [
