@@ -80,7 +80,7 @@ export default function MenuPage() {
     <main className="min-h-screen">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(menuJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([menuJsonLd, menuFaqJsonLd]) }}
       />
       {/* Header */}
       <section className="container pt-10 pb-6 text-center">
