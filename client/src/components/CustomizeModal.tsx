@@ -20,7 +20,7 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set());
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
-  const itemId = item?.id;
+  const itemId = item?.id ?? null;
 
   useEffect(() => {
     setSelectedRemoves(new Set());
@@ -35,7 +35,6 @@ export function CustomizeModal({ item, open, onClose }: CustomizeModalProps) {
   };
 
   // Clear stale selections when a different item is opened
-  const itemId = item?.id ?? null;
   const [prevItemId, setPrevItemId] = useState(itemId);
   if (itemId !== prevItemId) {
     setPrevItemId(itemId);
