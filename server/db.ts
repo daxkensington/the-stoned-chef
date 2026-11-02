@@ -55,7 +55,16 @@ export async function createOrder(
 
   if (items.length > 0) {
     const itemsWithOrderId = items.map((item) => ({ ...item, orderId: created.id }));
-    await db.insert(orderItems).values(itemsWithOrderId);
+    try {
+      await db.insert(orderItems).values(itemsWithOrderId);
+    } catch (err) {
+      try {
+        await db.delete(orders).where(eq(orders.id, created.id));
+      } catch (cleanupErr) {
+        console.error("createOrder: failed to remove order after item insert failure", created.id, cleanupErr);
+      }
+      throw err;
+    }
   }
 
   return created;
