@@ -1,4 +1,4 @@
-import { and, eq, or, gt, gte, lte, isNull, desc, sql, count } from "drizzle-orm";
+import { and, eq, or, gt, gte, lte, ne, isNull, desc, sql, count } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import {
@@ -185,7 +185,13 @@ export async function getDailySalesStats(daysBack = 7) {
   const dailyOrders = await db
     .select()
     .from(orders)
-    .where(gte(orders.createdAt, since))
+    .where(
+      and(
+        gte(orders.createdAt, since),
+        eq(orders.paymentStatus, "paid"),
+        ne(orders.status, "cancelled")
+      )
+    )
     .orderBy(desc(orders.createdAt));
 
   const byDay: Record<string, { orders: number; revenue: number }> = {};
@@ -201,7 +207,13 @@ export async function getDailySalesStats(daysBack = 7) {
     .select()
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
-    .where(gte(orders.createdAt, since));
+    .where(
+      and(
+        gte(orders.createdAt, since),
+        eq(orders.paymentStatus, "paid"),
+        ne(orders.status, "cancelled")
+      )
+    );
 
   const itemCounts: Record<string, number> = {};
   for (const row of allItems) {
