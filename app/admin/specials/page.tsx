@@ -69,6 +69,7 @@ export default function AdminSpecialsPage() {
       utils.specials.listAll.invalidate();
       utils.specials.list.invalidate();
       toast.success("Special updated!");
+      setShowForm(false);
       setEditingId(null);
       setForm(emptyForm());
     },
