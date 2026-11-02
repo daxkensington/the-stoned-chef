@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 export function EmailCapture() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const subscribe = trpc.subscribers.subscribe.useMutation({
     onSuccess: () => setSubmitted(true),
+    onError: () => setErrorMessage("Unable to subscribe. Please try again."),
   });
 
   if (submitted) {
@@ -53,7 +55,10 @@ export function EmailCapture() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (email) subscribe.mutate({ email });
+            if (email) {
+              setErrorMessage("");
+              subscribe.mutate({ email });
+            }
           }}
           className="flex gap-2"
         >
@@ -82,6 +87,11 @@ export function EmailCapture() {
             {subscribe.isPending ? "..." : "Notify Me"}
           </Button>
         </form>
+        {errorMessage && (
+          <p role="alert" className="text-sm text-foreground mt-3">
+            {errorMessage}
+          </p>
+        )}
       </div>
     </section>
   );
