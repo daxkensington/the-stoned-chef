@@ -44,6 +44,12 @@ const emptyForm = (): SpecialForm => ({
   expiresAt: "",
 });
 
+// Format as YYYY-MM-DD using local date parts so the date input matches the list display.
+const toLocalDateInput = (value: string | number | Date) => {
+  const d = new Date(value);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
 export default function AdminSpecialsPage() {
   const { isAdmin, loading } = useAuth();
   const router = useRouter();
@@ -114,7 +120,7 @@ export default function AdminSpecialsPage() {
       priceCents: priceCents ?? undefined,
       badge: form.badge || undefined,
       active: form.active,
-      expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
+      expiresAt: form.expiresAt ? new Date(`${form.expiresAt}T23:59:59`).toISOString() : null,
       sortOrder: 0,
     };
 
@@ -133,9 +139,7 @@ export default function AdminSpecialsPage() {
       priceCents: special.priceCents ? String(special.priceCents / 100) : "",
       badge: special.badge ?? "",
       active: special.active,
-      expiresAt: special.expiresAt
-        ? new Date(special.expiresAt).toISOString().slice(0, 10)
-        : "",
+      expiresAt: special.expiresAt ? toLocalDateInput(special.expiresAt) : "",
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
