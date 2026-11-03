@@ -12,6 +12,50 @@ const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = ["/", "/offline"];
+const STATIC_CACHE_LIMIT = 100;
+const DYNAMIC_CACHE_LIMIT = 50;
+const runtimeWrites = new Map();
+const protectedStaticURLs = new Set(
+  PRECACHE_URLS.map((url) => new URL(url, self.location.origin).href)
+);
+
+// Serialize each cache's writes and eviction so concurrent requests cannot
+// leave it over the limit. Every queued operation settles even on failure.
+function writeRuntimeCache(cacheName, request, response, limit) {
+  let clone;
+  try {
+    clone = response.clone();
+  } catch (err) {
+    console.warn("[sw] runtime response clone failed", cacheName, err);
+    return Promise.resolve();
+  }
+
+  const write = (runtimeWrites.get(cacheName) || Promise.resolve())
+    .then(async () => {
+      const cache = await caches.open(cacheName);
+      await cache.put(request, clone);
+      const keys = await cache.keys();
+      let excess = keys.length - limit;
+      // Cache.keys() returns insertion order, oldest entries first. Visit
+      // each candidate once so a failed deletion cannot create a retry loop.
+      for (const key of keys) {
+        if (excess <= 0) break;
+        if (cacheName === STATIC_CACHE && protectedStaticURLs.has(key.url)) {
+          continue;
+        }
+        if (await cache.delete(key)) {
+          excess -= 1;
+        } else {
+          console.warn("[sw] runtime eviction skipped", cacheName, key.url);
+        }
+      }
+    })
+    .catch((err) => {
+      console.warn("[sw] runtime cache write or eviction failed", cacheName, err);
+    });
+  runtimeWrites.set(cacheName, write);
+  return write;
+}
 
 // ─── Install ────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
@@ -75,19 +119,28 @@ self.addEventListener("fetch", (event) => {
   if (
     url.pathname.match(/\.(js|css|png|jpg|jpeg|webp|avif|svg|woff2?|ttf|ico)$/)
   ) {
-    event.respondWith(
-      caches.match(request).then(
-        (cached) =>
-          cached ||
-          fetch(request).then((response) => {
-            if (response.ok) {
-              const clone = response.clone();
-              caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
-            }
-            return response;
-          })
-      )
-    );
+    let cacheWrite = Promise.resolve();
+    const responsePromise = Promise.resolve()
+      .then(() => caches.match(request))
+      .catch((err) => {
+        console.warn("[sw] static cache lookup failed", err);
+        return undefined;
+      })
+      .then((cached) =>
+        cached ||
+        fetch(request).then((response) => {
+          if (response.ok) {
+            cacheWrite = writeRuntimeCache(
+              STATIC_CACHE, request, response, STATIC_CACHE_LIMIT
+            );
+          }
+          return response;
+        })
+      );
+    // Register synchronously, covering network completion and queued storage
+    // without making the response wait for storage.
+    event.waitUntil(responsePromise.then(() => cacheWrite, () => undefined));
+    event.respondWith(responsePromise);
     return;
   }
 
@@ -99,24 +152,26 @@ self.addEventListener("fetch", (event) => {
       event.respondWith(fetch(request));
       return;
     }
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Error pages pass through but are never cached, or they'd be
-          // served offline as if they were real content.
-          if (!response.ok) return response;
-          const clone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
-          return response;
+    let cacheWrite = Promise.resolve();
+    const responsePromise = fetch(request)
+      .then((response) => {
+        // Error pages pass through but are never cached, or they'd be
+        // served offline as if they were real content.
+        if (!response.ok) return response;
+        cacheWrite = writeRuntimeCache(
+          DYNAMIC_CACHE, request, response, DYNAMIC_CACHE_LIMIT
+        );
+        return response;
+      })
+      .catch(() =>
+        caches.match(request).then((cached) => {
+          // Entries cached by older workers may be error pages; skip them.
+          if (cached && cached.ok) return cached;
+          return caches.match("/");
         })
-        .catch(() =>
-          caches.match(request).then((cached) => {
-            // Entries cached by older workers may be error pages; skip them.
-            if (cached && cached.ok) return cached;
-            return caches.match("/");
-          })
-        )
-    );
+      );
+    event.waitUntil(responsePromise.then(() => cacheWrite, () => undefined));
+    event.respondWith(responsePromise);
     return;
   }
 });
