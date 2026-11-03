@@ -36,14 +36,23 @@ async function sendSMS(to: string, body: string, orderNumber: string): Promise<S
       return { sent: false, reason: "invalid phone" };
     }
 
+    // Normalize NANP numbers only: 10 digits, or 11 digits starting with 1.
+    let phone: string;
+    if (digits.length === 10) {
+      phone = `+1${digits}`;
+    } else if (digits.length === 11 && digits.startsWith("1")) {
+      phone = `+${digits}`;
+    } else {
+      logSMS("log", "Skipped (unsupported region)", orderNumber, last4);
+      return { sent: false, reason: "unsupported region" };
+    }
+
     const tw = getClient();
     if (!tw) {
       logSMS("log", "Skipped (Twilio not configured)", orderNumber, last4);
       return { sent: false, reason: "twilio not configured" };
     }
 
-    // Normalize phone to E.164 for Canadian numbers.
-    const phone = `+1${ten}`;
     await tw.client.messages.create({
       body,
       from: tw.from,
