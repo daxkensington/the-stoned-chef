@@ -28,8 +28,12 @@ export default function ConfirmationPage({
     }
   );
 
+  const orderStatus = data?.order?.status;
+  const showsWaitEstimate = orderStatus === "pending" || orderStatus === "preparing";
+
   const { data: pendingCount } = trpc.orders.pendingCount.useQuery(undefined, {
-    refetchInterval: 30_000,
+    enabled: showsWaitEstimate,
+    refetchInterval: showsWaitEstimate ? 30_000 : false,
   });
 
   // Sound + vibration on status change
