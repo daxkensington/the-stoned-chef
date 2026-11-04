@@ -52,8 +52,10 @@ type HeaderSource =
 
 function firstNonEmpty(raw: string | null | undefined): string | undefined {
   if (!raw) return undefined;
-  const first = raw.split(",")[0]?.trim();
-  return first || undefined;
+  return raw
+    .split(",")
+    .map((p) => p.trim())
+    .find(Boolean);
 }
 
 function lastNonEmpty(raw: string | null | undefined): string | undefined {
@@ -75,8 +77,14 @@ function header(src: HeaderSource, name: string): string | undefined {
   }
   const rec = src as Record<string, string | string[] | undefined | null>;
   const v = rec[name] ?? rec[lower];
-  const raw = Array.isArray(v) ? v[0] : v;
-  return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
+  if (Array.isArray(v)) {
+    const parts = v
+      .filter((entry) => typeof entry === "string")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+    return parts.length ? parts.join(lower === "cookie" ? "; " : ", ") : undefined;
+  }
+  return typeof v === "string" && v.trim() ? v.trim() : undefined;
 }
 
 function cap(value: string | undefined | null, max: number): string | null {
