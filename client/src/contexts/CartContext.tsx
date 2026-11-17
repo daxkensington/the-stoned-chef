@@ -15,13 +15,18 @@ interface CartState {
   items: CartItem[];
 }
 
+interface CartReducerState extends CartState {
+  hydrated: boolean;
+}
+
 type CartAction =
   | { type: "ADD_ITEM"; item: Omit<CartItem, "quantity"> }
   | { type: "REMOVE_ITEM"; id: string }
   | { type: "UPDATE_QUANTITY"; id: string; quantity: number }
-  | { type: "CLEAR_CART" };
+  | { type: "CLEAR_CART" }
+  | { type: "HYDRATE"; state: CartState };
 
-function cartReducer(state: CartState, action: CartAction): CartState {
+function cartReducer(state: CartReducerState, action: CartAction): CartReducerState {
   switch (action.type) {
     case "ADD_ITEM": {
       const existing = state.items.find((i) => i.id === action.item.id);
@@ -49,7 +54,10 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       };
     }
     case "CLEAR_CART":
-      return { items: [] };
+      return { ...state, items: [] };
+    case "HYDRATE":
+      // action.state comes from loadCart(), which already sanitizes via toCartItem
+      return { items: action.state.items, hydrated: true };
     default:
       return state;
   }
@@ -115,10 +123,19 @@ function saveCart(state: CartState) {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] }, loadCart);
+  // Start empty on both server and client so the first render matches; the
+  // saved cart is loaded after mount via HYDRATE.
+  const [state, dispatch] = useReducer(cartReducer, { items: [], hydrated: false });
 
   useEffect(() => {
-    saveCart(state);
+    dispatch({ type: "HYDRATE", state: loadCart() });
+  }, []);
+
+  useEffect(() => {
+    // Skip until the hydrated cart has rendered so the empty initial state
+    // never overwrites the persisted cart.
+    if (!state.hydrated) return;
+    saveCart({ items: state.items });
   }, [state]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
