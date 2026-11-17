@@ -7,6 +7,12 @@ import { Navbar } from "@/components/Navbar";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import "./globals.css";
 import { ONLINE_ORDERING_ENABLED } from "@shared/const";
+import {
+  HOMEPAGE_TITLE,
+  RESTAURANT_JSON_LD,
+  getHomepageDescription,
+  serializeJsonLd,
+} from "@shared/homepage-seo";
 
 // GA4 Measurement ID — public by design (visible in page source).
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-SPKGRFZPY8";
@@ -19,10 +25,8 @@ const bangers = Bangers({
 });
 
 export const metadata: Metadata = {
-  title: "The Stoned Chef | Deseronto & Napanee Chip Truck — Smash Burgers, Poutine & Fish & Chips",
-  description: ONLINE_ORDERING_ENABLED
-    ? "Order online from The Stoned Chef — Deseronto & Napanee area's favourite chip truck for smash burgers, loaded poutines, and crispy fish & chips. Just 5 mins west of Napanee off Hwy 401 at 45 Dundas St, Deseronto. Open daily 11am-7pm."
-    : "The Stoned Chef — Deseronto & Napanee area's favourite chip truck for smash burgers, loaded poutines, and crispy fish & chips. Just 5 mins west of Napanee off Hwy 401 at 45 Dundas St, Deseronto. Open daily 11am-7pm.",
+  title: HOMEPAGE_TITLE,
+  description: getHomepageDescription(ONLINE_ORDERING_ENABLED),
   metadataBase: new URL("https://thestonedchef.ca"),
   alternates: { canonical: "https://thestonedchef.ca" },
   keywords: [
@@ -55,10 +59,8 @@ export const metadata: Metadata = {
     title: "Stoned Chef",
   },
   openGraph: {
-    title: "The Stoned Chef",
-    description: ONLINE_ORDERING_ENABLED
-      ? "Where we cure the munchies — Deseronto's favourite chip truck. Order online for pickup, open daily 11am–7pm."
-      : "Where we cure the munchies — Deseronto's favourite chip truck. Open daily 11am–7pm at 45 Dundas St, Deseronto.",
+    title: HOMEPAGE_TITLE,
+    description: getHomepageDescription(ONLINE_ORDERING_ENABLED),
     type: "website",
     url: "https://thestonedchef.ca",
     siteName: "The Stoned Chef",
@@ -74,68 +76,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Stoned Chef — Deseronto's Favourite Chip Truck",
-    description: ONLINE_ORDERING_ENABLED
-      ? "Smash burgers, loaded poutines, crispy fish & chips. Order online for pickup, open daily 11am–7pm."
-      : "Smash burgers, loaded poutines, crispy fish & chips. Open daily 11am–7pm at 45 Dundas St, Deseronto.",
+    title: HOMEPAGE_TITLE,
+    description: getHomepageDescription(ONLINE_ORDERING_ENABLED),
     images: ["/og-image.jpg"],
-  },
-};
-
-// Structured data for search engines / Google Business — keep hours in sync
-// with OpenStatus and the customer-facing hours lines (open daily 11am–7pm).
-const restaurantJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Restaurant",
-  name: "The Stoned Chef",
-  description: "Deseronto's favourite chip truck — smash burgers, loaded poutines, crispy fish & chips, and more.",
-  url: "https://thestonedchef.ca",
-  telephone: "+1-343-337-5810",
-  servesCuisine: ["Burgers", "Poutine", "Fish & Chips", "Comfort Food"],
-  hasMenu: "https://thestonedchef.ca/menu",
-  priceRange: "$$",
-  image: "https://thestonedchef.ca/og-image.jpg",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "45 Dundas Street",
-    addressLocality: "Deseronto",
-    addressRegion: "ON",
-    postalCode: "K0K 1X0",
-    addressCountry: "CA",
-  },
-  geo: {
-    "@type": "GeoCoordinates",
-    latitude: 44.1958,
-    longitude: -77.0489,
-  },
-  hasMap: "https://www.google.com/maps?cid=7494400003244602449",
-  areaServed: [
-    { "@type": "City", name: "Deseronto" },
-    { "@type": "AdministrativeArea", name: "Tyendinaga Mohawk Territory" },
-    { "@type": "City", name: "Napanee" },
-    { "@type": "AdministrativeArea", name: "Greater Napanee" },
-    { "@type": "City", name: "Shannonville" },
-    { "@type": "City", name: "Belleville" },
-  ],
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      opens: "11:00",
-      closes: "19:00",
-    },
-  ],
-  isContainedInPlace: {
-    "@type": "Place",
-    name: "39–45 Dundas Street Complex",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "39-45 Dundas Street",
-      addressLocality: "Deseronto",
-      addressRegion: "ON",
-      postalCode: "K0K 1X0",
-      addressCountry: "CA",
-    },
   },
 };
 
@@ -151,7 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(RESTAURANT_JSON_LD) }}
         />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}

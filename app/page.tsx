@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { MENU_CATEGORIES } from "@shared/menu";
 import { useCart } from "@/contexts/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MapPin, Clock, Phone, Star, ChevronRight, Flame, Ban } from "lucide-react";
+import { Plus, MapPin, Clock, Phone, Star, ChevronRight, ChevronDown, Flame, Ban } from "lucide-react";
 import { toast } from "sonner";
 import { DailySpecials } from "@/components/DailySpecials";
 import Gallery from "@/components/Gallery";
@@ -33,6 +33,16 @@ import { FloatingEmojis } from "@/components/FloatingEmojis";
 import { SectionReveal } from "@/components/SectionReveal";
 import { HowItWorks } from "@/components/HowItWorks";
 import { StatsCounter } from "@/components/StatsCounter";
+import {
+  buildHomepageFaqJsonLd,
+  getHomepageFaqs,
+  serializeJsonLd,
+} from "@shared/homepage-seo";
+
+const HOMEPAGE_FAQS = getHomepageFaqs(ONLINE_ORDERING_ENABLED);
+const HOMEPAGE_FAQ_JSON_LD = serializeJsonLd(
+  buildHomepageFaqJsonLd(ONLINE_ORDERING_ENABLED),
+);
 
 const TRUCK_HERO = "/food/truck-hero.webp";
 const POUTINE_HIGHRES = "/food/poutine-hero.jpg";
@@ -49,7 +59,6 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("burgers");
   const [cartOpen, setCartOpen] = useState(false);
   const { addItem, totalItems, totalCents } = useCart();
-  const router = useRouter();
   const [customizeItem, setCustomizeItem] = useState<MenuItem | null>(null);
   const [menuSearch, setMenuSearch] = useState("");
   const [dietaryFilters, setDietaryFilters] = useState<Set<DietaryTag>>(new Set());
@@ -100,6 +109,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: HOMEPAGE_FAQ_JSON_LD }}
+      />
       {/* HERO */}
       <section className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
         {/* Background truck photo */}
@@ -237,19 +250,37 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 1.2 }}
               className="flex flex-wrap gap-4"
             >
-              <Button
-                size="lg"
-                className="h-14 px-8 text-lg font-bold rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95"
-                style={{
-                  background: "linear-gradient(135deg, oklch(0.55 0.26 28) 0%, oklch(0.65 0.22 42) 50%, oklch(0.72 0.18 55) 100%)",
-                  color: "white",
-                  boxShadow: "0 6px 30px oklch(0.58 0.24 30 / 0.5), 0 0 60px oklch(0.58 0.24 30 / 0.15)",
-                }}
-                onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                {ONLINE_ORDERING_ENABLED ? "Order Now" : "See the Menu"}
-                <ChevronRight className="w-5 h-5 ml-1" />
-              </Button>
+              {ONLINE_ORDERING_ENABLED ? (
+                <Button
+                  size="lg"
+                  className="h-14 px-8 text-lg font-bold rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.55 0.26 28) 0%, oklch(0.65 0.22 42) 50%, oklch(0.72 0.18 55) 100%)",
+                    color: "white",
+                    boxShadow: "0 6px 30px oklch(0.58 0.24 30 / 0.5), 0 0 60px oklch(0.58 0.24 30 / 0.15)",
+                  }}
+                  onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  Order Now
+                  <ChevronRight className="w-5 h-5 ml-1" />
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-14 px-8 text-lg font-bold rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.55 0.26 28) 0%, oklch(0.65 0.22 42) 50%, oklch(0.72 0.18 55) 100%)",
+                    color: "white",
+                    boxShadow: "0 6px 30px oklch(0.58 0.24 30 / 0.5), 0 0 60px oklch(0.58 0.24 30 / 0.15)",
+                  }}
+                >
+                  <Link href="/menu">
+                    Menu &amp; Prices
+                    <ChevronRight className="w-5 h-5 ml-1" />
+                  </Link>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="lg"
@@ -388,19 +419,29 @@ export default function Home() {
           )}
 
           <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
-            <h2
-              className="text-4xl sm:text-5xl font-black leading-none fire-text"
-              style={{
-                fontFamily: "var(--font-bangers), 'Bangers', cursive",
-                letterSpacing: "0.04em",
-                filter: "drop-shadow(0 2px 8px oklch(0.58 0.24 30 / 0.3))",
-              }}
+            <div>
+              <h2
+                className="text-4xl sm:text-5xl font-black leading-none fire-text"
+                style={{
+                  fontFamily: "var(--font-bangers), 'Bangers', cursive",
+                  letterSpacing: "0.04em",
+                  filter: "drop-shadow(0 2px 8px oklch(0.58 0.24 30 / 0.3))",
+                }}
+              >
+                Our Menu
+              </h2>
+              <p className="text-muted-foreground text-sm mt-1">
+                All burgers dressed with onion, pickle, mustard &amp; ketchup
+              </p>
+            </div>
+            <Link
+              href="/menu"
+              className="inline-flex items-center gap-1 text-sm font-bold hover:underline"
+              style={{ color: "oklch(0.76 0.18 48)" }}
             >
-              Our Menu
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              All burgers dressed with onion, pickle, mustard & ketchup
-            </p>
+              Full Printable Menu &amp; Prices
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
 
           <div
@@ -774,7 +815,7 @@ export default function Home() {
             />
           </div>
 
-          {/* Dundas Street Plaza Complex */}
+          {/* Parking & Highway 401 / Napanee Directions */}
           <div
             className="mt-6 rounded-2xl p-6 border border-border"
             style={{ background: "var(--color-card)", boxShadow: "0 4px 20px oklch(0 0 0 / 0.25)" }}
@@ -787,52 +828,91 @@ export default function Home() {
                 color: "oklch(0.92 0.10 55)",
               }}
             >
-              Park Once at 39–45 Dundas Street
+              Free Plaza Parking at 39–45 Dundas Street
             </h3>
             <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-              We&apos;re located in the Dundas Street plaza alongside our neighbours in Deseronto &amp; Tyendinaga Mohawk Territory. Grab dinner, fuel up, and shop in one convenient stop:
+              Pull right into the spacious lot at 39–45 Dundas Street in Deseronto with easy turn-around and free parking right beside the chip truck window.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a
-                href="https://mohawkmedibles.ca/"
-                target="_blank"
-                rel="noopener"
-                className="group rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] border border-border/60 hover:border-amber-500/50"
+              <div
+                className="rounded-xl p-4 border border-border/60"
                 style={{ background: "oklch(0.20 0.015 28)" }}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-foreground group-hover:text-amber-400 transition-colors">
-                    Mohawk Medibles
+                  <span className="font-bold text-foreground">
+                    From Highway 401 (Exit 570)
                   </span>
-                  <span className="text-xs text-muted-foreground font-mono">45 Dundas St</span>
+                  <span className="text-xs text-muted-foreground font-mono">~5 mins</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Premier Indigenous cannabis dispensary right beside the truck. Canada-wide shipping &amp; open daily 8am–10pm.
+                  Take Hwy 49 South from Highway 401 Exit 570 straight into Deseronto, turn onto Dundas Street, and find us at 45 Dundas St.
                 </p>
-              </a>
+              </div>
 
-              <a
-                href="https://www.lnmenterprises.ca/"
-                target="_blank"
-                rel="noopener"
-                className="group rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] border border-border/60 hover:border-amber-500/50"
+              <div
+                className="rounded-xl p-4 border border-border/60"
                 style={{ background: "oklch(0.20 0.015 28)" }}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-foreground group-hover:text-amber-400 transition-colors">
-                    L&amp;M Enterprises &amp; SAGO Gas Bar
+                  <span className="font-bold text-foreground">
+                    From Napanee &amp; Belleville
                   </span>
-                  <span className="text-xs text-muted-foreground font-mono">39–43 Dundas St</span>
+                  <span className="text-xs text-muted-foreground font-mono">Hwy 2 / 401</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Lowest gas prices in Tyendinaga, full-service regular, premium &amp; diesel, plus convenience store &amp; tobacco.
+                  About 10 minutes west of Napanee via County Rd 2 or Hwy 401, and an easy drive east from Shannonville and Belleville through Tyendinaga Mohawk Territory.
                 </p>
-              </a>
+              </div>
             </div>
           </div>
         </div>
       </section>
+      </SectionReveal>
 
+      {/* FAQ */}
+      <SectionReveal>
+        <section
+          id="faq"
+          className="py-10 border-t border-border"
+          style={{ background: "oklch(0.18 0.015 28)" }}
+        >
+          <div className="container max-w-4xl">
+            <h2
+              className="text-4xl sm:text-5xl font-black mb-6"
+              style={{
+                fontFamily: "var(--font-bangers), 'Bangers', cursive",
+                letterSpacing: "0.04em",
+                color: "oklch(0.97 0.01 60)",
+              }}
+            >
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3">
+              {HOMEPAGE_FAQS.map((faq, idx) => (
+                <details
+                  key={faq.question}
+                  open={idx === 0}
+                  className="group rounded-2xl border border-border p-5"
+                  style={{
+                    background: "var(--color-card)",
+                    boxShadow: "0 4px 20px oklch(0 0 0 / 0.25)",
+                  }}
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-foreground">
+                    <span>{faq.question}</span>
+                    <ChevronDown
+                      className="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-open:rotate-180"
+                      style={{ color: "oklch(0.70 0.20 45)" }}
+                    />
+                  </summary>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
       </SectionReveal>
 
       {/* EMAIL CAPTURE */}
@@ -859,6 +939,17 @@ export default function Home() {
               <p className="text-muted-foreground text-xs mt-0.5">
                 Where we cure the munchies · Deseronto, ON
               </p>
+              <div className="flex flex-wrap items-center gap-4 mt-2 text-xs font-semibold">
+                <Link href="/menu" className="text-foreground hover:text-primary transition-colors">
+                  Menu &amp; Prices
+                </Link>
+                <a href="#info" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Hours &amp; Location
+                </a>
+                <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
+                  FAQ
+                </a>
+              </div>
             </div>
             <div className="flex flex-col items-center sm:items-end gap-3">
               {/* Social Links */}
@@ -897,10 +988,10 @@ export default function Home() {
               <div className="text-center sm:text-right text-sm text-muted-foreground">
                 <p>&copy; {new Date().getFullYear()} The Stoned Chef</p>
                 <p className="text-xs mt-0.5">
-                    {ONLINE_ORDERING_ENABLED
-                      ? "Pay online or at pickup · Open daily 11am–7pm"
-                      : "45 Dundas St, Deseronto · Open daily 11am–7pm"}
-                  </p>
+                  {ONLINE_ORDERING_ENABLED
+                    ? "Prepaid online pickup · Open daily 11am–7pm"
+                    : "45 Dundas St, Deseronto · Open daily 11am–7pm"}
+                </p>
               </div>
             </div>
           </div>
