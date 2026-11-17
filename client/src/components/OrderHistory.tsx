@@ -7,7 +7,14 @@ import { toast } from "sonner";
 
 interface PastOrder {
   orderNumber: string;
-  items: { id: string; name: string; category: string; priceCents: number; quantity: number }[];
+  items: {
+    id: string;
+    name: string;
+    category: string;
+    priceCents: number;
+    quantity: number;
+    customizations?: string;
+  }[];
   totalCents: number;
   date: string;
 }
@@ -84,7 +91,13 @@ export function OrderHistory() {
   const reorder = (order: PastOrder) => {
     for (const item of order.items) {
       for (let i = 0; i < item.quantity; i++) {
-        addItem({ id: item.id, name: item.name, category: item.category, priceCents: item.priceCents });
+        addItem({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          priceCents: item.priceCents,
+          customizations: item.customizations,
+        });
       }
     }
     toast.success("Items added to cart!", {
