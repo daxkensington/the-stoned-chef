@@ -311,10 +311,18 @@ export default function ConfirmationPage({
                   {order.notes}
                 </div>
               )}
+              {order.tipCents > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-foreground">Tip</span>
+                  <span className="text-muted-foreground font-medium">
+                    ${(order.tipCents / 100).toFixed(2)} CAD
+                  </span>
+                </div>
+              )}
               <div className="pt-3 border-t border-border flex justify-between items-center">
                 <span className="font-bold text-foreground">Total</span>
                 <span className="font-black text-xl" style={{ color: "oklch(0.62 0.22 38)" }}>
-                  ${(order.totalCents / 100).toFixed(2)} CAD
+                  ${((order.totalCents + order.tipCents) / 100).toFixed(2)} CAD
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">Paid online — just show this screen at pickup</p>
