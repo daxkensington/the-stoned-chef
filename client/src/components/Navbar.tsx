@@ -25,12 +25,10 @@ export function Navbar() {
 
   return (
     <>
-      <nav
-        className="sticky top-0 z-50 border-b glass"
-      >
+      <nav className="sticky top-0 z-50 border-b glass">
         <div className="container">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => router.push("/")} className="flex items-center gap-2 group" aria-label="Go to homepage">
+            <Link href="/" className="flex items-center gap-2 group" aria-label="Go to homepage">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-black flex-shrink-0"
                 style={{
@@ -59,11 +57,11 @@ export function Navbar() {
                   Deseronto, ON · Where we cure the munchies
                 </div>
               </div>
-            </button>
+            </Link>
 
             <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="/menu" className="font-bold text-foreground hover:text-primary transition-colors">
-                Menu
+                Menu &amp; Prices
               </Link>
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-primary" />
@@ -75,59 +73,72 @@ export function Navbar() {
               </span>
             </div>
 
-            {isAdmin && (
-              <div className="hidden sm:flex items-center gap-2">
-                <button
-                  onClick={() => router.push("/admin/dashboard")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
-                  style={{
-                    background: "oklch(0.62 0.22 38 / 0.15)",
-                    color: "oklch(0.82 0.16 48)",
-                    border: "1px solid oklch(0.62 0.22 38 / 0.30)",
-                  }}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Admin
-                </button>
-                <button
-                  onClick={() => logoutMutation.mutate()}
-                  aria-label="Sign out"
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
-                  style={{
-                    background: "oklch(0.22 0.02 30)",
-                    color: "oklch(0.65 0.04 60)",
-                    border: "1px solid oklch(0.30 0.02 30)",
-                  }}
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/menu"
+                className="md:hidden px-3 py-1.5 rounded-xl text-xs font-bold text-foreground hover:text-primary transition-colors"
+                style={{
+                  background: "oklch(0.22 0.02 30)",
+                  border: "1px solid oklch(0.32 0.02 30)",
+                }}
+              >
+                Menu
+              </Link>
 
-            {ONLINE_ORDERING_ENABLED && (
-            <button
-              onClick={() => setCartOpen(true)}
-              aria-label={totalItems > 0 ? `Open cart with ${totalItems} items` : "Open cart"}
-              className="relative flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
-              style={{
-                background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
-                color: "white",
-              }}
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {totalItems > 0 ? `$${(totalCents / 100).toFixed(2)}` : "Cart"}
-              </span>
-              {totalItems > 0 && (
-                <span
-                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-xs font-black flex items-center justify-center"
-                  style={{ background: "oklch(0.97 0.01 60)", color: "oklch(0.13 0.01 30)" }}
-                >
-                  {totalItems}
-                </span>
+              {isAdmin && (
+                <div className="hidden sm:flex items-center gap-2">
+                  <button
+                    onClick={() => router.push("/admin/dashboard")}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
+                    style={{
+                      background: "oklch(0.62 0.22 38 / 0.15)",
+                      color: "oklch(0.82 0.16 48)",
+                      border: "1px solid oklch(0.62 0.22 38 / 0.30)",
+                    }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Admin
+                  </button>
+                  <button
+                    onClick={() => logoutMutation.mutate()}
+                    aria-label="Sign out"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80"
+                    style={{
+                      background: "oklch(0.22 0.02 30)",
+                      color: "oklch(0.65 0.04 60)",
+                      border: "1px solid oklch(0.30 0.02 30)",
+                    }}
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               )}
-            </button>
-            )}
+
+              {ONLINE_ORDERING_ENABLED && (
+                <button
+                  onClick={() => setCartOpen(true)}
+                  aria-label={totalItems > 0 ? `Open cart with ${totalItems} items` : "Open cart"}
+                  className="relative flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.58 0.24 30) 0%, oklch(0.65 0.22 45) 100%)",
+                    color: "white",
+                  }}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {totalItems > 0 ? `$${(totalCents / 100).toFixed(2)}` : "Cart"}
+                  </span>
+                  {totalItems > 0 && (
+                    <span
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-xs font-black flex items-center justify-center"
+                      style={{ background: "oklch(0.97 0.01 60)", color: "oklch(0.13 0.01 30)" }}
+                    >
+                      {totalItems}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </nav>

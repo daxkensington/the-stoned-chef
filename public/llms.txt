@@ -1,28 +1,26 @@
 # The Stoned Chef
 
-> Deseronto's premier food truck and quick-service restaurant, famous for handcrafted smash burgers, fresh-cut loaded poutines, crispy fish & chips, and golden chicken tenders.
+> Deseronto and Napanee area chip truck serving fresh-pressed smash burgers, hand-cut golden fries, loaded cheese-curd poutines, crispy beer-battered fish & chips, chicken fingers, wraps, and comfort food favourites at 45 Dundas Street, Deseronto, Ontario.
 
 ## Core Facts
 - **Business Name**: The Stoned Chef
-- **Business Type**: Restaurant / Food Truck / Chip Truck
-- **Address**: 45 Dundas Street, Deseronto, ON K0K 1X0, Canada
-- **Region**: Hastings County, Ontario (Tyendinaga Mohawk Territory boundary, between Belleville and Napanee)
-- **Phone**: +1 (343) 337-5810
+- **Category**: Chip Truck / Quick-Service Comfort Food Restaurant
+- **Address**: 45 Dundas Street, Deseronto, ON K0K 1X0 — 5 minutes west of Napanee off Hwy 401 Exit 570 (Hwy 49 South)
+- **Parking**: Free on-site plaza parking at 39–45 Dundas Street, Deseronto
+- **Service Area**: Deseronto, Napanee, Greater Napanee, Tyendinaga Mohawk Territory, Shannonville, and Belleville, Ontario
+- **Phone**: +1-343-337-5810
+- **Hours**: 11:00 AM – 7:00 PM daily (open 7 days a week, America/Toronto)
 - **Website**: https://thestonedchef.ca
-- **Menu**: https://thestonedchef.ca/menu
-- **Ordering**: Order at the window or online at https://thestonedchef.ca/order
-- **Hours**: Open 7 days a week, 11:00 AM – 7:00 PM daily
-- **Rating**: 4.8★ on Google Reviews
-- **Plaza Complex**: 39–45 Dundas Street (co-located with Mohawk Medibles dispensary and SAGO Gas Bar / L&M Enterprises convenience)
+- **Full Menu & Prices**: https://thestonedchef.ca/menu
+- **Ordering**: Walk-up window ordering daily 11:00 AM – 7:00 PM; when online ordering is active on https://thestonedchef.ca, pickup orders are prepaid online via Square with selectable 15-minute pickup windows
+- **Google Rating**: 4.8 out of 5 stars
 
-## Menu Highlights & Specialties
-- **Smash Burgers**: Fresh Canadian beef smashed on high heat with crisp edges. Signature Stoned Burger, Classic Bacon Cheeseburger, and Double Smashes.
-- **Poutines**: Fresh-cut golden fries, real cheese curds, and rich savoury gravy. Loaded specialties with pulled pork, bacon, and custom toppings.
-- **Fish & Chips**: Battered haddock fillets fried crisp, served with fresh-cut chips and tartar sauce.
-- **Chicken**: Hand-breaded crispy chicken fingers and tenders.
-- **Sides & Drinks**: Onion rings, deep fried pickles, gravy, and cold soft drinks.
+## Signature Menu Highlights (Prices in CAD)
+- **Smash Burgers**: Hamburger ($10.00), Cheeseburger ($11.00), Bacon Cheeseburger ($14.00), Double Bacon Cheese ($18.00), signature Mac Daddy Burger ($16.00), and Crispy Chicken Burger ($12.50).
+- **Fresh Hand-Cut Fries & Cheese-Curd Poutines**: Small Fries ($6.00), Large Fries ($10.00), Family Fries ($15.00), Small Poutine ($10.00), Large Poutine ($15.00), Jalapeno Poutine ($19.00), and Special Poutine ($20.00).
+- **Crispy Beer-Battered Fish & Chips**: 1 pc Fish & Chips ($16.00), 2 pc Fish & Chips ($25.00), Fish on a Bun ($16.00), Shrimp & Fries ($20.00), and Crispy Onion Rings ($9.00).
+- **Chicken, Sausages & Appetizers**: Chicken Fingers & Fries ($15.00), Chicken Caesar Wrap ($15.00), Buffalo Chicken Wrap ($15.00), Mild or Hot Sausages ($12.00), Deep Fried Cheese Curds ($12.50), Battered Mushrooms ($12.00), Jalapeno Poppers ($12.00), Mozzarella Sticks ($10.00), Pickle Spears ($9.00), Mac & Cheese Balls ($8.50), plus Kids Menu meals ($8.00–$10.00) and cold drinks ($2.00–$2.50).
 
-## Why Visit
-- Fresh ingredients, made-to-order comfort food.
-- Free parking right in front of the truck.
-- One-stop visit for fuel, snacks, food, and sovereign shopping.
+## Key Pages
+- [Homepage — Hours, Directions & FAQ](https://thestonedchef.ca): Overview, live open/closed indicator, map, and customer FAQs.
+- [Full Menu & Prices](https://thestonedchef.ca/menu): Complete food truck menu with category sections, item descriptions, dietary tags, and CAD prices.

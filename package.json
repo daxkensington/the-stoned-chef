@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --import tsx --test --test-concurrency=2 server/homepage-seo.test.ts",
     "test:admin-tips": "node --import tsx scripts/check-admin-tips.ts && node --import tsx scripts/check-admin-tips-native.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
